@@ -1,0 +1,64 @@
+welcome_text1	Welcome to Ocsigen Start. This is a template for applications based on Ocsigen (Eliom, Js_of_ocaml, etc.).	Bienvenue dans Ocsigen Start ! Ceci est un template d'application écrite avec Ocsigen (Eliom, Js_of_ocaml, etc.).
+welcome_text2	Use it:	Utilisez-le :
+welcome_text3	As a basis for your own applications.	Comme point de départ pour vos propres applications ;
+welcome_text4	To learn the most important concepts of client-server programming with Ocsigen.	Pour apprendre les principaux concepts de la programmation client-serveur avec Ocsigen.
+welcome_text5	This application contains:	Cette application contient :
+welcome_text6	Features for user management (log-in form, user registration, activation links, password recovery, settings page, etc.).	Des fonctionnalités de gestion des utilisateurs (connexion, création d'utilisateur, liens d'activation, récupération de mot de passe, paramètres de l'utilisateur,...) ;
+welcome_text7	An extensive demo of the most important features you need to implement your own app. Read the source code to learn! And remove the demo part when you're ready to start with your own app.	Une démo des plus importantes fonctionnalités dont vous avez besoin pour écrire votre propre application. Lisez le code source pour apprendre ! Ensuite enlevez la partie demo quand vous êtes prêts à commencer votre propre application ;
+welcome_text8	A library with useful features (tips, notifications, etc.).	Une bibliothèque avec de nombeuses fonctionnalités utiles (tips, notifications, etc.) ;
+welcome_text9	All the features you need to create a multilingual app.	Tous les outils pour créer une application multilingue ;
+welcome_text10	A basic responsive CSS.	Une feuille de style "responsive" basique.
+welcome_text11	This application is multi-platform: it can run as a client-server Web application (with server-side generated pages) and as a mobile app (with client-side generated pages) for Android, iOS or Windows. Have a look at the README file to learn how to generate the mobile apps, which you will be able to upload on Google Play or Apple App Store. 	Cette application est multi-plateforme : elle peut tourner comme application Web client-serveur (avec des pages générées côté serveur) ou bien comme application mobile pour iOS, Android ou Windows (avec des pages générées côté client). Regardez le fichier README pour apprendre comment générer les applications mobiles que vous pourrez envoyer sur Google Play ou Apple App Store.
+about_handler_template	This template provides a skeleton for an Ocsigen application.	Ce template fournit une base pour une application Ocsigen.
+about_handler_license	Feel free to modify the generated code and use it or redistribute it in any way you want.	Vous êtes libres de modifier le code généré et de l'utiliser ou le redistribuer comme vous le souhaitez.
+footer_generated	This application has been generated using the	Cette application a été générée en utilisant le template d'
+footer_eliom_distillery	template for Eliom-distillery and uses the	avec Eliom-distillery et utilise les technologies
+footer_technology	 technology.	.
+home	{{{capitalize?H||h}}}ome	{{{capitalize?H||h}}}ome
+about	{{{capitalize?A||a}}}bout	{{{capitalize?À||à}}} propos
+demo	Demo	Démo
+password	{{{capitalize?P||p}}}assword	{{{capitalize?M||m}}}ot de passe
+retype_password	retype your password	retapez votre mot de passe
+your_email	{{{capitalize?Y||y}}}our email	{{{capitalize?V||v}}}otre e-mail
+your_password	{{{capitalize?Y||y}}}our password	{{{capitalize?V||v}}}otre mot de passe
+keep_logged_in	keep me logged in	rester connecté
+sign_in	{{{capitalize?S||s}}}ign in	{{{capitalize?S||s}}}e connecter
+forgot_your_password_q	{{{capitalize?F||f}}}orgot your password?	{{{capitalize?M||m}}}ot de passe oublié ?
+sign_up	{{{capitalize?S||s}}}ign up	{{{capitalize?S||s}}}'enregistrer
+logout	{{{capitalize?L||l}}}ogout	{{{capitalize?S||s}}}e déconnecter
+set_as_main_email	{{{capitalize?S||s}}}et as main email	{{{capitalize?D||d}}}éfinir comme e-mail principal
+validated	{{{capitalize?V||v}}}alidated	{{{capitalize?V||v}}}alidé{{{f?e||}}}
+waiting_confirmation	{{{capitalize?W||w}}}aiting for confirmation	{{{capitalize?E||e}}}n attente de confirmation
+main_email	{{{capitalize?M||m}}}ain email	{{{capitalize?E||e}}}-mail principal
+change_password	{{{capitalize?C||c}}}hange your password:	{{{capitalize?C||c}}}hanger votre mot de passe :
+link_new_email	Link a new email to your account:	Ajouter une adresse e-mail à votre compte :
+currently_registered_emails	Currently registered emails:	E-mails actuellement enregistrés :
+settings	{{{capitalize?S||s}}}ettings	{{{capitalize?P||p}}}aramètres
+error	{{{capitalize?E||e}}}rror	{{{capitalize?E||e}}}rreur
+passwords_do_not_match	Passwords do not match	Les mots de passe ne correspondent pas
+generate_action_link_key_subject_email	creation	création
+sign_up_email_msg	Welcome!\r\nTo confirm your email address, please click on this link:	Bienvenue !\r\nPour confirmer votre adresse e-mail, cliquer sur ce lien :
+email_already_exists	Email already exists	Cet e-mail existe déjà
+user_does_not_exist	user does not exist	Cet utilisateur n'existe pas
+account_not_activated	Account not activated	Ce compte n'est pas activé
+wrong_password	Wrong password	Mauvais mot de passe
+no_such_user	No such user	Cet utilisateur n'existe pas
+add_email_msg	Welcome!\r\nTo confirm your email address, please click on this link:	Bienvenue !\r\nPour confirmer votre adresse e-mail, cliquez sur ce lien :
+invalid_action_key	Invalid action key, please ask for a new one.	Clef d'action invalide. Demandez en une nouvelle svp.
+forgot_pwd_email_msg	Hi,\r\nTo set a new password, please click on this link:	Bonjour,\r\nPour mettre à jour votre mot de passe, cliquez sur ce lien :
+must_be_connected_to_see_page	You must be connected to see this page.	Vous devez être connecté pour voir cette page.
+email_address	Email address	Adresse e-mail
+your_first_name	Your first name	Votre prénom
+your_last_name	Your last name	Votre nom
+submit	{{{capitalize?S||s}}}ubmit	{{{capitalize?E||e}}}nvoyer
+see_help_again_from_beginning	See help again from beginning	Revoir l'aide depuis le début
+personal_information_not_set	Your personal information has not been set yet.	Vous n'avez pas encore entré vos données personnelles.
+take_time_enter_name_password	Please take time to enter your name and to set a password.	Veuillez entrer votre nom et choisir un mot de passe svp.
+wrong_data_fix	Wrong data. Please fix.	Données incorrectes. Veuillez corriger.
+send	{{{capitalize?S||s}}}end	{{{capitalize?E||e}}}nvoyer
+recover_password	{{{capitalize?R||r}}}ecover password	{{{capitalize?R||r}}}écupérer le mot de passe.
+welcome	{{{capitalize?W||w}}}elcome!	{{{capitalize?B||b}}}ienvenue !
+log_in_to_see_page	{{{capitalize?L||l}}}og in to see this page.	{{{capitalize?C||c}}}onnectez-vous pour voir cette page.
+change_profile_picture	Change profile picture	Changer votre photo de profil.
+change_language	Change language	Changer la langue
+disconnect_all	Logout on all my devices	Me déconnecter sur tous mes appareils

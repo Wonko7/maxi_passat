@@ -1,0 +1,38 @@
+(dirs tools client assets)
+
+(executables
+    (names maxi_passat)
+    (modes (byte plugin) (native plugin))
+    (libraries eliom.server ocsigen-start.server ocsipersist.pgsql)
+    (preprocess
+       (pps
+           lwt_ppx
+           pgocaml_ppx
+           js_of_ocaml-ppx_deriving_json
+           ocsigen-i18n
+           ocsigen-ppx-rpc
+           eliom.ppx.server
+           -- --prefix Maxi_passat_ --suffix _i18n --default-module Maxi_passat_i18n
+       )
+    )
+  )
+
+(rule (target maxi_passat_i18n.eliom) (deps assets/maxi_passat_i18n.tsv)
+  (action
+    (with-stdout-to %{target}
+      (with-stdin-from %{deps}
+        (pipe-stdout
+          (run ocsigen-i18n-generator --languages en,fr --default-language fr %{deps})
+          (run sed "1 s/]/[@@deriving json]]\\n[%%shared [@@@ocaml.warning\"-27\"]]/"))))))
+
+(rule (target maxi_passat_Demo_i18n.eliom) (deps assets/maxi_passat_Demo_i18n.tsv)
+  (action
+    (with-stdout-to %{target}
+      (with-stdin-from %{deps}
+        (run ocsigen-i18n-generator --primary maxi_passat_i18n.tsv --languages en,fr --default-language fr)))))
+
+(rule (alias maxi_passat)
+   (deps maxi_passat.cma client/maxi_passat.bc client/maxi_passat.bc.js tools/check_modules.ml)
+   (action (run ocaml tools/check_modules.ml maxi_passat)))
+
+(env (_ (flags (:standard -w -9-37-39))))

@@ -1,0 +1,20 @@
+# Database
+local_db
+
+# Local server configuration
+local
+
+# Eliom
+.depend
+_client
+_deps
+_server
+
+# Mobile application
+cordova
+
+# Style
+.sass-cache
+
+static/css/maxi_passat.css.map
+static/css/maxi_passat.css
