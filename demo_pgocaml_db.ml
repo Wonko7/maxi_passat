@@ -10,4 +10,16 @@ open Os_db
 
 let get () =
   full_transaction_block (fun dbh ->
-    [%pgsql dbh "SELECT lastname FROM ocsigen_start.users"])
+      [%pgsql dbh "SELECT lastname FROM ocsigen_start.users"])
+
+let obj_to_headline h =
+  {Db_types.headline_id = h#headline_id; headline_text = h#headline_text}
+
+let get_headlines () =
+  let%lwt hls =
+    full_transaction_block (fun dbh ->
+        [%pgsql.object
+          dbh
+            "SELECT headline_id, headline_text FROM org.headlines WHERE outline_hash = '3db55aef08678059e115514d15a2db33'"])
+  in
+  Lwt.return @@ List.map obj_to_headline hls

@@ -8,6 +8,7 @@
        (pps
            lwt_ppx
            pgocaml_ppx
+           ppx_deriving.std ;; FIXME: is this the right place?
            js_of_ocaml-ppx_deriving_json
            ocsigen-i18n
            ocsigen-ppx-rpc
