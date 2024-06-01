@@ -3,6 +3,7 @@
 (executables
     (names maxi_passat)
     (modes (byte plugin) (native plugin))
+    ;; (libraries eliom.server ocsigen-start.server ocsipersist.pgsql batteries camomile)
     (libraries eliom.server ocsigen-start.server ocsipersist.pgsql)
     (preprocess
        (pps
