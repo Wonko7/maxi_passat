@@ -18,3 +18,23 @@ cordova
 
 static/css/maxi_passat.css.map
 static/css/maxi_passat.css
+
+# generated:
+_build
+client/dune.client
+node_modules/
+package-lock.json
+package.json
+static/css/.import-external-css
+static/css/ot_buttons.css
+static/css/ot_carousel.css
+static/css/ot_datetime.css
+static/css/ot_drawer.css
+static/css/ot_icons.css
+static/css/ot_page_transition.css
+static/css/ot_picture_uploader.css
+static/css/ot_popup.css
+static/css/ot_spinner.css
+static/css/ot_sticky.css
+static/css/ot_tongue.css
+static/defaultcss/maxi_passat.css
