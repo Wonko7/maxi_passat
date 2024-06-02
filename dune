@@ -37,4 +37,7 @@
    (deps maxi_passat.cma client/maxi_passat.bc client/maxi_passat.bc.js tools/check_modules.ml)
    (action (run ocaml tools/check_modules.ml maxi_passat)))
 
-(env (_ (flags (:standard -w -9-37-39))))
+(env
+  (dev
+    (flags (:standard -warn-error -A)))
+  (_ (flags (:standard -w -9-37-39))))
