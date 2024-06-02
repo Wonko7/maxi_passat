@@ -33,9 +33,20 @@ select * from org.headlines where outline_hash = '3db55aef08678059e115514d15a2db
 
 select * from org.headlines where false;
 
-SELECT h.headline_id, h.headline_index, h.level, h.content, hc.parent_id
+SELECT h.headline_id, h.headline_index, h.level, hc.parent_id
              FROM org.headlines h, org.headline_closures hc
              WHERE outline_hash = '3db55aef08678059e115514d15a2db33'
-               AND hc.depth = 0
+               AND (hc.depth = 1 OR (hc.depth = 0 AND h.level = 1))
+               AND h.headline_id = hc.headline_id
+             ORDER BY level ASC, headline_index ASC
+
+
+select file_path, outline_hash from org.file_metadata;
+
+SELECT h.headline_id, h.headline_index, h.level, h.content, hc.parent_id, h.headline_text, hc.depth
+             FROM org.headlines h, org.headline_closures hc
+             WHERE outline_hash = '3db55aef08678059e115514d15a2db33'
+               AND h.level = 1
+--               AND hc.depth = 1
                AND h.headline_id = hc.headline_id
              ORDER BY level ASC, headline_index ASC

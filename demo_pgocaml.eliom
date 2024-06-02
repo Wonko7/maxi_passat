@@ -14,40 +14,79 @@ let%rpc get_users () : string list Lwt.t =
 let%rpc get_headlines () : Db_types.headline list Lwt.t =
   Demo_pgocaml_db.get_headlines ()
 
+[%%shared.start]
+
+type 'a tree = Leaf | Node of 'a * 'a tree list
+
+let rec add_to_tree hl tree =
+  (* can be optimised *)
+  match tree with
+  | Leaf -> Node (hl, [])
+  | Node (thl, children) when hl.parent_id = thl.headline_id ->
+      Node (thl, children @ [Node (hl, [])])
+  | Node (thl, children) when hl.parent_id = hl.headline_id ->
+      Node (thl, children @ [Node (hl, [])])
+  | Node (thl, children) -> Node (thl, List.map (add_to_tree hl) children)
+
+let rec make_org_note_tree headlines acc =
+  match headlines with
+  | [] -> acc
+  | hl :: hls -> make_org_note_tree hls (add_to_tree hl acc)
+
+let rec fold_tree f acc tree =
+  match tree with
+  | Node (thl, children) ->
+      let acc = f thl acc in
+      let acc = List.fold_left (fold_tree f) acc children in
+      acc
+  | Leaf -> acc
+
+let make_org_note title headlines =
+  let root =
+    Node
+      ( { Db_types.headline_id = -1l
+        ; parent_id = -1l
+        ; headline_text = title
+        ; content = None
+        ; level = None
+        ; headline_index = None }
+      , [] )
+  in
+  let tree = make_org_note_tree headlines root in
+  let hl_to_html h acc =
+    Ww_lib.(
+      let to_s i = txt @@ string_of_int @@ Int32.to_int i in
+      let ids =
+        div [txt "id: "; to_s h.headline_id; txt "parent: "; to_s h.parent_id]
+      in
+      let c = Option.map (fun c -> div [br (); txt "ctx"; txt c]) h.content in
+      let lvl = Option.map (fun l -> div [txt "lvl"; to_s l]) h.level in
+      let hl_i =
+        Option.map (fun i -> div [txt "hl_i"; to_s i]) h.headline_index
+      in
+      (* can be optimised: *)
+      acc
+      @ [li @@ [txt "* "; txt h.headline_text] @ [ids] @ lvl @? hl_i @? c @? []])
+  in
+  let es = fold_tree hl_to_html [] tree in
+  es
+
 (* Generate page for this demo *)
-let%shared page () =
+let page () =
   let%lwt org_note =
     Ot_spinner.with_spinner
       Ww_lib.(
         let%lwt hls = get_headlines () in
-        let hls =
-          List.map
-            (fun h ->
-              let to_s i = txt @@ string_of_int @@ Int32.to_int i in
-              let c =
-                Option.map (fun c -> div [br (); txt "ctx"; txt c]) h.content
-              in
-              let lvl = Option.map (fun l -> div [txt "lvl"; to_s l]) h.level in
-              let hl_i =
-                Option.map (fun i -> div [txt "hl_i"; to_s i]) h.headline_index
-              in
-              li @@ [txt "* "; txt h.headline_text] @ lvl @? hl_i @? c @? [])
-            hls
-        in
+        let hls = make_org_note "what" hls in
         Lwt.return [ul hls])
   in
-  Lwt.return
-    [ h1 [%i18n Demo.pgocaml]
-    ; p [%i18n Demo.pgocaml_description_1]
-    ; p [%i18n Demo.pgocaml_description_2]
-    ; p [%i18n Demo.pgocaml_description_3]
-    ; org_note ]
+  Lwt.return [h1 [%i18n Demo.pgocaml]; org_note]
 
 (* Service registration is done on both sides (shared section),
    so that pages can be generated from the server
    (first request, crawling, search engines ...)
    or the client (subsequent link clicks, or mobile app ...). *)
-let%shared () =
+let () =
   Maxi_passat_base.App.register ~service:Demo_services.demo_pgocaml
     ( Maxi_passat_page.Opt.connected_page @@ fun myid_o () () ->
       let%lwt p = page () in
