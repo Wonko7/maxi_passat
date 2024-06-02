@@ -33,13 +33,12 @@ let rec make_org_note_tree headlines acc =
   | [] -> acc
   | hl :: hls -> make_org_note_tree hls (add_to_tree hl acc)
 
-let rec fold_tree f acc tree =
+let rec tree_to_div f tree =
   match tree with
   | Node (thl, children) ->
-      let acc = f thl acc in
-      let acc = List.fold_left (fold_tree f) acc children in
-      acc
-  | Leaf -> acc
+      let children = List.map (tree_to_div f) children in
+      f thl children
+  | Leaf -> div []
 
 let org_text_to_html s =
   let rec add_brs = function
@@ -49,7 +48,7 @@ let org_text_to_html s =
   in
   String.split_on_char '\n' s |> add_brs
 
-let make_org_note title headlines =
+let make_tree_org_note title headlines =
   let root =
     Node
       ( { Db_types.headline_id = -1l
@@ -61,10 +60,8 @@ let make_org_note title headlines =
       , [] )
   in
   let tree = make_org_note_tree headlines root in
-  let hl_to_html h acc =
+  let hl_to_html h children =
     Ww_lib.(
-      let lvl = Option.value h.level ~default:0l |> Int32.to_int in
-      let rec indent c = function 0 -> [] | n -> txt c :: indent c (n - 1) in
       let c =
         Option.map
           (fun c ->
@@ -73,15 +70,12 @@ let make_org_note title headlines =
             @ org_text_to_html c)
           h.content
       in
-      (* can be optimised: *)
-      acc
-      @ [ div ~a:[a_class ["header"; String.cat "indent-" @@ string_of_int lvl]]
-          @@ [txt "• "]
-          @ [txt h.headline_text]
-          @ c @? [] ])
+      div ~a:[a_class ["header"; "indent-1"]]
+      @@ [txt "• "]
+      @ [txt h.headline_text]
+      @ c @? children)
   in
-  let es = fold_tree hl_to_html [] tree in
-  es
+  [tree_to_div hl_to_html tree]
 
 (* Generate page for this demo *)
 let page () =
@@ -89,7 +83,8 @@ let page () =
     Ot_spinner.with_spinner
       Ww_lib.(
         let%lwt hls = get_headlines () in
-        let hls = make_org_note "what" hls in
+        (* let hls = make_flat_org_note "what" hls in *)
+        let hls = make_tree_org_note "what" hls in
         Lwt.return [div hls])
   in
   Lwt.return [h1 [%i18n Demo.pgocaml]; org_note]
