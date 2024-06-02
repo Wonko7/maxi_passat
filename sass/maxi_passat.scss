@@ -12,3 +12,23 @@
 @import "ot_tongue.css";
 @import "os";
 @import "demo";
+
+$indent: 1rem;
+
+.header {
+}
+.content {
+    padding-left: $indent;
+}
+
+
+
+@mixin indent(){
+  @for $i from 69 through 1 {
+    .indent-#{$i}{
+        padding-left: ($i * $indent);
+    }
+  }
+}
+
+@include indent();

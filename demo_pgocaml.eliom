@@ -67,11 +67,18 @@ let make_org_note title headlines =
       let rec indent c = function 0 -> [] | n -> txt c :: indent c (n - 1) in
       let c =
         Option.map
-          (fun c -> div @@ indent "_" lvl @ org_text_to_html c)
+          (fun c ->
+            div ~a:[a_class ["content"]]
+            @@ [span ~a:[a_class ["indent"]] []]
+            @ org_text_to_html c)
           h.content
       in
       (* can be optimised: *)
-      acc @ [div @@ indent "*" lvl @ [txt h.headline_text] @ c @? []])
+      acc
+      @ [ div ~a:[a_class ["header"; String.cat "indent-" @@ string_of_int lvl]]
+          @@ [txt "• "]
+          @ [txt h.headline_text]
+          @ c @? [] ])
   in
   let es = fold_tree hl_to_html [] tree in
   es
