@@ -74,27 +74,7 @@ let%server _ =
 
 [%%shared.start]
 
-module Demo = Demo
-module Demo_cache = Demo_cache
-module Demo_calendar = Demo_calendar
-module Demo_carousel1 = Demo_carousel1
-module Demo_carousel2 = Demo_carousel2
-module Demo_carousel3 = Demo_carousel3
-module Demo_i18n = Demo_i18n
-module Demo_links = Demo_links
-module Demo_notif = Demo_notif
-module Demo_pagetransition = Demo_pagetransition
-module Demo_pgocaml = Demo_pgocaml
-module Demo_popup = Demo_popup
-module Demo_pulltorefresh = Demo_pulltorefresh
-module Demo_react = Demo_react
-module Demo_ref = Demo_ref
-module Demo_rpc = Demo_rpc
-module Demo_spinner = Demo_spinner
-module Demo_timepicker = Demo_timepicker
-module Demo_tips = Demo_tips
-module Demo_tongue = Demo_tongue
-module Demo_users = Demo_users
+module Org_page = Org_page
 
 [%%client.start]
 

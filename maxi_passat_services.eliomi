@@ -3,8 +3,8 @@
 
 [%%shared.start]
 
-val about_service :
-  ( unit
+val about_service
+  : ( unit
     , unit
     , Eliom_service.get
     , Eliom_service.att
@@ -19,8 +19,8 @@ val about_service :
 
 val upload_user_avatar_service : (unit, unit) Ot_picture_uploader.service
 
-val settings_service :
-  ( unit
+val settings_service
+  : ( unit
     , unit
     , Eliom_service.get
     , Eliom_service.att
@@ -33,8 +33,22 @@ val settings_service :
     , Eliom_service.non_ocaml )
     Eliom_service.t
 
-val os_github_service :
-  ( unit
+val demo_pgocaml
+  : ( unit
+    , unit
+    , Eliom_service.get
+    , Eliom_service.att
+    , Eliom_service.non_co
+    , Eliom_service.non_ext
+    , Eliom_service.reg
+    , [`WithoutSuffix]
+    , unit
+    , unit
+    , Eliom_service.non_ocaml )
+    Eliom_service.t
+
+val os_github_service
+  : ( unit
     , unit
     , Eliom_service.get
     , Eliom_service.att
@@ -47,8 +61,8 @@ val os_github_service :
     , Eliom_service.non_ocaml )
     Eliom_service.t
 
-val ocsigen_service :
-  ( unit
+val ocsigen_service
+  : ( unit
     , unit
     , Eliom_service.get
     , Eliom_service.att

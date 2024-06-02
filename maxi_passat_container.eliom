@@ -36,8 +36,8 @@ let%shared os_footer () =
         ; a ~service:Maxi_passat_services.ocsigen_service [txt " Ocsigen "] ()
         ; txt [%i18n S.footer_technology] ] ]
 
-let%rpc get_wrong_pdata () :
-    ((string * string) * (string * string)) option Lwt.t
+let%rpc get_wrong_pdata ()
+    : ((string * string) * (string * string)) option Lwt.t
   =
   Lwt.return @@ Eliom_reference.Volatile.get Os_msg.wrong_pdata
 
@@ -86,5 +86,4 @@ let%shared page ?html_a ?a ?title ?head myid_o content =
     (Os_page.content ?html_a ?a ?title ?head
        [ h
        ; Eliom_content.Html.F.(div ~a:[a_class ["os-body"]] content)
-       ; os_footer ()
        ; Maxi_passat_drawer.make ?user:me () ])

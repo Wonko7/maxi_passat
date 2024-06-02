@@ -89,7 +89,6 @@ let make_tree_org_note title headlines =
   in
   [tree_to_div hl_to_html tree]
 
-(* Generate page for this demo *)
 let page () =
   let%lwt org_note =
     Ot_spinner.with_spinner
@@ -98,15 +97,11 @@ let page () =
        let hls = make_tree_org_note "what" hls in
        Lwt.return [div hls])
   in
-  Lwt.return [h1 [%i18n Demo.pgocaml]; org_note]
+  (* a title would be nice: h1 [%i18n Demo.pgocaml]; *)
+  Lwt.return [org_note]
 
-(* Service registration is done on both sides (shared section),
-   so that pages can be generated from the server
-   (first request, crawling, search engines ...)
-   or the client (subsequent link clicks, or mobile app ...). *)
 let () =
-  Maxi_passat_base.App.register ~service:Demo_services.demo_pgocaml
+  Maxi_passat_base.App.register ~service:Maxi_passat_services.demo_pgocaml
     ( Maxi_passat_page.Opt.connected_page @@ fun myid_o () () ->
       let%lwt p = page () in
-      Maxi_passat_container.page ~a:[a_class ["os-page-demo-pgocaml"]] myid_o p
-    )
+      Maxi_passat_container.page ~a:[a_class ["org-page"]] myid_o p )
