@@ -5,6 +5,7 @@ type headline =
   ; headline_text : string
   ; level : int32 option
   ; headline_index : int32 option
+  ; parent_id : int32
   ; content : string option }
 [@@deriving json, show]
 

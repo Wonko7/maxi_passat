@@ -18,9 +18,23 @@ let%rpc get_headlines () : Db_types.headline list Lwt.t =
 let%shared page () =
   let%lwt org_note =
     Ot_spinner.with_spinner
-      (let%lwt hls = get_headlines () in
-       let hls = List.map (fun h -> li [txt h.headline_text]) hls in
-       Lwt.return [p [txt "hey there"]; ul hls])
+      Ww_lib.(
+        let%lwt hls = get_headlines () in
+        let hls =
+          List.map
+            (fun h ->
+              let to_s i = txt @@ string_of_int @@ Int32.to_int i in
+              let c =
+                Option.map (fun c -> div [br (); txt "ctx"; txt c]) h.content
+              in
+              let lvl = Option.map (fun l -> div [txt "lvl"; to_s l]) h.level in
+              let hl_i =
+                Option.map (fun i -> div [txt "hl_i"; to_s i]) h.headline_index
+              in
+              li @@ [txt "* "; txt h.headline_text] @ lvl @? hl_i @? c @? [])
+            hls
+        in
+        Lwt.return [ul hls])
   in
   Lwt.return
     [ h1 [%i18n Demo.pgocaml]

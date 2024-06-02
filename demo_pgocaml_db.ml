@@ -13,13 +13,24 @@ let get () =
       [%pgsql dbh "SELECT lastname FROM ocsigen_start.users"])
 
 let obj_to_headline h =
-  {Db_types.headline_id = h#headline_id; headline_text = h#headline_text}
+  { Db_types.headline_id = h#headline_id
+  ; parent_id = h#parent_id
+  ; headline_text = h#headline_text
+  ; headline_index = h#headline_index
+  ; level = h#level
+  ; content = h#content }
 
 let get_headlines () =
   let%lwt hls =
     full_transaction_block (fun dbh ->
         [%pgsql.object
           dbh
-            "SELECT headline_id, headline_text FROM org.headlines WHERE outline_hash = '3db55aef08678059e115514d15a2db33'"])
+            "SELECT h.headline_id, h.headline_index, h.level, hc.parent_id,
+                    h.content, h.headline_text
+             FROM org.headlines h, org.headline_closures hc
+             WHERE outline_hash = '3db55aef08678059e115514d15a2db33'
+               AND hc.depth = 0
+               AND h.headline_id = hc.headline_id
+             ORDER BY level ASC, headline_index ASC"])
   in
   Lwt.return @@ List.map obj_to_headline hls
