@@ -10,10 +10,10 @@ open Ww_lib]
 let%rpc get_users () : string list Lwt.t =
   (* For this demo, we add a delay to simulate a network or db latency: *)
   let%lwt () = Lwt_unix.sleep 2. in
-  Demo_pgocaml_db.get ()
+  Org_db.get ()
 
 let%rpc get_headlines () : Db_types.headline list Lwt.t =
-  Demo_pgocaml_db.get_headlines ()
+  Org_db.get_headlines ()
 
 [%%shared.start]
 
@@ -101,7 +101,7 @@ let page () =
   Lwt.return [org_note]
 
 let () =
-  Maxi_passat_base.App.register ~service:Maxi_passat_services.demo_pgocaml
+  Maxi_passat_base.App.register ~service:Maxi_passat_services.org_page
     ( Maxi_passat_page.Opt.connected_page @@ fun myid_o () () ->
       let%lwt p = page () in
       Maxi_passat_container.page ~a:[a_class ["org-page"]] myid_o p )

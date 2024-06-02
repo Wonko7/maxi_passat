@@ -33,7 +33,7 @@ val settings_service
     , Eliom_service.non_ocaml )
     Eliom_service.t
 
-val demo_pgocaml
+val org_page
   : ( unit
     , unit
     , Eliom_service.get
