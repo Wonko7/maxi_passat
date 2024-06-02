@@ -41,6 +41,14 @@ let rec fold_tree f acc tree =
       acc
   | Leaf -> acc
 
+let org_text_to_html s =
+  let rec add_brs = function
+    | a :: [] -> [txt a]
+    | [] -> []
+    | a :: l -> [txt a; br ()] @ add_brs l
+  in
+  String.split_on_char '\n' s |> add_brs
+
 let make_org_note title headlines =
   let root =
     Node
@@ -55,18 +63,15 @@ let make_org_note title headlines =
   let tree = make_org_note_tree headlines root in
   let hl_to_html h acc =
     Ww_lib.(
-      let to_s i = txt @@ string_of_int @@ Int32.to_int i in
-      let ids =
-        div [txt "id: "; to_s h.headline_id; txt "parent: "; to_s h.parent_id]
-      in
-      let c = Option.map (fun c -> div [br (); txt "ctx"; txt c]) h.content in
-      let lvl = Option.map (fun l -> div [txt "lvl"; to_s l]) h.level in
-      let hl_i =
-        Option.map (fun i -> div [txt "hl_i"; to_s i]) h.headline_index
+      let lvl = Option.value h.level ~default:0l |> Int32.to_int in
+      let rec indent c = function 0 -> [] | n -> txt c :: indent c (n - 1) in
+      let c =
+        Option.map
+          (fun c -> div @@ indent "_" lvl @ org_text_to_html c)
+          h.content
       in
       (* can be optimised: *)
-      acc
-      @ [li @@ [txt "* "; txt h.headline_text] @ [ids] @ lvl @? hl_i @? c @? []])
+      acc @ [div @@ indent "*" lvl @ [txt h.headline_text] @ c @? []])
   in
   let es = fold_tree hl_to_html [] tree in
   es
@@ -78,7 +83,7 @@ let page () =
       Ww_lib.(
         let%lwt hls = get_headlines () in
         let hls = make_org_note "what" hls in
-        Lwt.return [ul hls])
+        Lwt.return [div hls])
   in
   Lwt.return [h1 [%i18n Demo.pgocaml]; org_note]
 
