@@ -3,7 +3,8 @@
    Feel free to use it, modify it, and redistribute it as you wish. *)
 (* PGOcaml demo *)
 open Eliom_content.Html.F
-open Db_types]
+open Db_types
+open Ww_lib]
 
 (* Fetch users in database *)
 let%rpc get_users () : string list Lwt.t =
@@ -48,6 +49,24 @@ let org_text_to_html s =
   in
   String.split_on_char '\n' s |> add_brs
 
+let inf_i = ref 0
+
+let make_collapsible title content =
+  (* https://www.digitalocean.com/community/tutorials/css-collapsible *)
+  inf_i := !inf_i + 1;
+  let cid = String.cat "coll-" @@ string_of_int !inf_i in
+  div ~a:[a_class ["header wrap-collapsible"; "indent-1"]]
+  @@ [ input
+         ~a:
+           [ a_id cid
+           ; a_class ["toggle"]
+           ; a_input_type `Checkbox
+           ; a_checked ()
+           ; a_tabindex 0 ]
+         ()
+     ; label ~a:[a_label_for cid; a_class ["lbl-toggle"]] [txt title]
+     ; div ~a:[a_class ["collapsible-content"]] content ]
+
 let make_tree_org_note title headlines =
   let root =
     Node
@@ -61,19 +80,12 @@ let make_tree_org_note title headlines =
   in
   let tree = make_org_note_tree headlines root in
   let hl_to_html h children =
-    Ww_lib.(
-      let c =
-        Option.map
-          (fun c ->
-            div ~a:[a_class ["content"]]
-            @@ [span ~a:[a_class ["indent"]] []]
-            @ org_text_to_html c)
-          h.content
-      in
-      div ~a:[a_class ["header"; "indent-1"]]
-      @@ [txt "• "]
-      @ [txt h.headline_text]
-      @ c @? children)
+    let c =
+      Option.map
+        (fun c -> div ~a:[a_class ["content"]] @@ org_text_to_html c)
+        h.content
+    in
+    make_collapsible h.headline_text @@ c @? children
   in
   [tree_to_div hl_to_html tree]
 
@@ -81,11 +93,10 @@ let make_tree_org_note title headlines =
 let page () =
   let%lwt org_note =
     Ot_spinner.with_spinner
-      Ww_lib.(
-        let%lwt hls = get_headlines () in
-        (* let hls = make_flat_org_note "what" hls in *)
-        let hls = make_tree_org_note "what" hls in
-        Lwt.return [div hls])
+      (let%lwt hls = get_headlines () in
+       (* let hls = make_flat_org_note "what" hls in *)
+       let hls = make_tree_org_note "what" hls in
+       Lwt.return [div hls])
   in
   Lwt.return [h1 [%i18n Demo.pgocaml]; org_note]
 
