@@ -34,7 +34,7 @@ val settings_service
     Eliom_service.t
 
 val org_page
-  : ( unit
+  : ( string
     , unit
     , Eliom_service.get
     , Eliom_service.att

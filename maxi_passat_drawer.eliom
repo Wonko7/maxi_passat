@@ -5,14 +5,14 @@
 
 (** This module defines the drawer menu *)
 
-let%shared demos =
-  [(fun () -> [%i18n Demo.S.pgocaml]), Maxi_passat_services.org_page]
+(* let%shared demos = *)
+(*   [(fun () -> [%i18n Demo.S.pgocaml]), Maxi_passat_services.org_page] *)
 
 let%shared drawer_contents () =
   let open Eliom_content.Html.F in
   let make_link (name, service) = li [a ~service [txt @@ name ()] ()] in
   let submenu =
-    ul ~a:[a_class ["os-drawer-submenu"]] (List.map make_link demos)
+    ul ~a:[a_class ["os-drawer-submenu"]] [] (* (List.map make_link demos) *)
   in
   li
     [ (* FIXME: make an intro
