@@ -50,3 +50,13 @@ SELECT h.headline_id, h.headline_index, h.level, h.content, hc.parent_id, h.head
 --               AND hc.depth = 1
                AND h.headline_id = hc.headline_id
              ORDER BY level ASC, headline_index ASC
+
+-- WHERE m.file_path = '/data/org/here-be-dragons/20210825151927-mont_ussy.org'
+
+SELECT h.headline_id, h.headline_index, h.level, h.content, hc.parent_id, h.headline_text, hc.depth
+             FROM org.headlines h, org.headline_closures hc, org.file_metadata m
+             WHERE m.file_path = '/data/org/here-be-dragons/the-road-so-far/2024-05-28.org'
+               AND m.outline_hash = h.outline_hash
+               AND h.headline_id = hc.headline_id
+               AND (hc.depth = 1 OR (hc.depth = 0 AND h.level = 1))
+             ORDER BY level ASC, headline_index ASC

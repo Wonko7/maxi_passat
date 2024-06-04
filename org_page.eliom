@@ -12,8 +12,8 @@ let%rpc get_users () : string list Lwt.t =
   let%lwt () = Lwt_unix.sleep 2. in
   Org_db.get ()
 
-let%rpc get_headlines () : Db_types.headline list Lwt.t =
-  Org_db.get_headlines ()
+let%rpc get_headlines (file_path : string) : Db_types.headline list Lwt.t =
+  Org_db.get_headlines file_path
 
 [%%shared.start]
 
@@ -89,10 +89,16 @@ let make_tree_org_note title headlines =
   in
   [tree_to_div hl_to_html tree]
 
-let page () =
+let rec add_slash = function
+  | a :: b :: l -> a :: "/" :: add_slash (b :: l)
+  | a :: [] -> [a]
+  | [] -> []
+
+let page file_path () =
+  let file_path = String.concat "" @@ add_slash file_path in
   let%lwt org_note =
     Ot_spinner.with_spinner
-      (let%lwt hls = get_headlines () in
+      (let%lwt hls = get_headlines file_path in
        (* let hls = make_flat_org_note "what" hls in *)
        let hls = make_tree_org_note "what" hls in
        Lwt.return [div hls])
