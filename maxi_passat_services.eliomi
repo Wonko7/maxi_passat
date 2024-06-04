@@ -34,15 +34,15 @@ val settings_service
     Eliom_service.t
 
 val org_page
-  : ( string
+  : ( string list
     , unit
     , Eliom_service.get
     , Eliom_service.att
     , Eliom_service.non_co
     , Eliom_service.non_ext
     , Eliom_service.reg
-    , [`WithoutSuffix]
-    , unit
+    , [`WithSuffix]
+    , [`One of string list] Eliom_parameter.param_name
     , unit
     , Eliom_service.non_ocaml )
     Eliom_service.t

@@ -24,7 +24,8 @@ let%server ocsigen_service =
 
 let%server org_page =
   Eliom_service.create ~path:(Eliom_service.Path ["org"])
-    ~meth:(Eliom_service.Get Eliom_parameter.unit) ()
+    ~meth:(Eliom_service.Get Eliom_parameter.(suffix (all_suffix "file_path")))
+    ()
 
 let%client about_service = ~%about_service
 let%client upload_user_avatar_service = ~%upload_user_avatar_service
