@@ -28,7 +28,6 @@ body {
 
 // collapse
 .wrap-collapsible {
-  margin-bottom: 1.2rem 0;
 }
 input[type='checkbox'] {
   display: none;
@@ -65,7 +64,9 @@ input[type='checkbox'] {
   transition: max-height .25s ease-in-out;
 }
 .toggle:checked + .lbl-toggle + .collapsible-content {
-  max-height: 100vh;
+  // tutorial had this value, this fucked up bigger than screen size content
+  // max-height: 100vh;
+  max-height: 100%;
 }
 .toggle:checked + .lbl-toggle {
   border-bottom-right-radius: 0;
