@@ -95,35 +95,28 @@ let org_text_to_html s =
     |> lwt_flatten []
   in
   let rec add_brs acc = function
-    (* those reverses are horrible *)
     | [] -> Lwt.return []
     | e :: [] ->
         let%lwt a = find_links e in
-        Lwt.return @@ reverse a @ acc
+        Lwt.return @@ acc @ a
     | e :: l ->
         let%lwt a = find_links e in
-        add_brs ((br () :: reverse a) @ acc) l
+        add_brs (acc @ a @ [br ()]) l
   in
-  let%lwt res = String.split_on_char '\n' s |> add_brs [] in
-  Lwt.return @@ reverse res
+  String.split_on_char '\n' s |> add_brs []
 
-let inf_i = ref 0
-
-let make_collapsible title content =
-  (* could use headline_id instead of inf_i *)
+let make_collapsible ~id title content =
   (* https://www.digitalocean.com/community/tutorials/css-collapsible *)
-  inf_i := !inf_i + 1;
-  let cid = String.cat "coll-" @@ string_of_int !inf_i in
   div ~a:[a_class ["header wrap-collapsible"; "indent-1"]]
   @@ [ input
          ~a:
-           [ a_id cid
+           [ a_id id
            ; a_class ["toggle"]
            ; a_input_type `Checkbox
            ; a_checked ()
            ; a_tabindex 0 ]
          ()
-     ; label ~a:[a_label_for cid; a_class ["lbl-toggle"]] title
+     ; label ~a:[a_label_for id; a_class ["lbl-toggle"]] title
      ; div ~a:[a_class ["collapsible-content"]] content ]
 
 let make_tree_org_note ?headline_id title headlines =
@@ -144,11 +137,12 @@ let make_tree_org_note ?headline_id title headlines =
   in
   let hl_to_html h children =
     let%lwt title = org_text_to_html h.headline_text in
+    let id = string_of_int @@ Int32.to_int h.headline_id in
     match h.content with
-    | None -> Lwt.return @@ make_collapsible title @@ children
+    | None -> Lwt.return @@ make_collapsible ~id title @@ children
     | Some c ->
         let%lwt c = org_text_to_html c in
-        Lwt.return @@ make_collapsible title
+        Lwt.return @@ make_collapsible ~id title
         @@ [div ~a:[a_class ["content"]] (c @ children)]
   in
   tree_to_div hl_to_html tree
