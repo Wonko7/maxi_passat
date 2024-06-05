@@ -98,7 +98,7 @@ let org_text_to_html s =
            function
            | Text t -> Lwt.return @@ txt t
            | Delim t ->
-               ignore @@ string_match link_re s 0;
+               ignore @@ search_forward link_re s 0;
                make_org_id_link (matched_group 1 s) (matched_group 2 s))
     (*optimise*)
     (* |> Lwt_list.fold_left_s (fun acc a -> Lwt.return @@ acc @ [a]) [] *)
@@ -134,7 +134,7 @@ let make_collapsible title content =
            ; a_checked ()
            ; a_tabindex 0 ]
          ()
-     ; label ~a:[a_label_for cid; a_class ["lbl-toggle"]] [txt title]
+     ; label ~a:[a_label_for cid; a_class ["lbl-toggle"]] title
      ; div ~a:[a_class ["collapsible-content"]] content ]
 
 let make_tree_org_note ?headline_id title headlines =
@@ -154,12 +154,12 @@ let make_tree_org_note ?headline_id title headlines =
         get_subtree (fun hl -> hl.headline_id = hid) tree)
   in
   let hl_to_html h children =
+    let%lwt title = org_text_to_html h.headline_text in
     match h.content with
-    | None -> Lwt.return @@ make_collapsible h.headline_text @@ children
+    | None -> Lwt.return @@ make_collapsible title @@ children
     | Some c ->
         let%lwt c = org_text_to_html c in
-        Lwt.return
-        @@ make_collapsible h.headline_text
+        Lwt.return @@ make_collapsible title
         @@ [div ~a:[a_class ["content"]] (c @ children)]
   in
   tree_to_div hl_to_html tree

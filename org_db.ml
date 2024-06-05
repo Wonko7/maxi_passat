@@ -66,9 +66,10 @@ let get_headline_id_for_roam_id roam_id =
         [%pgsql
           dbh
             "SELECT hp.headline_id, m.file_path
-           FROM org.headline_properties hp, org.properties p, org.file_metadata m
-           WHERE p.key_text = 'ID' AND p.val_text = $roam_id
-             AND p.property_id = hp.property_id"])
+             FROM org.headline_properties hp, org.properties p, org.file_metadata m
+             WHERE p.key_text = 'ID' AND p.val_text = $roam_id
+               AND p.property_id = hp.property_id
+               AND p.outline_hash = m.outline_hash"])
   in
   Lwt.return
   @@

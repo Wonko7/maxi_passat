@@ -81,3 +81,31 @@ and p.outline_hash = m.outline_hash
 
   FROM org.headline_properties hp, org.properties p, org.file_metadata m
   WHERE p.key_text = 'ID' AND p.val_text = 'b0b02d9e-9591-484b-9642-7fabc25f6901'
+
+
+
+SELECT hp.headline_id, m.file_path
+             FROM org.headline_properties hp, org.properties p, org.file_metadata m
+             WHERE p.key_text = 'ID' AND p.val_text = 'b0b02d9e-9591-484b-9642-7fabc25f6901'
+               AND p.property_id = hp.property_id
+               and p.outline_hash = m.outline_hash
+
+
+
+SELECT hp.headline_id, m.file_path
+             FROM org.headline_properties hp, org.properties p, org.file_metadata m
+             WHERE p.key_text = 'ID' AND p.val_text =
+               AND p.property_id = hp.property_id
+               AND p.outline_hash = m.outline_hash
+
+
+
+
+SELECT m.file_path, p.val_text
+             FROM org.headline_properties hp, org.properties p, org.file_metadata m
+             WHERE p.key_text = 'ID'
+             AND p.val_text = '61ff0e60-0d01-4813-9673-cfa19d6c9934'
+
+
+select * from org.properties p
+where  p.val_text = '61ff0e60-0d01-4813-9673-cfa19d6c9934'
