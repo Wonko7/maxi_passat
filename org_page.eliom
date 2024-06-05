@@ -27,13 +27,19 @@ let%rpc get_headline_id_for_roam_id (roam_id : string)
 
 [%%shared.start]
 
-let rec lwt_flatten acc ls =
-  match ls with
-  | [] -> Lwt.return acc
-  | e :: ls ->
-      let%lwt e = e in
-      lwt_flatten (e :: acc) ls
-(* lwt_flatten (acc @ [e]) ls *)
+let reverse list =
+  let rec loop acc = function [] -> acc | e :: l -> loop (e :: acc) l in
+  loop [] list
+
+let lwt_flatten acc ls =
+  let rec loop acc = function
+    | [] -> Lwt.return acc
+    | e :: ls ->
+        let%lwt e = e in
+        loop (e :: acc) ls
+  in
+  let%lwt res = loop acc ls in
+  Lwt.return @@ reverse res
 
 type 'a tree = Leaf | Node of 'a * 'a tree list
 
@@ -68,20 +74,6 @@ let rec get_subtree p tree =
       @@ List.map (get_subtree p) children
   | Leaf -> Leaf
 
-(* let _ = *)
-(*   print_endline "wtf"; *)
-(*   let s = "fuck [[id:kkt][lol]] you" in *)
-(*   ignore *)
-(*   @@ Str.global_substitute *)
-(*        (Str.regexp {|\[\[id:\([^][]+\)\]\[\([^][]+\)\]\]|}) *)
-(*        (fun s -> *)
-(*          print_endline "got:"; *)
-(*          print_endline s; *)
-(*          print_endline @@ Str.matched_group 1 s; *)
-(*          print_endline @@ Str.matched_group 2 s; *)
-(*          "wtf") *)
-(*        s *)
-
 let make_org_id_link path description =
   match%lwt get_headline_id_for_roam_id path with
   | None -> Lwt.return @@ txt description
@@ -100,12 +92,9 @@ let org_text_to_html s =
            | Delim t ->
                ignore @@ search_forward link_re s 0;
                make_org_id_link (matched_group 1 s) (matched_group 2 s))
-    (*optimise*)
-    (* |> Lwt_list.fold_left_s (fun acc a -> Lwt.return @@ acc @ [a]) [] *)
     |> lwt_flatten []
   in
   let rec add_brs acc = function
-    (* optimize *)
     | [] -> Lwt.return []
     | e :: [] ->
         let%lwt a = find_links e in
@@ -113,8 +102,6 @@ let org_text_to_html s =
     | e :: l ->
         let%lwt a = find_links e in
         add_brs (a @ [br ()] @ acc) l
-    (* [a; br ()] *)
-    (* add_brs (acc @ [a; br ()]) l (\* [a; br ()] *\) *)
   in
   String.split_on_char '\n' s |> add_brs []
 
