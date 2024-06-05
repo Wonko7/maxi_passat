@@ -90,20 +90,22 @@ let org_text_to_html s =
            function
            | Text t -> Lwt.return @@ txt t
            | Delim t ->
-               ignore @@ search_forward link_re s 0;
-               make_org_id_link (matched_group 1 s) (matched_group 2 s))
+               ignore @@ search_forward link_re t 0;
+               make_org_id_link (matched_group 1 t) (matched_group 2 t))
     |> lwt_flatten []
   in
   let rec add_brs acc = function
+    (* those reverses are horrible *)
     | [] -> Lwt.return []
     | e :: [] ->
         let%lwt a = find_links e in
-        Lwt.return @@ acc @ a
+        Lwt.return @@ reverse a @ acc
     | e :: l ->
         let%lwt a = find_links e in
-        add_brs (a @ [br ()] @ acc) l
+        add_brs ((br () :: reverse a) @ acc) l
   in
-  String.split_on_char '\n' s |> add_brs []
+  let%lwt res = String.split_on_char '\n' s |> add_brs [] in
+  Lwt.return @@ reverse res
 
 let inf_i = ref 0
 
