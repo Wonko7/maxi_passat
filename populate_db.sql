@@ -64,7 +64,7 @@ SELECT h.headline_id, h.headline_index, h.level, h.content, hc.parent_id, h.head
 
 select * from org.headline_properties
 
-select * from org.properties where false
+select * from org.properties
 
 SELECT hp.headline_id, hp.property_id, m.file_path
   FROM org.headline_properties hp, org.properties p, org.file_metadata m
@@ -73,3 +73,11 @@ SELECT hp.headline_id, hp.property_id, m.file_path
     AND p.outline_hash = m.outline_hash
 
   -- WHERE p.key_text = 'ID' AND p.val_text = $roam_id
+
+select p.val_text from org.file_metadata m, org.properties p
+where '/data/org/here-be-dragons/20210825151927-mont_ussy.org' = m.file_path
+and p.outline_hash = m.outline_hash
+
+
+  FROM org.headline_properties hp, org.properties p, org.file_metadata m
+  WHERE p.key_text = 'ID' AND p.val_text = 'b0b02d9e-9591-484b-9642-7fabc25f6901'

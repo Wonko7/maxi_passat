@@ -70,4 +70,9 @@ let get_headline_id_for_roam_id roam_id =
            WHERE p.key_text = 'ID' AND p.val_text = $roam_id
              AND p.property_id = hp.property_id"])
   in
-  Lwt.return @@ (List.hd hl_id |> fun (i, s) -> i, strip_org_prefix s)
+  Lwt.return
+  @@
+  match hl_id with
+  | [(i, s)] -> Some (i, strip_org_prefix s)
+  | [] -> None
+  | _ -> failwith "bug: got multiple headlines"
