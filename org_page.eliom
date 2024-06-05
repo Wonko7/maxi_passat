@@ -131,7 +131,13 @@ let id_page roam_id () =
       (let%lwt hls = get_headlines_for_id roam_id in
        let%lwt headline_id, file_path = get_headline_id_for_roam_id roam_id in
        let hls = make_tree_org_note "what" hls ~headline_id in
-       Lwt.return [h3 [txt file_path]; div hls])
+       Lwt.return
+         [ h3
+             [ span
+                 [ txt "from file : "
+                 ; a ~service:Maxi_passat_services.org_file [txt file_path]
+                   @@ String.split_on_char '\n' file_path ] ]
+         ; div hls ])
   in
   Lwt.return [org_note]
 
