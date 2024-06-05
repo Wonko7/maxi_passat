@@ -62,4 +62,14 @@ SELECT h.headline_id, h.headline_index, h.level, h.content, hc.parent_id, h.head
              ORDER BY level ASC, headline_index ASC
 
 
-select * from org.properties;
+select * from org.headline_properties
+
+select * from org.properties where false
+
+SELECT hp.headline_id, hp.property_id, m.file_path
+  FROM org.headline_properties hp, org.properties p, org.file_metadata m
+  WHERE p.key_text = 'ID' AND p.val_text = 'b0b02d9e-9591-484b-9642-7fabc25f6901'
+    AND p.property_id = hp.property_id
+    AND p.outline_hash = m.outline_hash
+
+  -- WHERE p.key_text = 'ID' AND p.val_text = $roam_id

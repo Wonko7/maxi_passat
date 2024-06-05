@@ -20,6 +20,9 @@ let%rpc get_headlines_for_file_path (file_path : string)
 let%rpc get_headlines_for_id (roam_id : string) : Db_types.headline list Lwt.t =
   Org_db.get_headlines_for_id roam_id
 
+let%rpc get_headline_id_for_roam_id (roam_id : string) : (int32 * string) Lwt.t =
+  Org_db.get_headline_id_for_roam_id roam_id
+
 [%%shared.start]
 
 type 'a tree = Leaf | Node of 'a * 'a tree list
@@ -45,6 +48,14 @@ let rec tree_to_div f tree =
       let children = List.map (tree_to_div f) children in
       f thl children
   | Leaf -> div []
+
+let rec get_subtree p tree =
+  match tree with
+  | Node (thl, children) as st when p thl -> st
+  | Node (thl, children) ->
+      List.fold_left (fun acc n -> if n = Leaf then acc else n) Leaf
+      @@ List.map (get_subtree p) children
+  | Leaf -> Leaf
 
 let org_text_to_html s =
   let rec add_brs = function
@@ -72,7 +83,7 @@ let make_collapsible title content =
      ; label ~a:[a_label_for cid; a_class ["lbl-toggle"]] [txt title]
      ; div ~a:[a_class ["collapsible-content"]] content ]
 
-let make_tree_org_note title headlines =
+let make_tree_org_note ?headline_id title headlines =
   let root =
     Node
       ( { Db_types.headline_id = -1l
@@ -84,6 +95,10 @@ let make_tree_org_note title headlines =
       , [] )
   in
   let tree = make_org_note_tree headlines root in
+  let tree =
+    Option.fold headline_id ~none:tree ~some:(fun hid ->
+        get_subtree (fun hl -> hl.headline_id = hid) tree)
+  in
   let hl_to_html h children =
     let c =
       Option.map
@@ -114,8 +129,9 @@ let id_page roam_id () =
   let%lwt org_note =
     Ot_spinner.with_spinner
       (let%lwt hls = get_headlines_for_id roam_id in
-       let hls = make_tree_org_note "what" hls in
-       Lwt.return [div hls])
+       let%lwt headline_id, file_path = get_headline_id_for_roam_id roam_id in
+       let hls = make_tree_org_note "what" hls ~headline_id in
+       Lwt.return [h3 [txt file_path]; div hls])
   in
   Lwt.return [org_note]
 

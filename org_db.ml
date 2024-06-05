@@ -8,6 +8,13 @@ open Os_db
    all files *_db.ml with PGOCaml's ppx syntax extension.
 *)
 
+let org_prefix = "/data/org/"
+
+let strip_org_prefix s =
+  let pl = String.length org_prefix in
+  let l = String.length s in
+  String.sub s pl (l - pl)
+
 let get () =
   full_transaction_block (fun dbh ->
       [%pgsql dbh "SELECT lastname FROM ocsigen_start.users"])
@@ -21,7 +28,7 @@ let obj_to_headline h =
   ; content = h#content }
 
 let get_headlines_for_file_path file_path =
-  let file_path = String.cat "/data/org/" file_path in
+  let file_path = String.cat org_prefix file_path in
   let%lwt hls =
     full_transaction_block (fun dbh ->
         [%pgsql.object
@@ -52,3 +59,15 @@ let get_headlines_for_id roam_id =
              ORDER BY level ASC, headline_index ASC "])
   in
   Lwt.return @@ List.map obj_to_headline hls
+
+let get_headline_id_for_roam_id roam_id =
+  let%lwt hl_id =
+    full_transaction_block (fun dbh ->
+        [%pgsql
+          dbh
+            "SELECT hp.headline_id, m.file_path
+           FROM org.headline_properties hp, org.properties p, org.file_metadata m
+           WHERE p.key_text = 'ID' AND p.val_text = $roam_id
+             AND p.property_id = hp.property_id"])
+  in
+  Lwt.return @@ (List.hd hl_id |> fun (i, s) -> i, strip_org_prefix s)
