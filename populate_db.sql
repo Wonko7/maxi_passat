@@ -60,3 +60,6 @@ SELECT h.headline_id, h.headline_index, h.level, h.content, hc.parent_id, h.head
                AND h.headline_id = hc.headline_id
                AND (hc.depth = 1 OR (hc.depth = 0 AND h.level = 1))
              ORDER BY level ASC, headline_index ASC
+
+
+select * from org.properties;

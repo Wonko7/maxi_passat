@@ -12,8 +12,13 @@ let%rpc get_users () : string list Lwt.t =
   let%lwt () = Lwt_unix.sleep 2. in
   Org_db.get ()
 
-let%rpc get_headlines (file_path : string) : Db_types.headline list Lwt.t =
-  Org_db.get_headlines file_path
+let%rpc get_headlines_for_file_path (file_path : string)
+    : Db_types.headline list Lwt.t
+  =
+  Org_db.get_headlines_for_file_path file_path
+
+let%rpc get_headlines_for_id (roam_id : string) : Db_types.headline list Lwt.t =
+  Org_db.get_headlines_for_id roam_id
 
 [%%shared.start]
 
@@ -94,20 +99,32 @@ let rec add_slash = function
   | a :: [] -> [a]
   | [] -> []
 
-let page file_path () =
+let file_page file_path () =
   let file_path = String.concat "" @@ add_slash file_path in
   let%lwt org_note =
     Ot_spinner.with_spinner
-      (let%lwt hls = get_headlines file_path in
-       (* let hls = make_flat_org_note "what" hls in *)
+      (let%lwt hls = get_headlines_for_file_path file_path in
        let hls = make_tree_org_note "what" hls in
        Lwt.return [div hls])
   in
   (* a title would be nice: h1 [%i18n Demo.pgocaml]; *)
   Lwt.return [org_note]
 
+let id_page roam_id () =
+  let%lwt org_note =
+    Ot_spinner.with_spinner
+      (let%lwt hls = get_headlines_for_id roam_id in
+       let hls = make_tree_org_note "what" hls in
+       Lwt.return [div hls])
+  in
+  Lwt.return [org_note]
+
 let () =
-  Maxi_passat_base.App.register ~service:Maxi_passat_services.org_page
-    ( Maxi_passat_page.Opt.connected_page @@ fun myid_o () () ->
-      let%lwt p = page () in
+  Maxi_passat_base.App.register ~service:Maxi_passat_services.org_file
+    ( Maxi_passat_page.Opt.connected_page @@ fun myid_o file_path () ->
+      let%lwt p = file_page file_path () in
+      Maxi_passat_container.page ~a:[a_class ["org-page"]] myid_o p );
+  Maxi_passat_base.App.register ~service:Maxi_passat_services.org_id
+    ( Maxi_passat_page.Opt.connected_page @@ fun myid_o id () ->
+      let%lwt p = id_page id () in
       Maxi_passat_container.page ~a:[a_class ["org-page"]] myid_o p )

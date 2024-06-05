@@ -33,7 +33,7 @@ val settings_service
     , Eliom_service.non_ocaml )
     Eliom_service.t
 
-val org_page
+val org_file
   : ( string list
     , unit
     , Eliom_service.get
@@ -43,6 +43,20 @@ val org_page
     , Eliom_service.reg
     , [`WithSuffix]
     , [`One of string list] Eliom_parameter.param_name
+    , unit
+    , Eliom_service.non_ocaml )
+    Eliom_service.t
+
+val org_id
+  : ( string
+    , unit
+    , Eliom_service.get
+    , Eliom_service.att
+    , Eliom_service.non_co
+    , Eliom_service.non_ext
+    , Eliom_service.reg
+    , [`WithSuffix]
+    , [`One of string] Eliom_parameter.param_name
     , unit
     , Eliom_service.non_ocaml )
     Eliom_service.t

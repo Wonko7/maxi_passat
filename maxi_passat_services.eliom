@@ -22,9 +22,16 @@ let%server ocsigen_service =
   Eliom_service.extern ~prefix:"http://ocsigen.org" ~path:[]
     ~meth:(Eliom_service.Get Eliom_parameter.unit) ()
 
-let%server org_page =
-  Eliom_service.create ~path:(Eliom_service.Path ["org"])
+let%server org_file =
+  Eliom_service.create
+    ~path:(Eliom_service.Path ["org"; "file"])
     ~meth:(Eliom_service.Get Eliom_parameter.(suffix (all_suffix "file_path")))
+    ()
+
+let%server org_id =
+  Eliom_service.create
+    ~path:(Eliom_service.Path ["org"; "id"])
+    ~meth:(Eliom_service.Get Eliom_parameter.(suffix (string "id")))
     ()
 
 let%client about_service = ~%about_service
@@ -32,7 +39,8 @@ let%client upload_user_avatar_service = ~%upload_user_avatar_service
 let%client settings_service = ~%settings_service
 let%client ocsigen_service = ~%ocsigen_service
 let%client os_github_service = ~%os_github_service
-let%client org_page = ~%org_page
+let%client org_file = ~%org_file
+let%client org_id = ~%org_id
 (* The OS lib needs access to the settings service to perform
    redirections to it. We need to register it *)
 let%server () = Os_services.register_settings_service settings_service
