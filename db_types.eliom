@@ -9,52 +9,26 @@ type headline =
   ; content : string option }
 [@@deriving json, show]
 
-(* (headlines *)
-(*            (desc "Each row stores one headline in a given org outline.") *)
-(*            (columns *)
-(*             ,(headline-id-col) *)
-(*             ,(outline-hash-col "headline" t) *)
-(*             (:headline_text :desc ("raw text of the headline" *)
-(*                                    "without leading stars or tags") *)
-(*                             :properties (:raw-value) *)
-(*                             :type text *)
-(*                             :constraints (notnull)) *)
-(*             (:level :desc "the level of this headline" *)
-(*                     :properties (:level) *)
-(*                     :type integer *)
-(*                     :constriants (notnull)) *)
-(*             (:headline_index :desc "the order of this headline relative to its neighbors" *)
-(*                              :type integer *)
-(*                              :constriants (notnull)) *)
-(*             (:keyword :desc "the TODO state keyword" *)
-(*                       :properties (:todo-keyword) *)
-(*                       :type text) *)
-(*             (:effort :desc "the value of the `Effort` property in minutes" *)
-(*                      :type integer) *)
-(*             (:priority :desc "character value of the priority" *)
-(*                        :properties (:priority) *)
-(*                        :type text) *)
-(*             (:stats_cookie_type :desc ("type of the statistics cookie (the" *)
-(*                                        "`[n/d]` or `[p%]` at the end of some" *)
-(*                                        "headlines)") *)
-(*                                 :type enum *)
-(*                                 :allowed (fraction percent)) *)
-(*             (:stats_cookie_value :desc "value of the statistics cookie (between 0 and 1)" *)
-(*                                  :type real) *)
-(*             (:is_archived :desc "TRUE if the headline has an ARCHIVE tag" *)
-(*                           :properties (:archivedp) *)
-(*                           :type boolean *)
-(*                           :constraints (notnull)) *)
-(*             (:is_commented :desc "TRUE if the headline has a COMMENT keyword" *)
-(*                            :properties (:commentedp) *)
-(*                            :type boolean *)
-(*                            :constraints (notnull)) *)
-(*             (:content :desc "the headline contents (everything after the planning entries, property-drawer, and/or logbook)" *)
-(*                       :type text)) *)
-(*            (constraints *)
-(*             (primary :keys (:headline_id)) *)
-(*             (foreign :ref outlines *)
-(*                      :keys (:outline_hash) *)
-(*                      :parent-keys (:outline_hash) *)
-(*                      :on-delete cascade *)
-(*                      :cardinality many-or-none-to-one))) *)
+(* might add dates to this *)
+type processed_kind =
+  | Br
+  | File_link of string * string
+  | Id_link of string * string
+  | Text of string
+
+type processed_org =
+  { headline_id : int32
+  ; index : int32
+  ; kind : int32
+  ; outline_hash : string
+  ; is_headline : bool
+  ; content : string option
+  ; link_dest : string option
+  ; link_desc : string option }
+[@@deriving json, show]
+
+let processed_kind_to_int32 = function
+  | File_link _ -> 0l
+  | Id_link _ -> 1l
+  | Text _ -> 2l
+  | Br -> 3l

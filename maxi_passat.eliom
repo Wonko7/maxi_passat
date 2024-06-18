@@ -69,6 +69,8 @@ let%server _ =
     (* Lwt_log_core.add_rule "*" Lwt_log.Debug *)
     Lwt_log_core.add_rule "Maxi_passat*" Lwt_log.Debug)
 
+let%server _ = Org.preprocess_init ()
+
 (* The modules below are all the modules that needs to be explicitely
    linked-in. *)
 

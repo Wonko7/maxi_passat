@@ -109,3 +109,19 @@ SELECT m.file_path, p.val_text
 
 select * from org.properties p
 where  p.val_text = '61ff0e60-0d01-4813-9673-cfa19d6c9934'
+
+
+
+
+SELECT p.val_text, m.outline_hash
+             FROM org.properties p, org.file_metadata m
+             WHERE m.file_path = '/data/org/here-be-dragons/20210825151927-mont_ussy.org'
+               AND m.outline_hash = p.outline_hash
+               and p.key_text = 'TITLE'
+
+
+select file_path from org.file_metadata;
+
+SELECT outline_hash FROM org.processed_content LIMIT 1;
+
+COUNT 2

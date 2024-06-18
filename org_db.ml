@@ -15,10 +15,6 @@ let strip_org_prefix s =
   let l = String.length s in
   String.sub s pl (l - pl)
 
-let get () =
-  full_transaction_block (fun dbh ->
-      [%pgsql dbh "SELECT lastname FROM ocsigen_start.users"])
-
 let obj_to_headline h =
   { Db_types.headline_id = h#headline_id
   ; parent_id = h#parent_id
@@ -77,3 +73,54 @@ let get_headline_id_for_roam_id roam_id =
   | [(i, s)] -> Some (i, strip_org_prefix s)
   | [] -> None
   | _ -> failwith "bug: got multiple headlines"
+
+let get_title_outline_for_file_path file_path =
+  let file_path = String.cat org_prefix file_path in
+  let%lwt title_and_outline =
+    full_transaction_block (fun dbh ->
+        [%pgsql
+          dbh
+            "SELECT p.val_text, m.outline_hash
+             FROM org.properties p, org.file_metadata m
+             WHERE m.file_path = $file_path
+               AND m.outline_hash = p.outline_hash
+               and p.key_text = 'TITLE'"])
+  in
+  Lwt.return
+  @@
+  match title_and_outline with
+  | [res] -> Some res
+  | [] -> None
+  | _ -> failwith "bug: got multiple titles"
+
+let get_all_org_files () =
+  let%lwt files =
+    full_transaction_block (fun dbh ->
+        [%pgsql dbh "SELECT file_path FROM org.file_metadata;"])
+  in
+  Lwt.return @@ List.map strip_org_prefix files
+
+let is_processed () =
+  let%lwt count =
+    full_transaction_block (fun dbh ->
+        [%pgsql dbh "SELECT outline_hash FROM org.processed_content LIMIT 1"])
+  in
+  Lwt.return @@ match count with [] -> false | _ -> true
+
+let add_processed_headline_content (processed_org : Db_types.processed_org) =
+  let o = processed_org in
+  let headline_id = o.headline_id in
+  let index = o.index in
+  let kind = o.kind in
+  let outline_hash = o.outline_hash in
+  let content = o.content in
+  let is_headline = o.is_headline in
+  let link_dest = o.link_dest in
+  let link_desc = o.link_desc in
+  full_transaction_block (fun dbh ->
+      [%pgsql
+        dbh
+          "INSERT INTO org.processed_content
+           (headline_id, index, kind, outline_hash, content, is_headline, link_dest, link_desc)
+           VALUES
+           ($headline_id, $index, $kind, $outline_hash, $?content, $is_headline, $?link_dest, $?link_desc)"])

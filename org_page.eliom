@@ -6,12 +6,6 @@ open Eliom_content.Html.F
 open Db_types
 open Ww_lib]
 
-(* Fetch users in database *)
-let%rpc get_users () : string list Lwt.t =
-  (* For this demo, we add a delay to simulate a network or db latency: *)
-  let%lwt () = Lwt_unix.sleep 2. in
-  Org_db.get ()
-
 let%rpc get_headlines_for_file_path (file_path : string)
     : Db_types.headline list Lwt.t
   =
@@ -27,84 +21,6 @@ let%rpc get_headline_id_for_roam_id (roam_id : string)
 
 [%%shared.start]
 
-let reverse list =
-  let rec loop acc = function [] -> acc | e :: l -> loop (e :: acc) l in
-  loop [] list
-
-let lwt_flatten acc ls =
-  let rec loop acc = function
-    | [] -> Lwt.return acc
-    | e :: ls ->
-        let%lwt e = e in
-        loop (e :: acc) ls
-  in
-  let%lwt res = loop acc ls in
-  Lwt.return @@ reverse res
-
-type 'a tree = Leaf | Node of 'a * 'a tree list
-
-let rec add_to_tree hl tree =
-  (* can be optimised *)
-  match tree with
-  | Leaf -> Node (hl, [])
-  | Node (thl, children) when hl.parent_id = thl.headline_id ->
-      Node (thl, children @ [Node (hl, [])])
-  | Node (thl, children) when hl.parent_id = hl.headline_id ->
-      Node (thl, children @ [Node (hl, [])])
-  | Node (thl, children) -> Node (thl, List.map (add_to_tree hl) children)
-
-let rec make_org_note_tree headlines acc =
-  match headlines with
-  | [] -> acc
-  | hl :: hls -> make_org_note_tree hls (add_to_tree hl acc)
-
-let rec tree_to_div f tree =
-  match tree with
-  | Node (thl, children) ->
-      let children = List.map (tree_to_div f) children in
-      let%lwt children = lwt_flatten [] children in
-      f thl children
-  | Leaf -> Lwt.return @@ div []
-
-let rec get_subtree p tree =
-  match tree with
-  | Node (thl, children) as st when p thl -> st
-  | Node (thl, children) ->
-      List.fold_left (fun acc n -> if n = Leaf then acc else n) Leaf
-      @@ List.map (get_subtree p) children
-  | Leaf -> Leaf
-
-let make_org_id_link path description =
-  match%lwt get_headline_id_for_roam_id path with
-  | None -> Lwt.return @@ txt description
-  | Some _ ->
-      Lwt.return
-      @@ a ~service:Maxi_passat_services.org_id [txt description] path
-
-let org_text_to_html s =
-  let find_links s =
-    let link_re = Str.regexp {|\[\[id:\([^][]+\)\]\[\([^][]+\)\]\]|} in
-    Str.full_split link_re s
-    |> List.map
-         Str.(
-           function
-           | Text t -> Lwt.return @@ txt t
-           | Delim t ->
-               ignore @@ search_forward link_re t 0;
-               make_org_id_link (matched_group 1 t) (matched_group 2 t))
-    |> lwt_flatten []
-  in
-  let rec add_brs acc = function
-    | [] -> Lwt.return []
-    | e :: [] ->
-        let%lwt a = find_links e in
-        Lwt.return @@ acc @ a
-    | e :: l ->
-        let%lwt a = find_links e in
-        add_brs (acc @ a @ [br ()]) l
-  in
-  String.split_on_char '\n' s |> add_brs []
-
 let make_collapsible ~id title content =
   (* https://www.digitalocean.com/community/tutorials/css-collapsible *)
   div ~a:[a_class ["header wrap-collapsible"; "indent-1"]]
@@ -119,9 +35,30 @@ let make_collapsible ~id title content =
      ; label ~a:[a_label_for id; a_class ["lbl-toggle"]] title
      ; div ~a:[a_class ["collapsible-content"]] content ]
 
+let org_text_to_html s =
+  let find_links s =
+    let link_re = Str.regexp {|\[\[id:\([^][]+\)\]\[\([^][]+\)\]\]|} in
+    Str.full_split link_re s
+    |> List.map
+         Str.(
+           function
+           | Text t -> Lwt.return @@ txt t | Delim t -> Lwt.return @@ txt "lol")
+    |> Org.lwt_flatten []
+  in
+  let rec add_brs acc = function
+    | [] -> Lwt.return []
+    | e :: [] ->
+        let%lwt a = find_links e in
+        Lwt.return @@ acc @ a
+    | e :: l ->
+        let%lwt a = find_links e in
+        add_brs (acc @ a @ [br ()]) l
+  in
+  String.split_on_char '\n' s |> add_brs []
+
 let make_tree_org_note ?headline_id title headlines =
   let root =
-    Node
+    Org.Node
       ( { Db_types.headline_id = -1l
         ; parent_id = -1l
         ; headline_text = title
@@ -130,10 +67,12 @@ let make_tree_org_note ?headline_id title headlines =
         ; headline_index = None }
       , [] )
   in
-  let tree = make_org_note_tree headlines root in
+  let tree = Org.make_org_note_tree headlines root in
   let tree =
     Option.fold headline_id ~none:tree ~some:(fun hid ->
-        get_subtree (fun hl -> hl.headline_id = hid) tree)
+        Org.get_subtree
+          (fun (hl : Db_types.headline) -> hl.headline_id = hid)
+          tree)
   in
   let hl_to_html h children =
     let%lwt title = org_text_to_html h.headline_text in
@@ -145,7 +84,7 @@ let make_tree_org_note ?headline_id title headlines =
         Lwt.return @@ make_collapsible ~id title
         @@ [div ~a:[a_class ["content"]] (c @ children)]
   in
-  tree_to_div hl_to_html tree
+  Org.map_tree_to_html hl_to_html tree
 
 let rec add_slash = function
   | a :: b :: l -> a :: "/" :: add_slash (b :: l)
