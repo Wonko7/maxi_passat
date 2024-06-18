@@ -61,6 +61,20 @@ val org_id
     , Eliom_service.non_ocaml )
     Eliom_service.t
 
+val os_bleau_service
+  : ( unit
+    , unit
+    , Eliom_service.get
+    , Eliom_service.att
+    , Eliom_service.non_co
+    , Eliom_service.ext
+    , Eliom_service.non_reg
+    , [`WithoutSuffix]
+    , unit
+    , unit
+    , Eliom_service.non_ocaml )
+    Eliom_service.t
+
 val os_github_service
   : ( unit
     , unit

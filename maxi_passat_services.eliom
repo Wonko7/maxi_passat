@@ -18,6 +18,11 @@ let%server os_github_service =
     ~path:["ocsigen"; "ocsigen-start"]
     ~meth:(Eliom_service.Get Eliom_parameter.unit) ()
 
+let%server os_bleau_service =
+  Eliom_service.extern ~prefix:"http://bleau.com"
+    ~path:["ocsigen"; "ocsigen-start"]
+    ~meth:(Eliom_service.Get Eliom_parameter.unit) ()
+
 let%server ocsigen_service =
   Eliom_service.extern ~prefix:"http://ocsigen.org" ~path:[]
     ~meth:(Eliom_service.Get Eliom_parameter.unit) ()
@@ -39,6 +44,7 @@ let%client upload_user_avatar_service = ~%upload_user_avatar_service
 let%client settings_service = ~%settings_service
 let%client ocsigen_service = ~%ocsigen_service
 let%client os_github_service = ~%os_github_service
+let%client os_bleau_service = ~%os_bleau_service
 let%client org_file = ~%org_file
 let%client org_id = ~%org_id
 (* The OS lib needs access to the settings service to perform
