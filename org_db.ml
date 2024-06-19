@@ -136,6 +136,10 @@ let is_processed () =
   in
   Lwt.return @@ match count with [] -> false | _ -> true
 
+let reset_processed () =
+  full_transaction_block (fun dbh ->
+      [%pgsql dbh "DELETE FROM org.processed_content"])
+
 let add_processed_headline_content (processed_org : Db_types.processed_org) =
   let o = processed_org in
   let headline_id = o.headline_id in

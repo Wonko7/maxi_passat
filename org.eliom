@@ -218,10 +218,12 @@ let process_org_file file_path =
   process_org_headlines title outline_hash hls
 
 let preprocess_init () =
+  let%lwt _ = Org_db.reset_processed () in
   let%lwt is_processed = Org_db.is_processed () in
   if is_processed
   then Lwt.return_unit
-  else
+  else (
+    print_endline "preprocessing org files";
     let%lwt files = Org_db.get_all_org_files () in
     ignore @@ List.map process_org_file files;
-    Lwt.return_unit
+    Lwt.return_unit)
