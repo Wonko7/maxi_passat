@@ -27,6 +27,19 @@ type processed_org =
   ; link_desc : string option }
 [@@deriving json, show]
 
+type processed_org_headline =
+  { p_headline_id : int32
+  ; p_index : int32
+  ; p_level : int32 option
+  ; p_headline_index : int32 option
+  ; p_parent_id : int32
+  ; p_kind : int32
+  ; p_is_headline : bool
+  ; p_content : string option
+  ; p_link_dest : string option
+  ; p_link_desc : string option }
+[@@deriving json, show]
+
 let processed_kind_to_int32 = function
   | File_link _ -> 0l
   | Id_link _ -> 1l

@@ -23,6 +23,18 @@ let obj_to_headline h =
   ; level = h#level
   ; content = h#content }
 
+let obj_to_processed_org_headline h =
+  { Db_types.p_headline_id = h#headline_id
+  ; p_index = h#index
+  ; p_level = h#level
+  ; p_parent_id = h#parent_id
+  ; p_kind = h#kind
+  ; p_is_headline = h#is_headline
+  ; p_headline_index = h#headline_index
+  ; p_content = h#content
+  ; p_link_desc = h#link_desc
+  ; p_link_dest = h#link_dest }
+
 let get_headlines_for_file_path file_path =
   let file_path = String.cat org_prefix file_path in
   let%lwt hls =
@@ -55,6 +67,23 @@ let get_headlines_for_id roam_id =
              ORDER BY level ASC, headline_index ASC "])
   in
   Lwt.return @@ List.map obj_to_headline hls
+
+let get_processed_org_for_outline outline_hash =
+  let%lwt hls =
+    full_transaction_block (fun dbh ->
+        [%pgsql.object
+          dbh
+            "SELECT pc.headline_id, pc.index, hc.parent_id, h.headline_index, h.level,
+                    pc.content,
+                    pc.kind, pc.is_headline, pc.link_dest, pc.link_desc
+           FROM org.processed_content pc, org.headline_closures hc, org.headlines h
+           WHERE pc.outline_hash = $outline_hash
+             AND pc.headline_id = hc.headline_id
+             AND h.headline_id = hc.headline_id
+             AND (hc.depth = 1 OR (hc.depth = 0 AND h.level = 1))
+           ORDER BY pc.index ASC, h.level ASC, h.headline_index ASC"])
+  in
+  Lwt.return @@ List.map obj_to_processed_org_headline hls
 
 let get_headline_id_for_roam_id roam_id =
   let%lwt hl_id =

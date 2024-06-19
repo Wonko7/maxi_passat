@@ -11,6 +11,11 @@ let%rpc get_headlines_for_file_path (file_path : string)
   =
   Org_db.get_headlines_for_file_path file_path
 
+let%rpc get_title_outline_for_file_path (file_path : string)
+    : (string * string) option Lwt.t
+  =
+  Org_db.get_title_outline_for_file_path file_path
+
 let%rpc get_headlines_for_id (roam_id : string) : Db_types.headline list Lwt.t =
   Org_db.get_headlines_for_id roam_id
 
@@ -18,6 +23,11 @@ let%rpc get_headline_id_for_roam_id (roam_id : string)
     : (int32 * string) option Lwt.t
   =
   Org_db.get_headline_id_for_roam_id roam_id
+
+let%rpc get_processed_org_for_outline (outline_hash : string)
+    : Db_types.processed_org_headline list Lwt.t
+  =
+  Org_db.get_processed_org_for_outline outline_hash
 
 [%%shared.start]
 
@@ -35,56 +45,75 @@ let make_collapsible ~id title content =
      ; label ~a:[a_label_for id; a_class ["lbl-toggle"]] title
      ; div ~a:[a_class ["collapsible-content"]] content ]
 
-let org_text_to_html s =
-  let find_links s =
-    let link_re = Str.regexp {|\[\[id:\([^][]+\)\]\[\([^][]+\)\]\]|} in
-    Str.full_split link_re s
-    |> List.map
-         Str.(
-           function
-           | Text t -> Lwt.return @@ txt t | Delim t -> Lwt.return @@ txt "lol")
-    |> Org.lwt_flatten []
-  in
-  let rec add_brs acc = function
-    | [] -> Lwt.return []
-    | e :: [] ->
-        let%lwt a = find_links e in
-        Lwt.return @@ acc @ a
-    | e :: l ->
-        let%lwt a = find_links e in
-        add_brs (acc @ a @ [br ()]) l
-  in
-  String.split_on_char '\n' s |> add_brs []
-
-let make_tree_org_note ?headline_id title headlines =
+let make_ptree_org_note ?headline_id title headlines =
   let root =
-    Org.Node
-      ( { Db_types.headline_id = -1l
-        ; parent_id = -1l
-        ; headline_text = title
-        ; content = None
-        ; level = None
-        ; headline_index = None }
+    Org.PNode
+      ( [ { Db_types.p_headline_id = -1l
+          ; p_parent_id = -1l
+          ; p_is_headline = true
+          ; p_content = Some title
+          ; p_level = None
+          ; p_headline_index = None
+          ; p_index = 0l
+          ; p_kind = 2l
+          ; p_link_desc = None
+          ; p_link_dest = None } ]
       , [] )
   in
-  let tree = Org.make_org_note_tree headlines root in
-  let tree =
-    Option.fold headline_id ~none:tree ~some:(fun hid ->
-        Org.get_subtree
-          (fun (hl : Db_types.headline) -> hl.headline_id = hid)
-          tree)
+  let tree = Org.make_org_note_ptree headlines root in
+  (* let tree = *)
+  (*   Option.fold headline_id ~none:tree ~some:(fun hid -> *)
+  (*       Org.get_subptree *)
+  (*         (fun hls -> *)
+  (*           match hls with *)
+  (*           | h :: _ when h.p_headline_id = hid -> true *)
+  (*           | _ -> false) *)
+  (*         tree) *)
+  (* in *)
+  let processed_org_to_html kind content link_dest link_desc =
+    print_endline " porg 2 html";
+    let link_dest = Option.value ~default:"" link_dest in
+    let link_desc = Option.value ~default:"" link_desc in
+    let content = Option.value ~default:"" content in
+    match kind with
+    | 0l ->
+        a ~service:Maxi_passat_services.org_file [txt link_desc]
+        @@ String.split_on_char '\n' link_dest
+    | 1l -> a ~service:Maxi_passat_services.org_id [txt link_desc] @@ link_dest
+    | 2l -> txt content
+    | 3l -> br ()
   in
-  let hl_to_html h children =
-    let%lwt title = org_text_to_html h.headline_text in
-    let id = string_of_int @@ Int32.to_int h.headline_id in
-    match h.content with
-    | None -> Lwt.return @@ make_collapsible ~id title @@ children
-    | Some c ->
-        let%lwt c = org_text_to_html c in
-        Lwt.return @@ make_collapsible ~id title
-        @@ [div ~a:[a_class ["content"]] (c @ children)]
+  let hl_to_html hls children =
+    print_endline "hls 2 html";
+    let title =
+      List.filter_map
+        (function
+          | h when h.p_is_headline ->
+              Some
+                (processed_org_to_html h.p_kind h.p_content h.p_link_dest
+                   h.p_link_desc)
+          | _ -> None)
+        hls
+    in
+    let title = [txt "title: "] @ title in
+    let content =
+      List.filter_map
+        (function
+          | h when not h.p_is_headline ->
+              Some
+                (processed_org_to_html h.p_kind h.p_content h.p_link_dest
+                   h.p_link_desc)
+          | _ -> None)
+        hls
+    in
+    let f = List.hd hls in
+    Lwt.return
+    @@ make_collapsible
+         ~id:(string_of_int @@ Int32.to_int f.p_headline_id)
+         title
+    @@ [div ~a:[a_class ["content"]] (content @ children)]
   in
-  Org.map_tree_to_html hl_to_html tree
+  Org.map_ptree_to_html hl_to_html tree
 
 let rec add_slash = function
   | a :: b :: l -> a :: "/" :: add_slash (b :: l)
@@ -95,8 +124,13 @@ let file_page file_path () =
   let file_path = String.concat "" @@ add_slash file_path in
   let%lwt org_note =
     Ot_spinner.with_spinner
-      (let%lwt hls = get_headlines_for_file_path file_path in
-       let%lwt hls = make_tree_org_note "what" hls in
+      (let%lwt title, outline_hash =
+         match%lwt get_title_outline_for_file_path file_path with
+         | Some r -> Lwt.return r
+         | None -> failwith file_path
+       in
+       let%lwt hls = get_processed_org_for_outline outline_hash in
+       let%lwt hls = make_ptree_org_note title hls in
        Lwt.return [div [hls]])
   in
   (* a title would be nice: h1 [%i18n Demo.pgocaml]; *)
@@ -119,8 +153,7 @@ let id_page roam_id () =
        let headline_id =
          Option.map (fun (headline_id, _file_path) -> headline_id) parent_hl_res
        in
-       let%lwt hls = make_tree_org_note "what" hls ?headline_id in
-       Lwt.return @@ title @? [div [hls]])
+       Lwt.return @@ title @? [div []])
   in
   Lwt.return [org_note]
 

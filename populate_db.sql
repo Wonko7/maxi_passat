@@ -120,8 +120,30 @@ SELECT p.val_text, m.outline_hash
                and p.key_text = 'TITLE'
 
 
-select file_path from org.file_metadata;
+select * from org.file_metadata;
 
 SELECT outline_hash FROM org.processed_content LIMIT 1;
 
+DELETE FROM org.processed_content;
+
 COUNT 2
+
+SELECT pc.headline_id, pc.index, hc.parent_id, hc.depth, h.headline_index, h.level, pc.kind, pc.is_headline, pc.content
+FROM org.processed_content pc, org.headline_closures hc, org.headlines h
+WHERE pc.outline_hash = '18471498edea3d0a0f2ad5e8e62e83fe'
+  AND pc.headline_id = hc.headline_id
+  AND h.headline_id = hc.headline_id
+  AND (hc.depth = 1 OR (hc.depth = 0 AND h.level = 1))
+  ORDER BY pc.index ASC, h.level ASC, h.headline_index ASC
+
+18471498edea3d0a0f2ad5e8e62e83fe
+
+SELECT h.headline_id, h.headline_index, h.level, h.content, hc.parent_id, hc.depth
+FROM org.processed_content pc, org.headline_closures hc
+WHERE
+
+             FROM org.headlines h, org.headline_closures hc, org.file_metadata m
+             WHERE m.file_path = '/data/org/here-be-dragons/the-road-so-far/2024-05-28.org'
+               AND (hc.depth = 1 OR (hc.depth = 0 AND h.level = 1))
+             ORDER BY level ASC, headline_index ASC
+LIMIT 1;

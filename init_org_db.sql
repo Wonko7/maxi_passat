@@ -10,7 +10,7 @@ GRANT ALL ON SCHEMA org TO wonko;
 
 CREATE TABLE org.processed_content ( -- DEFAULT
        pc_id bigserial primary key, -- DEFAULT
-       headline_id int,
+       headline_id int NOT NULL,
        index int NOT NULL,
        kind int NOT NULL,
        outline_hash text NOT NULL,
@@ -20,3 +20,5 @@ CREATE TABLE org.processed_content ( -- DEFAULT
        link_dest text,
        link_desc text
 )
+
+DROP TABLE org.processed_content;
