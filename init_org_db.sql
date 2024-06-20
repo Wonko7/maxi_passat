@@ -12,7 +12,7 @@ CREATE TABLE org.processed_content ( -- DEFAULT
        pc_id bigserial primary key, -- DEFAULT
        headline_id int NOT NULL,
        index int NOT NULL,
-       kind int NOT NULL,
+       kind text NOT NULL,
        outline_hash text NOT NULL,
        content text,
        is_headline bool NOT NULL,

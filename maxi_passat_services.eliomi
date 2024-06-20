@@ -62,15 +62,15 @@ val org_id
     Eliom_service.t
 
 val os_bleau_service
-  : ( unit
+  : ( string list
     , unit
     , Eliom_service.get
     , Eliom_service.att
     , Eliom_service.non_co
     , Eliom_service.ext
     , Eliom_service.non_reg
-    , [`WithoutSuffix]
-    , unit
+    , [`WithSuffix]
+    , [`One of string list] Eliom_parameter.param_name
     , unit
     , Eliom_service.non_ocaml )
     Eliom_service.t

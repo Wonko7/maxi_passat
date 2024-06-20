@@ -57,7 +57,7 @@ let make_ptree_org_note ?headline_id title headlines =
           ; p_level = None
           ; p_headline_index = None
           ; p_index = 0l
-          ; p_kind = 2l
+          ; p_kind = "txt"
           ; p_link_desc = None
           ; p_link_dest = None } ]
       , [] )
@@ -77,12 +77,39 @@ let make_ptree_org_note ?headline_id title headlines =
     let link_desc = Option.value ~default:"" link_desc in
     let content = Option.value ~default:"" content in
     match kind with
-    | 0l ->
+    | "file_link" ->
         a ~service:Maxi_passat_services.org_file [txt link_desc]
         @@ String.split_on_char '\n' link_dest
-    | 1l -> a ~service:Maxi_passat_services.org_id [txt link_desc] @@ link_dest
-    | 2l -> txt content
-    | 3l -> br ()
+    | "id_link" ->
+        a ~service:Maxi_passat_services.org_id [txt link_desc] @@ link_dest
+    | "bleau_link" ->
+        a ~service:Maxi_passat_services.os_bleau_service
+          ~a:
+            [ a_target "_blank"
+            ; a_rel [`Other "noopener"; `Nofollow]
+            ; a_class ["external_link"] ]
+          [txt "bleau.info :"; txt link_desc]
+        @@ String.split_on_char '/' link_dest
+    | "yt_link" ->
+        span
+          [ txt "youtube : "
+          ; txt link_desc
+          ; br ()
+          ; iframe
+              ~a:
+                [ a_width 560
+                ; a_height 315 (* ; a_frameborder `Zero *)
+                ; Unsafe.string_attrib "frameborder" "0"
+                ; Unsafe.string_attrib "allow"
+                    "accelerometer autoplay clipboard-write encrypted-media gyroscope picture-in-picture web-share"
+                ; a_src
+                    (Eliom_content.Xml.uri_of_string
+                    @@ String.cat "https://www.youtube.com/embed/" link_dest) ]
+              [] ]
+    | "txt" -> txt content
+    | "br" -> br ()
+    | _ -> span []
+    (* <iframe width="560" height="315" src="https://www.youtube.com/embed/ZFX5dYuBl_g" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe> *)
   in
   (* predicate_process, shortened for code golf reasons *)
   let pproc p = function

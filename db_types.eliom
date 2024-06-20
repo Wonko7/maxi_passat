@@ -14,12 +14,15 @@ type processed_kind =
   | Br
   | File_link of string * string
   | Id_link of string * string
+  | Bleau_link of string * string
+  | Yt_link of string * string
+  | Https_link of string * string
   | Text of string
 
 type processed_org =
   { headline_id : int32
   ; index : int32
-  ; kind : int32
+  ; kind : string
   ; outline_hash : string
   ; is_headline : bool
   ; content : string option
@@ -33,15 +36,18 @@ type processed_org_headline =
   ; p_level : int32 option
   ; p_headline_index : int32 option
   ; p_parent_id : int32
-  ; p_kind : int32
+  ; p_kind : string
   ; p_is_headline : bool
   ; p_content : string option
   ; p_link_dest : string option
   ; p_link_desc : string option }
 [@@deriving json, show]
 
-let processed_kind_to_int32 = function
-  | File_link _ -> 0l
-  | Id_link _ -> 1l
-  | Text _ -> 2l
-  | Br -> 3l
+let processed_kind_to_str = function
+  | Br -> "br"
+  | Text _ -> "txt"
+  | Id_link _ -> "id_link"
+  | File_link _ -> "file_link"
+  | Yt_link _ -> "yt_link"
+  | Bleau_link _ -> "bleau_link"
+  | Https_link _ -> "https_link"

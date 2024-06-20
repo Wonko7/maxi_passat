@@ -14,14 +14,13 @@ let%server settings_service =
     ~meth:(Eliom_service.Get Eliom_parameter.unit) ()
 
 let%server os_github_service =
-  Eliom_service.extern ~prefix:"http://github.com"
-    ~path:["ocsigen"; "ocsigen-start"]
+  Eliom_service.extern ~prefix:"http://github.com" ~path:[]
     ~meth:(Eliom_service.Get Eliom_parameter.unit) ()
 
 let%server os_bleau_service =
-  Eliom_service.extern ~prefix:"http://bleau.com"
-    ~path:["ocsigen"; "ocsigen-start"]
-    ~meth:(Eliom_service.Get Eliom_parameter.unit) ()
+  Eliom_service.extern ~prefix:"https://bleau.info" ~path:[]
+    ~meth:(Eliom_service.Get Eliom_parameter.(suffix (all_suffix "file_path")))
+    ()
 
 let%server ocsigen_service =
   Eliom_service.extern ~prefix:"http://ocsigen.org" ~path:[]

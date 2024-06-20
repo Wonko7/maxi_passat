@@ -109,15 +109,35 @@ let process_id_link destination description =
 
 let process_org_text s =
   let find_links s =
-    let link_re = Str.regexp {|\[\[id:\([^][]+\)\]\[\([^][]+\)\]\]|} in
+    let link_re = Str.regexp {|\[\[\([^:]+\):\([^][]+\)\]\[\([^][]+\)\]\]|} in
+    let youtube_re = Str.regexp {|^//www.youtube.com/watch\?v=\([^&]+\).*|} in
+    let bleau_re = Str.regexp {|^//bleau.info/|} in
     Str.full_split link_re s
     |> List.map
          Str.(
            function
            | Text t -> Lwt.return @@ Db_types.Text t
-           | Delim t ->
+           | Delim t -> (
                ignore @@ search_forward link_re t 0;
-               process_id_link (matched_group 1 t) (matched_group 2 t))
+               match matched_group 1 t with
+               | "id" -> process_id_link (matched_group 2 t) (matched_group 3 t)
+               | "https" ->
+                   let dest = matched_group 2 t in
+                   let full_dest = String.cat "https:" dest in
+                   let desc = matched_group 3 t in
+                   Lwt.return
+                   @@
+                   if Str.string_match youtube_re dest 0
+                   then
+                     let suff = Str.replace_first youtube_re {|\1|} dest in
+                     Yt_link (suff, desc)
+                   else if Str.string_match bleau_re dest 0
+                   then
+                     let suff = Str.replace_first bleau_re {||} dest in
+                     Bleau_link (suff, desc)
+                   else Https_link (full_dest, desc)
+               (* add file & img *)
+               | _ -> Lwt.return @@ Db_types.Text "fuck links"))
     |> lwt_flatten []
   in
   let rec add_brs acc = function
@@ -146,7 +166,7 @@ let process_org_headlines title outline_hash headlines =
   let processed_org =
     { Db_types.headline_id = -1l
     ; index = 0l
-    ; kind = 0l
+    ; kind = "txt"
     ; outline_hash
     ; is_headline = true
     ; content = None
@@ -165,14 +185,17 @@ let process_org_headlines title outline_hash headlines =
         { processed_org with
           index = Int32.of_int !i
         ; is_headline
-        ; kind = processed_kind_to_int32 text
+        ; kind = processed_kind_to_str text
         ; headline_id = h.headline_id }
       in
       let processed_org =
         match text with
         | Br -> processed_org
         | Text t -> {processed_org with content = Some t}
-        | Id_link (dest, desc) ->
+        | Id_link (dest, desc)
+        | Yt_link (dest, desc)
+        | Bleau_link (dest, desc)
+        | Https_link (dest, desc) ->
             {processed_org with link_dest = Some dest; link_desc = Some desc}
       in
       Org_db.add_processed_headline_content processed_org

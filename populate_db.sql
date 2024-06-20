@@ -181,9 +181,10 @@ SELECT pc.headline_id, pc.index, hc.parent_id, h.headline_index, h.level,
                     substring(pc.content, 1, 40),
                     pc.kind, pc.is_headline, pc.link_dest, pc.link_desc
              FROM org.processed_content pc, org.headline_closures hc, org.file_metadata m, org.headlines h
-             WHERE m.file_path = '/data/org/here-be-dragons/the-road-so-far/_archive/2024-05-28.org'
+             WHERE m.file_path = '/data/org/here-be-dragons/20210825151927-mont_ussy.org'
                AND m.outline_hash = h.outline_hash
                AND h.headline_id = hc.headline_id
+               AND pc.headline_id = hc.headline_id
                AND (hc.depth = 1 OR (hc.depth = 0 AND h.level = 1))
              ORDER BY h.headline_index
 
