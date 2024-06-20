@@ -208,16 +208,21 @@ let process_org_headlines title outline_hash headlines =
   Lwt.return_unit
 
 let process_org_file file_path =
+  print_string " ++ ";
+  print_endline file_path;
   let%lwt hls = Org_db.get_headlines_for_file_path file_path in
   let%lwt title, outline_hash =
     match%lwt Org_db.get_title_outline_for_file_path file_path with
     | Some r -> Lwt.return r
-    | None -> failwith file_path
+    | None -> (
+        match%lwt Org_db.get_outline_hash_for_file_path file_path with
+        | Some o -> Lwt.return ("", o)
+        | None -> failwith file_path)
   in
   process_org_headlines title outline_hash hls
 
 let preprocess_init () =
-  let%lwt _ = Org_db.reset_processed () in
+  (* let%lwt _ = Org_db.reset_processed () in *)
   let%lwt is_processed = Org_db.is_processed () in
   if is_processed
   then Lwt.return_unit
@@ -225,4 +230,5 @@ let preprocess_init () =
     print_endline "preprocessing org files";
     let%lwt files = Org_db.get_all_org_files () in
     ignore @@ List.map process_org_file files;
+    print_endline "done preprocessing";
     Lwt.return_unit)
