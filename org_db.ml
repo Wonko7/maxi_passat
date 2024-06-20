@@ -52,21 +52,22 @@ let get_headlines_for_file_path file_path =
   in
   Lwt.return @@ List.map obj_to_headline hls
 
-let get_headlines_for_id roam_id =
+let get_processed_org_for_id roam_id =
   let%lwt hls =
     full_transaction_block (fun dbh ->
         [%pgsql.object
           dbh
-            "SELECT h.headline_id, h.headline_index, h.level, h.content,
-                    hc.parent_id, h.headline_text, hc.depth
-             FROM org.headlines h, org.headline_closures hc, org.properties p
+            "SELECT h.headline_id, pc.index, hc.parent_id, h.headline_index, h.level, pc.kind,
+                    pc.content, pc.is_headline, pc.link_dest, pc.link_desc
+             FROM org.processed_content pc, org.headlines h, org.headline_closures hc, org.properties p
              WHERE p.key_text = 'ID' AND p.val_text = $roam_id
                AND p.outline_hash = h.outline_hash
                AND h.headline_id = hc.headline_id
+               AND h.headline_id = pc.headline_id
                AND (hc.depth = 1 OR (hc.depth = 0 AND h.level = 1))
              ORDER BY level ASC, headline_index ASC "])
   in
-  Lwt.return @@ List.map obj_to_headline hls
+  Lwt.return @@ List.map obj_to_processed_org_headline hls
 
 let get_processed_org_for_path file_path =
   let file_path = String.cat org_prefix file_path in
@@ -74,8 +75,8 @@ let get_processed_org_for_path file_path =
     full_transaction_block (fun dbh ->
         [%pgsql.object
           dbh (* fixme do i need headline_index? *)
-            "SELECT h.headline_id, pc.index, hc.parent_id, h.headline_index, h.level, pc.kind, pc.content,
-                    pc.is_headline, pc.link_dest, pc.link_desc
+            "SELECT h.headline_id, pc.index, hc.parent_id, h.headline_index, h.level, pc.kind,
+                    pc.content, pc.is_headline, pc.link_dest, pc.link_desc
              FROM org.processed_content pc, org.headlines h, org.headline_closures hc, org.file_metadata m
              WHERE m.file_path = $file_path
                AND m.outline_hash = h.outline_hash

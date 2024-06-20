@@ -16,8 +16,10 @@ let%rpc get_title_outline_for_file_path (file_path : string)
   =
   Org_db.get_title_outline_for_file_path file_path
 
-let%rpc get_headlines_for_id (roam_id : string) : Db_types.headline list Lwt.t =
-  Org_db.get_headlines_for_id roam_id
+let%rpc get_processed_org_for_id (roam_id : string)
+    : Db_types.processed_org_headline list Lwt.t
+  =
+  Org_db.get_processed_org_for_id roam_id
 
 let%rpc get_headline_id_for_roam_id (roam_id : string)
     : (int32 * string) option Lwt.t
@@ -61,15 +63,15 @@ let make_ptree_org_note ?headline_id title headlines =
       , [] )
   in
   let tree = Org.make_org_note_ptree headlines root in
-  (* let tree = *)
-  (*   Option.fold headline_id ~none:tree ~some:(fun hid -> *)
-  (*       Org.get_subptree *)
-  (*         (fun hls -> *)
-  (*           match hls with *)
-  (*           | h :: _ when h.p_headline_id = hid -> true *)
-  (*           | _ -> false) *)
-  (*         tree) *)
-  (* in *)
+  let tree =
+    Option.fold headline_id ~none:tree ~some:(fun hid ->
+        Org.get_subptree
+          (fun hls ->
+            match hls with
+            | h :: _ when h.p_headline_id = hid -> true
+            | _ -> false)
+          tree)
+  in
   let processed_org_to_html kind content link_dest link_desc =
     let link_dest = Option.value ~default:"" link_dest in
     let link_desc = Option.value ~default:"" link_desc in
@@ -126,13 +128,13 @@ let file_page file_path () =
 let id_page roam_id () =
   let%lwt org_note =
     Ot_spinner.with_spinner
-      (let%lwt hls = get_headlines_for_id roam_id in
+      (let%lwt hls = get_processed_org_for_id roam_id in
        let%lwt parent_hl_res = get_headline_id_for_roam_id roam_id in
        let title =
          Option.map
            (fun (headline_id, file_path) ->
              h3
-               [ txt "from file : "
+               [ txt "from file : " (* todo i18n *)
                ; a ~service:Maxi_passat_services.org_file [txt file_path]
                  @@ String.split_on_char '\n' file_path ])
            parent_hl_res
@@ -140,7 +142,8 @@ let id_page roam_id () =
        let headline_id =
          Option.map (fun (headline_id, _file_path) -> headline_id) parent_hl_res
        in
-       Lwt.return @@ title @? [div []])
+       let%lwt hls = make_ptree_org_note ?headline_id "roam node:" hls in
+       Lwt.return @@ title @? [div [hls]])
   in
   Lwt.return [org_note]
 
