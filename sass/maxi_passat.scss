@@ -25,6 +25,32 @@ body {
     background: #27212E;
     color: white;
 }
+//links
+a {
+  color: cyan;
+  outline-color: transparent;
+}
+
+a:link {
+  color: cyan;
+}
+
+a:visited {
+  color: cyan;
+}
+
+a:focus {
+  color: cyan;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+a:active {
+  color: cyan;
+}
+
 
 // collapse
 .wrap-collapsible {

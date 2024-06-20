@@ -124,6 +124,37 @@ let get_title_outline_for_file_path file_path =
   | [] -> None
   | _ -> failwith "bug: got multiple titles"
 
+let get_outline_hash_for_file_path file_path =
+  let file_path = String.cat org_prefix file_path in
+  let%lwt outline =
+    full_transaction_block (fun dbh ->
+        [%pgsql
+          dbh
+            "SELECT m.outline_hash
+             FROM org.file_metadata m
+             WHERE m.file_path = $file_path"])
+  in
+  Lwt.return
+  @@
+  match outline with
+  | [res] -> Some res
+  | [] -> None
+  | _ -> failwith "bug: got multiple outlines"
+
+let get_roam_nodes file_path =
+  let file_path = String.cat org_prefix file_path in
+  full_transaction_block (fun dbh ->
+      [%pgsql
+        dbh
+          "SELECT h.headline_id, p.val_text
+             FROM org.headlines h, org.file_metadata m , org.headline_properties hp, org.properties p
+             WHERE m.file_path = $file_path
+               AND m.outline_hash = h.outline_hash
+               AND hp.property_id = p.property_id
+               AND h.headline_id = hp.headline_id
+               AND p.key_text = 'ID'
+           "])
+
 let get_all_org_files () =
   let%lwt files =
     full_transaction_block (fun dbh ->

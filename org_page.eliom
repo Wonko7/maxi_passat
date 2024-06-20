@@ -11,6 +11,9 @@ let%rpc get_headlines_for_file_path (file_path : string)
   =
   Org_db.get_headlines_for_file_path file_path
 
+let%rpc get_roam_nodes (file_path : string) : (int32 * string) list Lwt.t =
+  Org_db.get_roam_nodes file_path
+
 let%rpc get_title_outline_for_file_path (file_path : string)
     : (string * string) option Lwt.t
   =
@@ -47,7 +50,7 @@ let make_collapsible ~id title content =
      ; label ~a:[a_label_for id; a_class ["lbl-toggle"]] title
      ; div ~a:[a_class ["collapsible-content"]] content ]
 
-let make_ptree_org_note ?headline_id title headlines =
+let make_ptree_org_note ?headline_id title headlines nodes =
   let root =
     Org.PNode
       ( [ { Db_types.p_headline_id = -1l
@@ -88,7 +91,7 @@ let make_ptree_org_note ?headline_id title headlines =
             [ a_target "_blank"
             ; a_rel [`Other "noopener"; `Nofollow]
             ; a_class ["external_link"] ]
-          [txt "bleau.info :"; txt link_desc]
+          [txt "bleau.info : "; txt link_desc]
         @@ String.split_on_char '/' link_dest
     | "yt_link" ->
         span
@@ -123,11 +126,16 @@ let make_ptree_org_note ?headline_id title headlines =
     let title = List.filter_map (pproc (fun h -> h.p_is_headline)) hls in
     let content = List.filter_map (pproc (fun h -> not h.p_is_headline)) hls in
     let f = List.hd hls in
+    let backlinks =
+      List.assoc_opt f.p_headline_id nodes
+      |> Option.map (fun node_id -> txt node_id)
+    in
     Lwt.return
     @@ make_collapsible
          ~id:(string_of_int @@ Int32.to_int f.p_headline_id)
          title
-    @@ [div ~a:[a_class ["content"]] (content @ children)]
+         [ div ~a:[a_class ["backlinks"]] (backlinks @? [])
+         ; div ~a:[a_class ["content"]] (content @ children) ]
   in
   Org.map_ptree_to_html hl_to_html tree
 
@@ -146,7 +154,8 @@ let file_page file_path () =
          | None -> failwith file_path
        in
        let%lwt hls = get_processed_org_for_path file_path in
-       let%lwt hls = make_ptree_org_note title hls in
+       let%lwt nodes = get_roam_nodes file_path in
+       let%lwt hls = make_ptree_org_note title hls nodes in
        Lwt.return [div [hls]])
   in
   (* a title would be nice: h1 [%i18n Demo.pgocaml]; *)
@@ -156,21 +165,20 @@ let id_page roam_id () =
   let%lwt org_note =
     Ot_spinner.with_spinner
       (let%lwt hls = get_processed_org_for_id roam_id in
-       let%lwt parent_hl_res = get_headline_id_for_roam_id roam_id in
+       let%lwt headline_id, file_path =
+         match%lwt get_headline_id_for_roam_id roam_id with
+         | Some r -> Lwt.return r
+         | None -> failwith "could not find parent file_path"
+       in
        let title =
-         Option.map
-           (fun (headline_id, file_path) ->
-             h3
-               [ txt "from file : " (* todo i18n *)
-               ; a ~service:Maxi_passat_services.org_file [txt file_path]
-                 @@ String.split_on_char '\n' file_path ])
-           parent_hl_res
+         h3
+           [ txt "from file : " (* todo i18n *)
+           ; a ~service:Maxi_passat_services.org_file [txt file_path]
+             @@ String.split_on_char '\n' file_path ]
        in
-       let headline_id =
-         Option.map (fun (headline_id, _file_path) -> headline_id) parent_hl_res
-       in
-       let%lwt hls = make_ptree_org_note ?headline_id "roam node:" hls in
-       Lwt.return @@ title @? [div [hls]])
+       let%lwt nodes = get_roam_nodes file_path in
+       let%lwt hls = make_ptree_org_note ~headline_id "roam node:" hls nodes in
+       Lwt.return @@ [div [title]; div [hls]])
   in
   Lwt.return [org_note]
 
