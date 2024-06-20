@@ -82,27 +82,17 @@ let make_ptree_org_note ?headline_id title headlines =
     | 2l -> txt content
     | 3l -> br ()
   in
+  (* predicate_process, shortened for code golf reasons *)
+  let pproc p = function
+    | h when p h ->
+        Some
+          (processed_org_to_html h.p_kind h.p_content h.p_link_dest
+             h.p_link_desc)
+    | _ -> None
+  in
   let hl_to_html hls children =
-    let title =
-      List.filter_map
-        (function
-          | h when h.p_is_headline ->
-              Some
-                (processed_org_to_html h.p_kind h.p_content h.p_link_dest
-                   h.p_link_desc)
-          | _ -> None)
-        hls
-    in
-    let content =
-      List.filter_map
-        (function
-          | h when not h.p_is_headline ->
-              Some
-                (processed_org_to_html h.p_kind h.p_content h.p_link_dest
-                   h.p_link_desc)
-          | _ -> None)
-        hls
-    in
+    let title = List.filter_map (pproc (fun h -> h.p_is_headline)) hls in
+    let content = List.filter_map (pproc (fun h -> not h.p_is_headline)) hls in
     let f = List.hd hls in
     Lwt.return
     @@ make_collapsible
