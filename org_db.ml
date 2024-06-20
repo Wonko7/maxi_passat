@@ -48,7 +48,7 @@ let get_headlines_for_file_path file_path =
                AND m.outline_hash = h.outline_hash
                AND h.headline_id = hc.headline_id
                AND (hc.depth = 1 OR (hc.depth = 0 AND h.level = 1))
-             ORDER BY level ASC, headline_index ASC "])
+             ORDER BY h.headline_id ASC "])
   in
   Lwt.return @@ List.map obj_to_headline hls
 
@@ -68,20 +68,21 @@ let get_headlines_for_id roam_id =
   in
   Lwt.return @@ List.map obj_to_headline hls
 
-let get_processed_org_for_outline outline_hash =
+let get_processed_org_for_path file_path =
+  let file_path = String.cat org_prefix file_path in
   let%lwt hls =
     full_transaction_block (fun dbh ->
         [%pgsql.object
-          dbh
-            "SELECT pc.headline_id, pc.index, hc.parent_id, h.headline_index, h.level,
-                    pc.content,
-                    pc.kind, pc.is_headline, pc.link_dest, pc.link_desc
-           FROM org.processed_content pc, org.headline_closures hc, org.headlines h
-           WHERE pc.outline_hash = $outline_hash
-             AND pc.headline_id = hc.headline_id
-             AND h.headline_id = hc.headline_id
-             AND (hc.depth = 1 OR (hc.depth = 0 AND h.level = 1))
-           ORDER BY pc.index ASC, h.level ASC, h.headline_index ASC"])
+          dbh (* fixme do i need headline_index? *)
+            "SELECT h.headline_id, pc.index, hc.parent_id, h.headline_index, h.level, pc.kind, pc.content,
+                    pc.is_headline, pc.link_dest, pc.link_desc
+             FROM org.processed_content pc, org.headlines h, org.headline_closures hc, org.file_metadata m
+             WHERE m.file_path = $file_path
+               AND m.outline_hash = h.outline_hash
+               AND h.headline_id = hc.headline_id
+               AND h.headline_id = pc.headline_id
+               AND (hc.depth = 1 OR (hc.depth = 0 AND h.level = 1))
+              ORDER by h.headline_id ASC, pc.index ASC"])
   in
   Lwt.return @@ List.map obj_to_processed_org_headline hls
 

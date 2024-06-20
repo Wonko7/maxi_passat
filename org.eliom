@@ -40,39 +40,16 @@ let rec add_to_ptree (node : Db_types.processed_org_headline list)
     (tree : Db_types.processed_org_headline ptree)
     : Db_types.processed_org_headline ptree
   =
-  (* can be optimised print_endline "add to ptree yep"; *)
-  (* print_string " level: "; *)
-  (* let level = Option.value ~default:100l hl.p_level in *)
-  (* print_int @@ Int32.to_int level; *)
-  (* print_string " index: "; *)
-  (* print_int @@ Int32.to_int hl.p_index; *)
-  (* print_string " headline_id: "; *)
-  (* print_int @@ Int32.to_int hl.p_headline_id; *)
-  (* print_string " parent_id: "; *)
-  (* print_int @@ Int32.to_int hl.p_parent_id; *)
-  (* print_endline ""; *)
-  print_endline "did i fuck up?";
-  (* ignore @@ (Printexc_lwt.backtrace 15 |> List.map print_endline); *)
+  (* can be optimised  *)
   let hl = List.hd node in
-  print_endline "yes";
   match tree with
-  | PLeaf ->
-      print_endline " NEVER added_as_leaf";
-      PNode (node, [])
-  | PNode ((fhl :: _ as hls), children)
-    when hl.p_headline_id = fhl.p_headline_id ->
-      print_endline " NEVER? added_as_current_node";
-      PNode (hls @ node, children)
+  | PLeaf -> PNode (node, [])
   | PNode (hls, children) when hl.p_parent_id = hl.p_headline_id ->
-      print_endline " first LEVEL added_as_child";
       PNode (hls, children @ [PNode (node, [])])
   | PNode ((fhl :: _ as hls), children) when fhl.p_headline_id = hl.p_parent_id
     ->
-      print_endline " found correct position";
       PNode (hls, children @ [PNode (node, [])])
-  | PNode (hls, children) ->
-      print_endline " down one level";
-      PNode (hls, List.map (add_to_ptree node) children)
+  | PNode (hls, children) -> PNode (hls, List.map (add_to_ptree node) children)
 
 let rec take_while p ls acc =
   match ls with
@@ -165,7 +142,6 @@ let process_org_headlines title outline_hash headlines =
         ; headline_index = None }
       , [] )
   in
-  let tree = make_org_note_tree headlines root in
   let i = ref 0 in
   let processed_org =
     { Db_types.headline_id = -1l
@@ -177,7 +153,7 @@ let process_org_headlines title outline_hash headlines =
     ; link_dest = None
     ; link_desc = None }
   in
-  let process_hl h =
+  let process_hl (h : Db_types.headline) =
     let%lwt title = process_org_text h.headline_text in
     let%lwt content =
       Option.map (fun c -> process_org_text c) h.content
@@ -199,14 +175,14 @@ let process_org_headlines title outline_hash headlines =
         | Id_link (dest, desc) ->
             {processed_org with link_dest = Some dest; link_desc = Some desc}
       in
-      let%lwt _ = Org_db.add_processed_headline_content processed_org in
-      Lwt.return_unit
+      Org_db.add_processed_headline_content processed_org
     in
     ignore @@ List.map (add_processed true) title;
     ignore @@ List.map (add_processed false) content;
     Lwt.return_unit
   in
-  sideeffect_map_tree process_hl tree
+  ignore @@ List.map process_hl headlines;
+  Lwt.return_unit
 
 let process_org_file file_path =
   let%lwt hls = Org_db.get_headlines_for_file_path file_path in

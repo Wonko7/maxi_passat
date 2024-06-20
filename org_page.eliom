@@ -24,10 +24,10 @@ let%rpc get_headline_id_for_roam_id (roam_id : string)
   =
   Org_db.get_headline_id_for_roam_id roam_id
 
-let%rpc get_processed_org_for_outline (outline_hash : string)
+let%rpc get_processed_org_for_path (file_path : string)
     : Db_types.processed_org_headline list Lwt.t
   =
-  Org_db.get_processed_org_for_outline outline_hash
+  Org_db.get_processed_org_for_path file_path
 
 [%%shared.start]
 
@@ -71,7 +71,6 @@ let make_ptree_org_note ?headline_id title headlines =
   (*         tree) *)
   (* in *)
   let processed_org_to_html kind content link_dest link_desc =
-    print_endline " porg 2 html";
     let link_dest = Option.value ~default:"" link_dest in
     let link_desc = Option.value ~default:"" link_desc in
     let content = Option.value ~default:"" content in
@@ -84,7 +83,6 @@ let make_ptree_org_note ?headline_id title headlines =
     | 3l -> br ()
   in
   let hl_to_html hls children =
-    print_endline "hls 2 html";
     let title =
       List.filter_map
         (function
@@ -95,7 +93,6 @@ let make_ptree_org_note ?headline_id title headlines =
           | _ -> None)
         hls
     in
-    let title = [txt "title: "] @ title in
     let content =
       List.filter_map
         (function
@@ -129,7 +126,7 @@ let file_page file_path () =
          | Some r -> Lwt.return r
          | None -> failwith file_path
        in
-       let%lwt hls = get_processed_org_for_outline outline_hash in
+       let%lwt hls = get_processed_org_for_path file_path in
        let%lwt hls = make_ptree_org_note title hls in
        Lwt.return [div [hls]])
   in
