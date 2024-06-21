@@ -87,6 +87,24 @@ let get_processed_org_for_path file_path =
   in
   Lwt.return @@ List.map obj_to_processed_org_headline hls
 
+let get_processed_org_backlinks roam_id =
+  let%lwt hls =
+    full_transaction_block (fun dbh ->
+        [%pgsql.object
+          dbh (* fixme do i need headline_index? *)
+            "SELECT pc.headline_id, pc.index, hc.parent_id, h.headline_index, h.level, pc.kind,
+                    pc.content, pc.is_headline, pc.link_dest, pc.link_desc
+             FROM org.processed_content pc, org.headline_closures hc, org.headlines h,
+                  org.processed_content pc_links
+             WHERE pc_links.link_dest = $roam_id
+               AND pc_links.headline_id = hc.headline_id
+               AND pc.headline_id = hc.headline_id
+               AND h.headline_id = hc.headline_id
+               AND (hc.depth = 1 OR (hc.depth = 0 AND h.level = 1))
+             ORDER BY pc.index ASC, h.level ASC, h.headline_index ASC"])
+  in
+  Lwt.return @@ List.map obj_to_processed_org_headline hls
+
 let get_headline_id_for_roam_id roam_id =
   let%lwt hl_id =
     full_transaction_block (fun dbh ->

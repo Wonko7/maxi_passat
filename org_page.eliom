@@ -20,6 +20,11 @@ let%rpc get_title_outline_for_file_path (file_path : string)
   =
   Org_db.get_title_outline_for_file_path file_path
 
+let%rpc get_processed_org_backlinks (roam_id : string)
+    : Db_types.processed_org_headline list Lwt.t
+  =
+  Org_db.get_processed_org_backlinks roam_id
+
 let%rpc get_processed_org_for_id (roam_id : string)
     : Db_types.processed_org_headline list Lwt.t
   =
@@ -51,6 +56,51 @@ let make_collapsible ~id title content =
      ; label ~a:[a_label_for id; a_class ["lbl-toggle"]] title
      ; div ~a:[a_class ["collapsible-content"]] content ]
 
+let processed_org_to_html kind content link_dest link_desc =
+  let link_dest = Option.value ~default:"" link_dest in
+  let link_desc = Option.value ~default:"" link_desc in
+  let content = Option.value ~default:"" content in
+  match kind with
+  | "file_link" ->
+      a ~service:Maxi_passat_services.org_file [txt link_desc]
+      @@ String.split_on_char '\n' link_dest
+  | "id_link" ->
+      a ~service:Maxi_passat_services.org_id [txt link_desc] @@ link_dest
+  | "bleau_link" ->
+      a ~service:Maxi_passat_services.os_bleau_service
+        ~a:
+          [ a_target "_blank"
+          ; a_rel [`Other "noopener"; `Nofollow]
+          ; a_class ["external_link"] ]
+        [txt "bleau.info : "; txt link_desc]
+      @@ String.split_on_char '/' link_dest
+  | "yt_link" ->
+      span
+        [ txt "youtube : "
+        ; txt link_desc
+        ; br ()
+        ; iframe
+            ~a:
+              [ a_width 560
+              ; a_height 315 (* ; a_frameborder `Zero *)
+              ; Unsafe.string_attrib "frameborder" "0"
+              ; Unsafe.string_attrib "allow"
+                  "accelerometer autoplay clipboard-write encrypted-media gyroscope picture-in-picture web-share"
+              ; a_src
+                  (Eliom_content.Xml.uri_of_string
+                  @@ String.cat "https://www.youtube.com/embed/" link_dest) ]
+            [] ]
+  | "txt" -> txt content
+  | "br" -> br ()
+  | _ -> span []
+
+(* predicate_process, shortened for code golf reasons *)
+let pproc p = function
+  | h when p h ->
+      Some
+        (processed_org_to_html h.p_kind h.p_content h.p_link_dest h.p_link_desc)
+  | _ -> None
+
 let make_ptree_org_note ?headline_id title headlines nodes set_backlinks_id =
   let root =
     Org.PNode
@@ -76,52 +126,6 @@ let make_ptree_org_note ?headline_id title headlines nodes set_backlinks_id =
             | _ -> false)
           tree)
   in
-  let processed_org_to_html kind content link_dest link_desc =
-    let link_dest = Option.value ~default:"" link_dest in
-    let link_desc = Option.value ~default:"" link_desc in
-    let content = Option.value ~default:"" content in
-    match kind with
-    | "file_link" ->
-        a ~service:Maxi_passat_services.org_file [txt link_desc]
-        @@ String.split_on_char '\n' link_dest
-    | "id_link" ->
-        a ~service:Maxi_passat_services.org_id [txt link_desc] @@ link_dest
-    | "bleau_link" ->
-        a ~service:Maxi_passat_services.os_bleau_service
-          ~a:
-            [ a_target "_blank"
-            ; a_rel [`Other "noopener"; `Nofollow]
-            ; a_class ["external_link"] ]
-          [txt "bleau.info : "; txt link_desc]
-        @@ String.split_on_char '/' link_dest
-    | "yt_link" ->
-        span
-          [ txt "youtube : "
-          ; txt link_desc
-          ; br ()
-          ; iframe
-              ~a:
-                [ a_width 560
-                ; a_height 315 (* ; a_frameborder `Zero *)
-                ; Unsafe.string_attrib "frameborder" "0"
-                ; Unsafe.string_attrib "allow"
-                    "accelerometer autoplay clipboard-write encrypted-media gyroscope picture-in-picture web-share"
-                ; a_src
-                    (Eliom_content.Xml.uri_of_string
-                    @@ String.cat "https://www.youtube.com/embed/" link_dest) ]
-              [] ]
-    | "txt" -> txt content
-    | "br" -> br ()
-    | _ -> span []
-  in
-  (* predicate_process, shortened for code golf reasons *)
-  let pproc p = function
-    | h when p h ->
-        Some
-          (processed_org_to_html h.p_kind h.p_content h.p_link_dest
-             h.p_link_desc)
-    | _ -> None
-  in
   let hl_to_html hls children =
     let title = List.filter_map (pproc (fun h -> h.p_is_headline)) hls in
     let content = List.filter_map (pproc (fun h -> not h.p_is_headline)) hls in
@@ -145,19 +149,65 @@ let make_ptree_org_note ?headline_id title headlines nodes set_backlinks_id =
   in
   Org.map_ptree_to_html hl_to_html tree
 
+let rec group_by_headline_id (headlines : processed_org_headline list)
+    (acc : processed_org_headline list)
+    : processed_org_headline list list
+  =
+  match headlines, acc with
+  | [], _ -> [acc]
+  | h :: hs, [] -> group_by_headline_id hs [h]
+  | h :: hs, (a :: _ as acc) when h.p_headline_id = a.p_headline_id ->
+      group_by_headline_id hs (h :: acc)
+  | h :: hs, acc -> Org.reverse acc :: group_by_headline_id hs []
+
+let simple_hl_to_html hls =
+  let title = List.filter_map (pproc (fun h -> h.p_is_headline)) hls in
+  let content = List.filter_map (pproc (fun h -> not h.p_is_headline)) hls in
+  let f = List.hd hls in
+  Lwt.return
+  @@ make_collapsible
+       ~id:(string_of_int @@ Int32.to_int f.p_headline_id)
+       title
+       [div ~a:[a_class ["content"]] content]
+
+let ( >|= ) = Lwt.( >|= )
+
+let print_trace f =
+  try f ()
+  with e ->
+    let msg = Printexc.to_string e and stack = Printexc.get_backtrace () in
+    Printf.eprintf "there was an error: %s%s\n" msg stack;
+    raise e
+
 let backlinks
     (backlinks_node : string Eliom_content.Html.F.wrap Eliom_shared.React.S.t)
-    : Html_types.div_content Eliom_content.Html.R.elt
+    : Html_types.div_content Eliom_content.Html.R.elt Lwt.t (* backlinks_node *)
   =
-  R.node
-  @@ Eliom_shared.React.S.map
-       [%shared
-         fun roam_id ->
-           let aclass = ["backlinks"] in
-           match roam_id with
-           | "" -> div ~a:[a_class ("invisible" :: aclass)] []
-           | roam_id -> div ~a:[a_class aclass] [txt roam_id]]
-       backlinks_node
+  Eliom_shared.React.S.Lwt.map_s ~eq:[%shared ( == )]
+    (* Eliom_shared.ReactiveData.RList.Lwt.map_p *)
+    [%shared
+      fun roam_id ->
+        print_endline roam_id;
+        print_endline "called";
+        let aclass = ["backlinks"] in
+        match roam_id with
+        | "" -> Lwt.return @@ F.div ~a:[a_class ("invisible" :: aclass)] []
+        | roam_id ->
+            let f () =
+              print_endline "1";
+              let%lwt headlines = get_processed_org_backlinks roam_id in
+              print_endline "2";
+              let hls = group_by_headline_id headlines [] in
+              let dhls = List.map simple_hl_to_html hls in
+              print_endline "3";
+              let%lwt dhls = Org.lwt_flatten [] dhls in
+              print_endline "done";
+              Lwt.return @@ F.div ~a:[a_class aclass] dhls
+            in
+            let g () = Lwt.return @@ F.div ~a:[a_class aclass] [txt roam_id] in
+            print_trace g]
+    backlinks_node
+  >|= R.node
 
 let rec add_slash = function
   | a :: b :: l -> a :: "/" :: add_slash (b :: l)
@@ -174,7 +224,7 @@ let file_page file_path () =
          | None -> failwith file_path
        in
        let backlinks_node, set_backlinks_id = Eliom_shared.React.S.create "" in
-       let backlinks_node = backlinks backlinks_node in
+       let%lwt backlinks_node = backlinks backlinks_node in
        let%lwt hls = get_processed_org_for_path file_path in
        let%lwt nodes = get_roam_nodes file_path in
        let%lwt hls = make_ptree_org_note title hls nodes set_backlinks_id in
