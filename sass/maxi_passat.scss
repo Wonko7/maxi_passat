@@ -25,12 +25,21 @@ body {
     background: #27212E;
     color: white;
 }
+
 //links
+.link {
+  color: cyan;
+  cursor: pointer;
+}
+.link:hover {
+  color: cyan;
+  text-decoration: underline;
+  cursor: pointer;
+}
 a {
   color: cyan;
   outline-color: transparent;
 }
-
 a:link {
   color: cyan;
 }
@@ -42,15 +51,12 @@ a:visited {
 a:focus {
   color: cyan;
 }
-
 a:hover {
   text-decoration: underline;
 }
-
 a:active {
   color: cyan;
 }
-
 
 // collapse
 .wrap-collapsible {
@@ -108,3 +114,18 @@ input[type='checkbox'] {
 }
 
 @include indent();
+
+// org_page contains org_content & backlinks
+
+.org_page {
+    display: flex;
+}
+.org_content {
+    flex: 2;
+}
+.backlinks {
+    flex: 1;
+}
+.invisible {
+    display: none;
+}

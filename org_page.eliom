@@ -130,14 +130,17 @@ let make_ptree_org_note ?headline_id title headlines nodes set_backlinks_id =
       List.assoc_opt f.p_headline_id nodes
       |> Option.map (fun node_id ->
              span
-               ~a:[a_onclick [%client fun _ -> ~%set_backlinks_id ~%node_id]]
-               [txt node_id])
+               ~a:
+                 [ a_class ["link"]
+                 ; a_onclick [%client fun _ -> ~%set_backlinks_id ~%node_id] ]
+               [txt "backlinks"])
+      (* TODO i18n *)
     in
     Lwt.return
     @@ make_collapsible
          ~id:(string_of_int @@ Int32.to_int f.p_headline_id)
          title
-         [ div ~a:[a_class ["backlinks"]] (backlinks @? [])
+         [ div ~a:[a_class ["backlinks_link"]] (backlinks @? [])
          ; div ~a:[a_class ["content"]] (content @ children) ]
   in
   Org.map_ptree_to_html hl_to_html tree
@@ -175,7 +178,10 @@ let file_page file_path () =
        let%lwt hls = get_processed_org_for_path file_path in
        let%lwt nodes = get_roam_nodes file_path in
        let%lwt hls = make_ptree_org_note title hls nodes set_backlinks_id in
-       Lwt.return [div [hls]; div [backlinks_node]])
+       Lwt.return
+         [ div
+             ~a:[a_class ["org_page"]]
+             [div ~a:[a_class ["org_content"]] [hls]; backlinks_node] ])
   in
   (* a title would be nice: h1 [%i18n Demo.pgocaml]; *)
   Lwt.return [org_note]
