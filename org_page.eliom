@@ -115,7 +115,8 @@ let make_ptree_org_note ?headline_id title headlines nodes
           ; p_index = 0l
           ; p_kind = "txt"
           ; p_link_desc = None
-          ; p_link_dest = None } ]
+          ; p_link_dest = None
+          ; p_file_path = "" } ]
       , [] )
   in
   let tree = Org.make_org_note_ptree headlines root in
@@ -173,6 +174,17 @@ let simple_hl_to_html hls =
     title
     [div ~a:[a_class ["content"]] content]
 
+let make_backnode_link hls =
+  let f = List.hd hls in
+  div
+    ~a:
+      [ a_onclick
+          [%client
+            fun _ ->
+              print_endline "visit";
+              print_endline ~%f.p_file_path] ]
+  @@ [simple_hl_to_html hls]
+
 let print_trace f =
   try f ()
   with e ->
@@ -187,11 +199,11 @@ let backlinks (backlinks_node : processed_org_headline list R.list_wrap) =
          fun headlines ->
            let aclass = ["backlinks"] in
            match headlines with
-           | [] -> F.div ~a:[a_class ("invisible" :: aclass)] []
+           | [] -> div ~a:[a_class ("invisible" :: aclass)] []
            | headlines ->
                let hls = group_by_headline_id headlines [] in
-               let dhls = List.map simple_hl_to_html hls in
-               F.div ~a:[a_class aclass] dhls]
+               let dhls = List.map make_backnode_link hls in
+               div ~a:[a_class aclass] dhls]
        backlinks_node
 
 let rec add_slash = function
@@ -208,17 +220,17 @@ let file_page file_path () =
          | Some r -> Lwt.return r
          | None -> failwith file_path
        in
-       let backlinks_node, set_backlinks_id =
+       let backlink_list, set_backlink_nodes =
          Eliom_shared.ReactiveData.RList.create []
        in
        let set_nodes =
          [%client
            fun roam_id ->
              let%lwt nodes = get_processed_org_backlinks roam_id in
-             Eliom_shared.ReactiveData.RList.set ~%set_backlinks_id [nodes];
+             Eliom_shared.ReactiveData.RList.set ~%set_backlink_nodes [nodes];
              Lwt.return_unit]
        in
-       let backlinks_node = backlinks backlinks_node in
+       let backlinks_node = backlinks backlink_list in
        let%lwt hls = get_processed_org_for_path file_path in
        let%lwt nodes = get_roam_nodes file_path in
        let%lwt hls = make_ptree_org_note title hls nodes set_nodes in

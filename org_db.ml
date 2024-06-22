@@ -33,7 +33,8 @@ let obj_to_processed_org_headline h =
   ; p_headline_index = h#headline_index
   ; p_content = h#content
   ; p_link_desc = h#link_desc
-  ; p_link_dest = h#link_dest }
+  ; p_link_dest = h#link_dest
+  ; p_file_path = h#file_path }
 
 let get_headlines_for_file_path file_path =
   let file_path = String.cat org_prefix file_path in
@@ -58,10 +59,11 @@ let get_processed_org_for_id roam_id =
         [%pgsql.object
           dbh
             "SELECT h.headline_id, pc.index, hc.parent_id, h.headline_index, h.level, pc.kind,
-                    pc.content, pc.is_headline, pc.link_dest, pc.link_desc
-             FROM org.processed_content pc, org.headlines h, org.headline_closures hc, org.properties p
+                    pc.content, pc.is_headline, pc.link_dest, pc.link_desc, m.file_path
+             FROM org.processed_content pc, org.headlines h, org.headline_closures hc, org.properties p, org.file_metadata m
              WHERE p.key_text = 'ID' AND p.val_text = $roam_id
                AND p.outline_hash = h.outline_hash
+               AND p.outline_hash = m.outline_hash
                AND h.headline_id = hc.headline_id
                AND h.headline_id = pc.headline_id
                AND (hc.depth = 1 OR (hc.depth = 0 AND h.level = 1))
@@ -76,7 +78,7 @@ let get_processed_org_for_path file_path =
         [%pgsql.object
           dbh (* fixme do i need headline_index? *)
             "SELECT h.headline_id, pc.index, hc.parent_id, h.headline_index, h.level, pc.kind,
-                    pc.content, pc.is_headline, pc.link_dest, pc.link_desc
+                    pc.content, pc.is_headline, pc.link_dest, pc.link_desc, m.file_path
              FROM org.processed_content pc, org.headlines h, org.headline_closures hc, org.file_metadata m
              WHERE m.file_path = $file_path
                AND m.outline_hash = h.outline_hash
@@ -93,13 +95,14 @@ let get_processed_org_backlinks roam_id =
         [%pgsql.object
           dbh (* fixme do i need headline_index? *)
             "SELECT pc.headline_id, pc.index, hc.parent_id, h.headline_index, h.level, pc.kind,
-                    pc.content, pc.is_headline, pc.link_dest, pc.link_desc
+                    pc.content, pc.is_headline, pc.link_dest, pc.link_desc, m.file_path
              FROM org.processed_content pc, org.headline_closures hc, org.headlines h,
-                  org.processed_content pc_links
+                  org.processed_content pc_links, org.file_metadata m
              WHERE pc_links.link_dest = $roam_id
                AND pc_links.headline_id = hc.headline_id
                AND pc.headline_id = hc.headline_id
                AND h.headline_id = hc.headline_id
+               AND h.outline_hash = m.outline_hash
                AND (hc.depth = 1 OR (hc.depth = 0 AND h.level = 1))
              ORDER BY pc.index ASC, h.level ASC, h.headline_index ASC"])
   in

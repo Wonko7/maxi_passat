@@ -40,7 +40,8 @@ type processed_org_headline =
   ; p_is_headline : bool
   ; p_content : string option
   ; p_link_dest : string option
-  ; p_link_desc : string option }
+  ; p_link_desc : string option
+  ; p_file_path : string }
 [@@deriving json, show]
 
 let processed_kind_to_str = function
