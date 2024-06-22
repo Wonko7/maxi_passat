@@ -42,9 +42,26 @@ let%rpc get_processed_org_for_path (file_path : string)
 
 [%%shared.start]
 
-let make_collapsible ~id title content =
+let make_header_entry ~id title content =
   (* https://www.digitalocean.com/community/tutorials/css-collapsible *)
-  div ~a:[a_class ["header wrap-collapsible"; "indent-1"]]
+  div ~a:[a_class ["header"]]
+  @@ [ div
+         [ input
+             ~a:
+               [ a_id id
+               ; a_class ["toggle"]
+               ; a_input_type `Checkbox
+               ; a_checked ()
+               ; a_tabindex 0 ]
+             ()
+         ; label
+             ~a:[a_label_for id; a_class ["org_node_title"]]
+             (txt "⭘ " :: title) ]
+     ; div ~a:[a_class ["org_node_content"]] content ]
+
+let make_collapsible ~id ~title_class title content =
+  (* https://www.digitalocean.com/community/tutorials/css-collapsible *)
+  div ~a:[a_class ["header"; "wrap-collapsible"]]
   @@ [ input
          ~a:
            [ a_id id
@@ -53,8 +70,8 @@ let make_collapsible ~id title content =
            ; a_checked ()
            ; a_tabindex 0 ]
          ()
-     ; label ~a:[a_label_for id; a_class ["lbl-toggle"]] title
-     ; div ~a:[a_class ["collapsible-content"]] content ]
+     ; label ~a:[a_label_for id; title_class] title
+     ; div ~a:[a_class ["collapsible-content"; "org_node_content"]] content ]
 
 let processed_org_to_html kind content link_dest link_desc =
   let link_dest = Option.value ~default:"" link_dest in
@@ -101,6 +118,10 @@ let pproc p = function
         (processed_org_to_html h.p_kind h.p_content h.p_link_dest h.p_link_desc)
   | _ -> None
 
+let%client last_selected_node =
+  let selected, set_selected_title = Eliom_shared.React.S.create false in
+  ref set_selected_title
+
 let make_ptree_org_note ?headline_id title headlines nodes
     (set_backlinks_id : (string -> unit Lwt.t) Eliom_client_value.t)
   =
@@ -132,6 +153,15 @@ let make_ptree_org_note ?headline_id title headlines nodes
   let hl_to_html hls children =
     let title = List.filter_map (pproc (fun h -> h.p_is_headline)) hls in
     let content = List.filter_map (pproc (fun h -> not h.p_is_headline)) hls in
+    let selected, set_selected_title = Eliom_shared.React.S.create false in
+    let title_class =
+      R.a_class
+      @@ Eliom_shared.React.S.map
+           [%shared
+             let classes = ["lbl-toggle"; "org_node_title"] in
+             function false -> classes | true -> "selected_node" :: classes]
+           selected
+    in
     let f = List.hd hls in
     let backlinks =
       List.assoc_opt f.p_headline_id nodes
@@ -140,14 +170,18 @@ let make_ptree_org_note ?headline_id title headlines nodes
                ~a:
                  [ a_class ["link"]
                  ; a_onclick
-                     [%client fun _ -> ignore @@ ~%set_backlinks_id ~%node_id]
-                 ]
+                     [%client
+                       fun _ ->
+                         ignore @@ ~%set_backlinks_id ~%node_id;
+                         !last_selected_node false;
+                         ignore @@ ~%set_selected_title true;
+                         last_selected_node := ~%set_selected_title] ]
                [txt "backlinks"])
       (* TODO i18n *)
     in
     make_collapsible
       ~id:(string_of_int @@ Int32.to_int f.p_headline_id)
-      title
+      ~title_class title
       [ div ~a:[a_class ["backlinks_link"]] (backlinks @? [])
       ; div ~a:[a_class ["content"]] (content @ children) ]
   in
@@ -168,7 +202,7 @@ let simple_hl_to_html hls =
   let title = List.filter_map (pproc (fun h -> h.p_is_headline)) hls in
   let content = List.filter_map (pproc (fun h -> not h.p_is_headline)) hls in
   let f = List.hd hls in
-  make_collapsible
+  make_header_entry
     ~id:(string_of_int @@ Int32.to_int f.p_headline_id)
     title
     [div ~a:[a_class ["content"]] content]
