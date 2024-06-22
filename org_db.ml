@@ -104,7 +104,7 @@ let get_processed_org_backlinks roam_id =
                AND h.headline_id = hc.headline_id
                AND h.outline_hash = m.outline_hash
                AND (hc.depth = 1 OR (hc.depth = 0 AND h.level = 1))
-             ORDER BY pc.index ASC, h.level ASC, h.headline_index ASC"])
+             ORDER BY h.headline_id, pc.index ASC"])
   in
   Lwt.return @@ List.map obj_to_processed_org_headline hls
 
