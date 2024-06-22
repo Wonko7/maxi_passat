@@ -60,13 +60,14 @@ let%server _ =
   then (
     ignore
       [%client
-        ((* Eliom_config.debug_timings := true; *)
-         (* Lwt_log_core.add_rule "eliom:client*" Lwt_log_js.Debug; *)
-         (* Lwt_log_core.add_rule "os*" Lwt_log_js.Debug; *)
-         Lwt_log_core.add_rule "Maxi_passat*" Lwt_log_js.Debug
-         (* Lwt_log_core.add_rule "*" Lwt_log_js.Debug *)
+        (Eliom_config.debug_timings := true;
+         print_endline "debug mode!";
+         Lwt_log_core.add_rule "eliom:client*" Lwt_log_js.Debug;
+         Lwt_log_core.add_rule "os*" Lwt_log_js.Debug;
+         Lwt_log_core.add_rule "Maxi_passat*" Lwt_log_js.Debug;
+         Lwt_log_core.add_rule "*" Lwt_log_js.Debug
           : unit)];
-    (* Lwt_log_core.add_rule "*" Lwt_log.Debug *)
+    Lwt_log_core.add_rule "*" Lwt_log.Debug;
     Lwt_log_core.add_rule "Maxi_passat*" Lwt_log.Debug)
 
 let%server _ = Org.preprocess_init ()
