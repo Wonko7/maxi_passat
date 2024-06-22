@@ -68,13 +68,14 @@ input[type='checkbox'] {
 .lbl-toggle {
   display: block;
   // color: #A77B0E;
-  color: #ED60BA;
   cursor: pointer;
   transition: all 0.25s ease-out;
+  // color: #ED60BA;
+  // padding-left: 0.5rem;
 }
-.lbl-toggle:hover {
-  color: #EB64B9;
-}
+// .lbl-toggle:hover {
+//   color: #EB64B9;
+// }
 .lbl-toggle::before {
   content: ' ';
   display: inline-block;
@@ -94,6 +95,7 @@ input[type='checkbox'] {
   max-height: 0px;
   overflow: hidden;
   transition: max-height .25s ease-in-out;
+  // padding-left: 1rem;
 }
 .toggle:checked + .lbl-toggle + .collapsible-content {
   // tutorial had this value, this fucked up bigger than screen size content
@@ -101,8 +103,15 @@ input[type='checkbox'] {
   max-height: 100%;
 }
 .toggle:checked + .lbl-toggle {
-  border-bottom-right-radius: 0;
-  border-bottom-left-radius: 0;
+  // border-bottom-right-radius: 0;
+  // border-bottom-left-radius: 0;
+}
+.org_node_title {
+  color: #ED60BA;
+  padding-left: 0.5rem;
+}
+.org_node_content {
+  padding-left: 1rem;
 }
 
 @mixin indent(){
@@ -133,7 +142,19 @@ input[type='checkbox'] {
     flex: 1;
     overflow-y: scroll;
     height: 100%;
+    border-left: 3px solid #ED60BA;
 }
 .invisible {
     display: none;
 }
+.selected_node {
+    background: #ED60BA;
+    color: black;
+    border-top:  1px solid #ED60BA;
+    border-left:  1px solid #ED60BA;
+    border-bottom:  1px solid #ED60BA;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+
+// backlinsk
