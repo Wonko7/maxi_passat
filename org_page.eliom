@@ -158,7 +158,7 @@ let rec group_by_headline_id (headlines : processed_org_headline list)
   | h :: hs, [] -> group_by_headline_id hs [h]
   | h :: hs, (a :: _ as acc) when h.p_headline_id = a.p_headline_id ->
       group_by_headline_id hs (h :: acc)
-  | h :: hs, acc -> Org.reverse acc :: group_by_headline_id hs []
+  | hs, acc -> Org.reverse acc :: group_by_headline_id hs []
 
 let simple_hl_to_html hls =
   let title = List.filter_map (pproc (fun h -> h.p_is_headline)) hls in
