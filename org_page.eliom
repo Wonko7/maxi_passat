@@ -190,7 +190,7 @@ let print_trace f =
 let backlinks (backlinks_node : processed_org_headline list R.list_wrap)
     set_file_path
   =
-  R.div
+  R.div ~a:[a_class ["backlink_content"]]
   @@ Eliom_shared.ReactiveData.RList.map
        [%shared
          fun headlines ->
