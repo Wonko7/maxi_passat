@@ -90,9 +90,8 @@ let rec map_ptree_to_html f tree =
   match tree with
   | PNode (hls, children) ->
       let children = List.map (map_ptree_to_html f) children in
-      let%lwt children = lwt_flatten [] children in
       f hls children
-  | PLeaf -> Lwt.return @@ Eliom_content.Html.F.div []
+  | PLeaf -> Eliom_content.Html.F.div []
 
 let rec get_subptree p tree =
   match tree with

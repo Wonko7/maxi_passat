@@ -34,7 +34,7 @@ let obj_to_processed_org_headline h =
   ; p_content = h#content
   ; p_link_desc = h#link_desc
   ; p_link_dest = h#link_dest
-  ; p_file_path = h#file_path }
+  ; p_file_path = strip_org_prefix h#file_path }
 
 let get_headlines_for_file_path file_path =
   let file_path = String.cat org_prefix file_path in

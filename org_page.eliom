@@ -145,12 +145,11 @@ let make_ptree_org_note ?headline_id title headlines nodes
                [txt "backlinks"])
       (* TODO i18n *)
     in
-    Lwt.return
-    @@ make_collapsible
-         ~id:(string_of_int @@ Int32.to_int f.p_headline_id)
-         title
-         [ div ~a:[a_class ["backlinks_link"]] (backlinks @? [])
-         ; div ~a:[a_class ["content"]] (content @ children) ]
+    make_collapsible
+      ~id:(string_of_int @@ Int32.to_int f.p_headline_id)
+      title
+      [ div ~a:[a_class ["backlinks_link"]] (backlinks @? [])
+      ; div ~a:[a_class ["content"]] (content @ children) ]
   in
   Org.map_ptree_to_html hl_to_html tree
 
@@ -174,15 +173,11 @@ let simple_hl_to_html hls =
     title
     [div ~a:[a_class ["content"]] content]
 
-let make_backnode_link hls =
+let make_backnode_link
+    (set_file_path : (string -> unit Lwt.t) Eliom_client_value.t) hls
+  =
   let f = List.hd hls in
-  div
-    ~a:
-      [ a_onclick
-          [%client
-            fun _ ->
-              print_endline "visit";
-              print_endline ~%f.p_file_path] ]
+  div ~a:[a_onclick [%client fun _ -> ignore @@ ~%set_file_path ~%f.p_file_path]]
   @@ [simple_hl_to_html hls]
 
 let print_trace f =
@@ -192,7 +187,9 @@ let print_trace f =
     Printf.eprintf "there was an error: %s%s\n" msg stack;
     raise e
 
-let backlinks (backlinks_node : processed_org_headline list R.list_wrap) =
+let backlinks (backlinks_node : processed_org_headline list R.list_wrap)
+    set_file_path
+  =
   R.div
   @@ Eliom_shared.ReactiveData.RList.map
        [%shared
@@ -202,9 +199,28 @@ let backlinks (backlinks_node : processed_org_headline list R.list_wrap) =
            | [] -> div ~a:[a_class ("invisible" :: aclass)] []
            | headlines ->
                let hls = group_by_headline_id headlines [] in
-               let dhls = List.map make_backnode_link hls in
+               let dhls = List.map (make_backnode_link ~%set_file_path) hls in
                div ~a:[a_class aclass] dhls]
        backlinks_node
+
+let org_file_content
+    (file_data :
+      (string
+      * processed_org_headline list
+      * (int32 * string) list
+      * (string -> unit Lwt.t) Eliom_client_value.t)
+      list
+      R.list_wrap)
+  =
+  R.div
+  @@ Eliom_shared.ReactiveData.RList.map
+       [%shared
+         fun file_data ->
+           match file_data with
+           | [(title, headlines, nodes, set_nodes)] ->
+               make_ptree_org_note title headlines nodes set_nodes
+           | _ -> failwith "bad file data"]
+       file_data
 
 let rec add_slash = function
   | a :: b :: l -> a :: "/" :: add_slash (b :: l)
@@ -230,14 +246,32 @@ let file_page file_path () =
              Eliom_shared.ReactiveData.RList.set ~%set_backlink_nodes [nodes];
              Lwt.return_unit]
        in
-       let backlinks_node = backlinks backlink_list in
        let%lwt hls = get_processed_org_for_path file_path in
        let%lwt nodes = get_roam_nodes file_path in
-       let%lwt hls = make_ptree_org_note title hls nodes set_nodes in
+       let file_data_list, set_file_data =
+         Eliom_shared.ReactiveData.RList.create [[title, hls, nodes, set_nodes]]
+       in
+       let set_filepath =
+         [%client
+           fun file_path ->
+             let%lwt hls = get_processed_org_for_path file_path in
+             let%lwt nodes = get_roam_nodes file_path in
+             let%lwt title, _outline_hash =
+               match%lwt get_title_outline_for_file_path file_path with
+               | Some r -> Lwt.return r
+               | None -> Lwt.return ("", "")
+             in
+             Eliom_shared.ReactiveData.RList.set ~%set_file_data
+               [[title, hls, nodes, ~%set_nodes]];
+             Lwt.return_unit]
+       in
+       let backlinks_node = backlinks backlink_list set_filepath in
+       let org_content = org_file_content file_data_list in
+       (* let%lwt hls = make_ptree_org_note title hls nodes set_nodes in *)
        Lwt.return
          [ div
              ~a:[a_class ["org_page"]]
-             [div ~a:[a_class ["org_content"]] [hls]; backlinks_node] ])
+             [div ~a:[a_class ["org_content"]] [org_content]; backlinks_node] ])
   in
   (* a title would be nice: h1 [%i18n Demo.pgocaml]; *)
   Lwt.return [org_note]
