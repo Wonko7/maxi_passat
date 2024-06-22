@@ -101,7 +101,9 @@ let pproc p = function
         (processed_org_to_html h.p_kind h.p_content h.p_link_dest h.p_link_desc)
   | _ -> None
 
-let make_ptree_org_note ?headline_id title headlines nodes set_backlinks_id =
+let make_ptree_org_note ?headline_id title headlines nodes
+    (set_backlinks_id : (string -> unit Lwt.t) Eliom_client_value.t)
+  =
   let root =
     Org.PNode
       ( [ { Db_types.p_headline_id = -1l
@@ -136,7 +138,9 @@ let make_ptree_org_note ?headline_id title headlines nodes set_backlinks_id =
              span
                ~a:
                  [ a_class ["link"]
-                 ; a_onclick [%client fun _ -> ~%set_backlinks_id ~%node_id] ]
+                 ; a_onclick
+                     [%client fun _ -> ignore @@ ~%set_backlinks_id ~%node_id]
+                 ]
                [txt "backlinks"])
       (* TODO i18n *)
     in
@@ -164,13 +168,10 @@ let simple_hl_to_html hls =
   let title = List.filter_map (pproc (fun h -> h.p_is_headline)) hls in
   let content = List.filter_map (pproc (fun h -> not h.p_is_headline)) hls in
   let f = List.hd hls in
-  Lwt.return
-  @@ make_collapsible
-       ~id:(string_of_int @@ Int32.to_int f.p_headline_id)
-       title
-       [div ~a:[a_class ["content"]] content]
-
-let ( >|= ) = Lwt.( >|= )
+  make_collapsible
+    ~id:(string_of_int @@ Int32.to_int f.p_headline_id)
+    title
+    [div ~a:[a_class ["content"]] content]
 
 let print_trace f =
   try f ()
@@ -179,35 +180,19 @@ let print_trace f =
     Printf.eprintf "there was an error: %s%s\n" msg stack;
     raise e
 
-let backlinks
-    (backlinks_node : string Eliom_content.Html.F.wrap Eliom_shared.React.S.t)
-    : Html_types.div_content Eliom_content.Html.R.elt Lwt.t (* backlinks_node *)
-  =
-  Eliom_shared.React.S.Lwt.map_s ~eq:[%shared ( == )]
-    (* Eliom_shared.ReactiveData.RList.Lwt.map_p *)
-    [%shared
-      fun roam_id ->
-        print_endline roam_id;
-        print_endline "called";
-        let aclass = ["backlinks"] in
-        match roam_id with
-        | "" -> Lwt.return @@ F.div ~a:[a_class ("invisible" :: aclass)] []
-        | roam_id ->
-            let f () =
-              print_endline "1";
-              let%lwt headlines = get_processed_org_backlinks roam_id in
-              print_endline "2";
-              let hls = group_by_headline_id headlines [] in
-              let dhls = List.map simple_hl_to_html hls in
-              print_endline "3";
-              let%lwt dhls = Org.lwt_flatten [] dhls in
-              print_endline "done";
-              Lwt.return @@ F.div ~a:[a_class aclass] dhls
-            in
-            let g () = Lwt.return @@ F.div ~a:[a_class aclass] [txt roam_id] in
-            print_trace g]
-    backlinks_node
-  >|= R.node
+let backlinks (backlinks_node : processed_org_headline list R.list_wrap) =
+  R.div
+  @@ Eliom_shared.ReactiveData.RList.map
+       [%shared
+         fun headlines ->
+           let aclass = ["backlinks"] in
+           match headlines with
+           | [] -> F.div ~a:[a_class ("invisible" :: aclass)] []
+           | headlines ->
+               let hls = group_by_headline_id headlines [] in
+               let dhls = List.map simple_hl_to_html hls in
+               F.div ~a:[a_class aclass] dhls]
+       backlinks_node
 
 let rec add_slash = function
   | a :: b :: l -> a :: "/" :: add_slash (b :: l)
@@ -218,16 +203,25 @@ let file_page file_path () =
   let file_path = String.concat "" @@ add_slash file_path in
   let%lwt org_note =
     Ot_spinner.with_spinner
-      (let%lwt title, outline_hash =
+      (let%lwt title, _outline_hash =
          match%lwt get_title_outline_for_file_path file_path with
          | Some r -> Lwt.return r
          | None -> failwith file_path
        in
-       let backlinks_node, set_backlinks_id = Eliom_shared.React.S.create "" in
-       let%lwt backlinks_node = backlinks backlinks_node in
+       let backlinks_node, set_backlinks_id =
+         Eliom_shared.ReactiveData.RList.create []
+       in
+       let set_nodes =
+         [%client
+           fun roam_id ->
+             let%lwt nodes = get_processed_org_backlinks roam_id in
+             Eliom_shared.ReactiveData.RList.set ~%set_backlinks_id [nodes];
+             Lwt.return_unit]
+       in
+       let backlinks_node = backlinks backlinks_node in
        let%lwt hls = get_processed_org_for_path file_path in
        let%lwt nodes = get_roam_nodes file_path in
-       let%lwt hls = make_ptree_org_note title hls nodes set_backlinks_id in
+       let%lwt hls = make_ptree_org_note title hls nodes set_nodes in
        Lwt.return
          [ div
              ~a:[a_class ["org_page"]]
@@ -238,25 +232,25 @@ let file_page file_path () =
 
 let id_page roam_id () =
   let%lwt org_note =
-    Ot_spinner.with_spinner
-      (let%lwt hls = get_processed_org_for_id roam_id in
-       let%lwt headline_id, file_path =
-         match%lwt get_headline_id_for_roam_id roam_id with
-         | Some r -> Lwt.return r
-         | None -> failwith "could not find parent file_path"
-       in
-       let title =
-         h3
-           [ txt "from file : " (* todo i18n *)
-           ; a ~service:Maxi_passat_services.org_file [txt file_path]
-             @@ String.split_on_char '\n' file_path ]
-       in
-       let%lwt nodes = get_roam_nodes file_path in
-       (* let%lwt hls = make_ptree_org_note ~headline_id "roam node:" hls nodes in *)
-       (* Lwt.return @@ [div [title]; div [hls]]) *)
-       Lwt.return @@ [div [title]; div []])
+    (* Ot_spinner.with_spinner *)
+    let%lwt hls = get_processed_org_for_id roam_id in
+    let%lwt headline_id, file_path =
+      match%lwt get_headline_id_for_roam_id roam_id with
+      | Some r -> Lwt.return r
+      | None -> failwith "could not find parent file_path"
+    in
+    let title =
+      h3
+        [ txt "from file : " (* todo i18n *)
+        ; a ~service:Maxi_passat_services.org_file [txt file_path]
+          @@ String.split_on_char '\n' file_path ]
+    in
+    (* let%lwt nodes = get_roam_nodes file_path in *)
+    (* let%lwt hls = make_ptree_org_note ~headline_id "roam node:" hls nodes in *)
+    (* Lwt.return @@ [div [title]; div [hls]]) *)
+    Lwt.return @@ [div [title]; div []]
   in
-  Lwt.return [org_note]
+  Lwt.return [div org_note]
 
 let () =
   Maxi_passat_base.App.register ~service:Maxi_passat_services.org_file
