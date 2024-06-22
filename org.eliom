@@ -73,6 +73,8 @@ let rec sideeffect_map_tree f tree =
       ignore @@ f thl;
       let children = List.map (sideeffect_map_tree f) children in
       let%lwt children = lwt_flatten [] children in
+      ignore @@ children;
+      (* let%lwt children = lwt_flatten [] children in *)
       Lwt.return []
   | Leaf -> Lwt.return []
 
@@ -94,8 +96,8 @@ let rec map_ptree_to_html f tree =
 
 let rec get_subptree p tree =
   match tree with
-  | PNode (hls, children) as st when p hls -> st
-  | PNode (hls, children) ->
+  | PNode (hls, _) as st when p hls -> st
+  | PNode (_, children) ->
       List.fold_left (fun acc n -> if n = PLeaf then acc else n) PLeaf
       @@ List.map (get_subptree p) children
   | PLeaf -> PLeaf
@@ -151,17 +153,7 @@ let process_org_text s =
   in
   String.split_on_char '\n' s |> add_brs []
 
-let process_org_headlines title outline_hash headlines =
-  let root =
-    Node
-      ( { Db_types.headline_id = -1l
-        ; parent_id = -1l
-        ; headline_text = title
-        ; content = None (* FIXME: there is content *)
-        ; level = None
-        ; headline_index = None }
-      , [] )
-  in
+let process_org_headlines _title outline_hash headlines =
   let i = ref 0 in
   let processed_org =
     { Db_types.headline_id = -1l
@@ -193,6 +185,7 @@ let process_org_headlines title outline_hash headlines =
         | Br -> processed_org
         | Text t -> {processed_org with content = Some t}
         | Id_link (dest, desc)
+        | File_link (dest, desc)
         | Yt_link (dest, desc)
         | Bleau_link (dest, desc)
         | Https_link (dest, desc) ->
