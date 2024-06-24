@@ -204,7 +204,7 @@ let rec group_by_headline_id (headlines : processed_org_headline list)
     : processed_org_headline list list
   =
   match headlines, acc with
-  | [], _ -> [acc]
+  | [], _ -> [Org.reverse acc]
   | h :: hs, [] -> group_by_headline_id hs [h]
   | h :: hs, (a :: _ as acc) when h.p_headline_id = a.p_headline_id ->
       group_by_headline_id hs (h :: acc)
