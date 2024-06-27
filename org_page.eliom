@@ -35,6 +35,11 @@ let%rpc get_headline_id_for_roam_id (roam_id : string)
   =
   Org_db.get_headline_id_for_roam_id roam_id
 
+let%rpc get_file_path_headline (roam_id : string)
+    : (string * (string * int32)) list Lwt.t
+  =
+  Org_db.get_file_path_headline roam_id
+
 let%rpc get_processed_org_for_path (file_path : string)
     : Db_types.processed_org_headline list Lwt.t
   =
@@ -285,16 +290,33 @@ let org_file_content ~set_file_path
            make_ptree_org_note title headlines nodes set_nodes]
        file_data
 
+let prepare_roam_id_links hls =
+  List.filter_map
+    (fun h ->
+      match h.p_kind, h.p_link_dest with
+      | "id_link", Some d -> Some d
+      | _ -> None)
+    hls
+  |> List.map get_file_path_headline
+  |> Org.lwt_flatten []
+
 let rec add_slash = function
   | a :: b :: l -> a :: "/" :: add_slash (b :: l)
   | a :: [] -> [a]
   | [] -> []
 
+let gather_org_file_data file_path =
+  let%lwt hls = get_processed_org_for_path file_path in
+  let%lwt nodes = get_roam_nodes file_path in
+  let%lwt roam_links = prepare_roam_id_links hls in
+  let%lwt title, _ = safe_get_title_outline_for_file_path file_path in
+  Lwt.return (hls, nodes, roam_links, title)
+
 let file_page file_path () =
   let file_path = String.concat "" @@ add_slash file_path in
   let%lwt org_note =
     Ot_spinner.with_spinner
-      (let%lwt title, _ = safe_get_title_outline_for_file_path file_path in
+      (let%lwt hls, nodes, roam_links, title = gather_org_file_data file_path in
        let backlink_list, set_backlink_nodes =
          Eliom_shared.ReactiveData.RList.create []
        in
@@ -305,8 +327,6 @@ let file_page file_path () =
              Eliom_shared.ReactiveData.RList.set ~%set_backlink_nodes [nodes];
              Lwt.return_unit]
        in
-       let%lwt hls = get_processed_org_for_path file_path in
-       let%lwt nodes = get_roam_nodes file_path in
        let file_data_s, set_file_data =
          (* Eliom_shared.ReactiveData.RList.create [[title, hls, nodes, set_nodes]] *)
          Eliom_shared.React.S.create (title, hls, nodes, set_nodes)
@@ -314,10 +334,8 @@ let file_page file_path () =
        let set_file_path =
          [%client
            fun file_path ->
-             let%lwt hls = get_processed_org_for_path file_path in
-             let%lwt nodes = get_roam_nodes file_path in
-             let%lwt title, _ =
-               safe_get_title_outline_for_file_path file_path
+             let%lwt hls, nodes, roam_links, title =
+               gather_org_file_data file_path
              in
              ~%set_file_data (title, hls, nodes, ~%set_nodes);
              Lwt.return_unit]

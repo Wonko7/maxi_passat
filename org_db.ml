@@ -182,6 +182,21 @@ let get_roam_nodes file_path =
                AND p.key_text = 'ID'
            "])
 
+let get_file_path_headline roam_id =
+  let%lwt fph =
+    full_transaction_block (fun dbh ->
+        [%pgsql
+          dbh
+            "SELECT p.val_text, m.file_path, hp.headline_id from org.properties p,
+                 org.headline_properties hp,  org.file_metadata m
+           WHERE p.val_text = $roam_id
+             AND p.key_text = 'ID'
+             AND hp.property_id = p.property_id
+             AND p.outline_hash = m.outline_hash"])
+  in
+  Lwt.return
+  @@ List.map (fun (id, fp, hid) -> id, (strip_org_prefix fp, hid)) fph
+
 let get_all_org_files () =
   let%lwt files =
     full_transaction_block (fun dbh ->
