@@ -269,22 +269,20 @@ let org_backlinks_content
                div ~a:[a_class aclass] dhls]
        backlinks_node
 
-let org_file_content
-    (file_data :
-      (string
-      * processed_org_headline list
-      * (int32 * string) list
-      * (string -> unit Lwt.t) Eliom_client_value.t)
-      list
-      R.list_wrap)
+let org_file_content ~set_file_path
+    ~(file_data :
+       (string
+       * processed_org_headline list
+       * (int32 * string) list
+       * (string -> unit Lwt.t) Eliom_client_value.t)
+       R.wrap)
+    : Html_types.div_content Eliom_content.Html.R.elt
   =
-  R.div
-  @@ Eliom_shared.ReactiveData.RList.map
+  R.node
+  @@ Eliom_shared.React.S.map ~eq:[%shared ( == )]
        [%shared
-         function
-         | [(title, headlines, nodes, set_nodes)] ->
-             make_ptree_org_note title headlines nodes set_nodes
-         | _ -> failwith "bad file data for org_file_content"]
+         fun (title, headlines, nodes, set_nodes) ->
+           make_ptree_org_note title headlines nodes set_nodes]
        file_data
 
 let rec add_slash = function
@@ -309,10 +307,11 @@ let file_page file_path () =
        in
        let%lwt hls = get_processed_org_for_path file_path in
        let%lwt nodes = get_roam_nodes file_path in
-       let file_data_list, set_file_data =
-         Eliom_shared.ReactiveData.RList.create [[title, hls, nodes, set_nodes]]
+       let file_data_s, set_file_data =
+         (* Eliom_shared.ReactiveData.RList.create [[title, hls, nodes, set_nodes]] *)
+         Eliom_shared.React.S.create (title, hls, nodes, set_nodes)
        in
-       let set_filepath =
+       let set_file_path =
          [%client
            fun file_path ->
              let%lwt hls = get_processed_org_for_path file_path in
@@ -320,12 +319,13 @@ let file_page file_path () =
              let%lwt title, _ =
                safe_get_title_outline_for_file_path file_path
              in
-             Eliom_shared.ReactiveData.RList.set ~%set_file_data
-               [[title, hls, nodes, ~%set_nodes]];
+             ~%set_file_data (title, hls, nodes, ~%set_nodes);
              Lwt.return_unit]
        in
-       let backlinks_node = org_backlinks_content backlink_list set_filepath in
-       let org_content = org_file_content file_data_list in
+       let backlinks_node = org_backlinks_content backlink_list set_file_path in
+       let org_content =
+         org_file_content ~set_file_path ~file_data:file_data_s
+       in
        Lwt.return
          [ div
              ~a:[a_class ["org_page"]]
