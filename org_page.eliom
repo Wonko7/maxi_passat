@@ -36,9 +36,14 @@ let%rpc get_headline_id_for_roam_id (roam_id : string)
   Org_db.get_headline_id_for_roam_id roam_id
 
 let%rpc get_file_path_headline (roam_id : string)
-    : (string * (string * int32)) list Lwt.t
+    : (string * (string * int32 option)) list Lwt.t
   =
   Org_db.get_file_path_headline roam_id
+
+let%rpc get_file_path_kill_me_with_fire (roam_id : string)
+    : (string * (string * int32 option)) list Lwt.t
+  =
+  Org_db.get_file_path_kill_me_with_fire roam_id
 
 let%rpc get_processed_org_for_path (file_path : string)
     : Db_types.processed_org_headline list Lwt.t
@@ -111,11 +116,15 @@ let processed_org_to_html ?(id_links = []) ~kind ~content ~link_dest ~link_desc
                   fun _ ->
                     Js_of_ocaml.(
                       ignore @@ ~%set_file_path ~%filepath;
-                      let elt =
-                        Dom_html.getElementById @@ String.cat "scroll_"
-                        @@ string_of_int @@ Int32.to_int ~%hlid
-                      in
-                      elt ## (scrollIntoView Js._false))]
+                      ignore
+                      @@ Option.map
+                           (fun hlid ->
+                             let elt =
+                               Dom_html.getElementById @@ String.cat "scroll_"
+                               @@ string_of_int @@ Int32.to_int hlid
+                             in
+                             elt ## (scrollIntoView Js._true))
+                           ~%hlid)]
             ; a_class ["link"] ]
           [txt link_desc]
     | _ -> a ~service:Maxi_passat_services.org_id [txt link_desc] @@ link_dest)
@@ -293,7 +302,7 @@ let org_file_content ~set_file_path
        (string
        * processed_org_headline list
        * (int32 * string) list
-       * (string * (string * int32)) list option
+       * (string * (string * int32 option)) list option
        * (string -> unit Lwt.t) Eliom_client_value.t)
        R.wrap)
     : Html_types.div_content Eliom_content.Html.R.elt
@@ -314,7 +323,10 @@ let prepare_roam_id_links hls =
         | "id_link", Some d -> Some d
         | _ -> None)
       hls
-    |> List.map get_file_path_headline
+    |> List.map (fun id ->
+           match%lwt get_file_path_headline id with
+           | [] -> get_file_path_kill_me_with_fire id
+           | r -> Lwt.return r)
     |> Org.lwt_flatten []
   in
   Lwt.return @@ List.flatten ls

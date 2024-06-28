@@ -189,13 +189,27 @@ let get_file_path_headline roam_id =
           dbh
             "SELECT p.val_text, m.file_path, hp.headline_id from org.properties p,
                  org.headline_properties hp,  org.file_metadata m
-           WHERE p.val_text = $roam_id
-             AND p.key_text = 'ID'
-             AND hp.property_id = p.property_id
-             AND p.outline_hash = m.outline_hash"])
+             WHERE p.val_text = $roam_id
+               AND p.key_text = 'ID'
+               AND hp.property_id = p.property_id
+               AND p.outline_hash = m.outline_hash"])
   in
   Lwt.return
-  @@ List.map (fun (id, fp, hid) -> id, (strip_org_prefix fp, hid)) fph
+  @@ List.map (fun (id, fp, hid) -> id, (strip_org_prefix fp, Some hid)) fph
+
+let get_file_path_kill_me_with_fire roam_id =
+  (* I think this can be done with a join instead *)
+  let%lwt fph =
+    full_transaction_block (fun dbh ->
+        [%pgsql
+          dbh
+            "SELECT p.val_text, m.file_path
+             FROM org.properties p, org.file_metadata m
+             WHERE p.val_text = $roam_id
+               AND p.key_text = 'ID'
+               AND p.outline_hash = m.outline_hash"])
+  in
+  Lwt.return @@ List.map (fun (id, fp) -> id, (strip_org_prefix fp, None)) fph
 
 let get_all_org_files () =
   let%lwt files =
