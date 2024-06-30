@@ -72,9 +72,12 @@ let make_inactive_header_entry ~id ~title_class title content =
          ; label ~a:[a_label_for id; title_class] title ]
      ; div ~a:[a_class ["org_node_content"]] content ]
 
-let make_collapsible ~id ~title_class title content =
+let make_collapsible ?(a = []) ~id ~title_class title content =
   (* https://www.digitalocean.com/community/tutorials/css-collapsible *)
-  div ~a:[a_class ["header"; "wrap-collapsible"]; a_id (String.cat "scroll_" id)]
+  div
+    ~a:
+      ([a_class ["header"; "wrap-collapsible"]; a_id (String.cat "scroll_" id)]
+      @ a)
   @@ [ input
          ~a:
            [ a_id id
@@ -197,39 +200,48 @@ let make_ptree_org_note ?subtree_headline_id ?target_hlid ~title ~headlines
     let pp = predicate_org_to_html ~active_links:true ?id_links in
     let title = List.filter_map (pp (fun h -> h.p_is_headline)) hls in
     let content = List.filter_map (pp (fun h -> not h.p_is_headline)) hls in
-    let selected, set_selected_title =
-      Eliom_shared.React.S.create
-      @@ if target_hlid = Some f.p_headline_id then true else false
+    let selected, set_selected_title = Eliom_shared.React.S.create false in
+    let anchor_a, activate_backlinks, anchor =
+      let content_cl = ["content"] in
+      match List.assoc_opt f.p_headline_id nodes with
+      | Some node_id ->
+          let onclick =
+            a_onclick
+              [%client
+                fun ev ->
+                  Js_of_ocaml.Dom_html.stopPropagation ev;
+                  ignore @@ ~%set_backlinks_id ~%node_id;
+                  !last_selected_node false;
+                  ignore @@ ~%set_selected_title true;
+                  last_selected_node := ~%set_selected_title]
+          in
+          ( onclick :: [a_class @@ ("anchor_content" :: content_cl)]
+          , Some onclick
+          , Some "anchor_node" )
+      | None -> [a_class content_cl], None, None
     in
     let title_class =
       R.a_class
       @@ Eliom_shared.React.S.map
            [%shared
              let classes = ["lbl-toggle"; "org_node_title"] in
-             function false -> classes | true -> "selected_node" :: classes]
+             fun selected ->
+               match selected, ~%target_hlid with
+               | true, _ -> "selected_node" :: classes
+               | _, Some tid when ~%f.p_headline_id = tid ->
+                   "target_node" :: classes
+               | _ -> ~%anchor @? classes]
            selected
     in
     let backlinks =
-      List.assoc_opt f.p_headline_id nodes
-      |> Option.map (fun node_id ->
-             span
-               ~a:
-                 [ a_class ["link"]
-                 ; a_onclick
-                     [%client
-                       fun _ ->
-                         ignore @@ ~%set_backlinks_id ~%node_id;
-                         !last_selected_node false;
-                         ignore @@ ~%set_selected_title true;
-                         last_selected_node := ~%set_selected_title] ]
-               [txt "backlinks"])
-      (* TODO i18n *)
+      Option.map
+        (fun onclick -> span ~a:[a_class ["link"]; onclick] [txt "backlinks"])
+        activate_backlinks
     in
     make_collapsible
       ~id:(string_of_int @@ Int32.to_int f.p_headline_id)
       ~title_class title
-      [ div ~a:[a_class ["backlinks_link"]] (backlinks @? [])
-      ; div ~a:[a_class ["content"]] (content @ children) ]
+      (backlinks @? [div ~a:anchor_a (content @ children)])
   in
   let html = Org.map_ptree_to_html hl_to_html tree in
   ignore
