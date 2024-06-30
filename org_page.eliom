@@ -86,7 +86,11 @@ let make_collapsible ~id ~title_class title content =
      ; label ~a:[a_label_for id; title_class] title
      ; div ~a:[a_class ["collapsible-content"; "org_node_content"]] content ]
 
-let fuck_me_set_file_path = ref None
+let fuck_me_set_file_path
+    : (?target_hlid:int32 -> (string -> unit Lwt.t) Eliom_client_value.t) option
+    ref
+  =
+  ref None
 
 let processed_org_to_html ?(id_links = []) ~kind ~content ~link_dest ~link_desc
     ~active_links
@@ -115,7 +119,7 @@ let processed_org_to_html ?(id_links = []) ~kind ~content ~link_dest ~link_desc
                 [%client
                   fun _ ->
                     Js_of_ocaml.(
-                      ignore @@ ~%set_file_path ~%filepath;
+                      ignore @@ ~%set_file_path ?target_hlid:~%hlid ~%filepath;
                       ignore
                       @@ Option.map
                            (fun hlid ->
@@ -168,7 +172,8 @@ let%client last_selected_node =
   let selected, set_selected_title = Eliom_shared.React.S.create false in
   ref set_selected_title
 
-let make_ptree_org_note ?subtree_headline_id ~title ~headlines ~nodes ?id_links
+let make_ptree_org_note ?subtree_headline_id ?target_hlid ~title ~headlines
+    ~nodes ?id_links
     ~(set_backlinks_id : (string -> unit Lwt.t) Eliom_client_value.t)
   =
   let root =
@@ -197,10 +202,13 @@ let make_ptree_org_note ?subtree_headline_id ~title ~headlines ~nodes ?id_links
           tree)
   in
   let hl_to_html hls children =
+    let f = List.hd hls in
     let pp = predicate_org_to_html ~active_links:true ?id_links in
     let title = List.filter_map (pp (fun h -> h.p_is_headline)) hls in
     let content = List.filter_map (pp (fun h -> not h.p_is_headline)) hls in
-    let selected, set_selected_title = Eliom_shared.React.S.create false in
+    let selected, set_selected_title =
+      Eliom_shared.React.S.create @@ Some f.p_headline_id = target_hlid
+    in
     let title_class =
       R.a_class
       @@ Eliom_shared.React.S.map
@@ -209,7 +217,6 @@ let make_ptree_org_note ?subtree_headline_id ~title ~headlines ~nodes ?id_links
              function false -> classes | true -> "selected_node" :: classes]
            selected
     in
-    let f = List.hd hls in
     let backlinks =
       List.assoc_opt f.p_headline_id nodes
       |> Option.map (fun node_id ->
@@ -264,7 +271,8 @@ let hl_to_inactive_html ~title_selected_s hls =
     [div ~a:[a_class ["content"]] content]
 
 let make_backnode_link
-    (set_file_path : (string -> unit Lwt.t) Eliom_client_value.t) hls
+    (set_file_path :
+      ?target_hlid:int32 -> (string -> unit Lwt.t) Eliom_client_value.t) hls
   =
   let title_selected_s, set_selected_title =
     Eliom_shared.React.S.create false
@@ -282,7 +290,9 @@ let make_backnode_link
   @@ [hl_to_inactive_html ~title_selected_s hls]
 
 let org_backlinks_content
-    (backlinks_node : processed_org_headline list R.list_wrap) set_file_path
+    (backlinks_node : processed_org_headline list R.list_wrap)
+    (set_file_path :
+      ?target_hlid:int32 -> (string -> unit Lwt.t) Eliom_client_value.t)
   =
   R.div ~a:[a_class ["backlink_content"]]
   @@ Eliom_shared.ReactiveData.RList.map
@@ -303,6 +313,7 @@ let org_file_content ~set_file_path
        * processed_org_headline list
        * (int32 * string) list
        * (string * (string * int32 option)) list option
+       * int32 option
        * (string -> unit Lwt.t) Eliom_client_value.t)
        R.wrap)
     : Html_types.div_content Eliom_content.Html.R.elt
@@ -310,9 +321,9 @@ let org_file_content ~set_file_path
   R.node
   @@ Eliom_shared.React.S.map ~eq:[%shared ( == )]
        [%shared
-         fun (title, headlines, nodes, id_links, set_backlinks_id) ->
-           make_ptree_org_note ?subtree_headline_id:None ~title ~headlines
-             ~nodes ?id_links ~set_backlinks_id]
+         fun (title, headlines, nodes, id_links, target_hlid, set_backlinks_id) ->
+           make_ptree_org_note ?subtree_headline_id:None ?target_hlid ~title
+             ~headlines ~nodes ?id_links ~set_backlinks_id]
        file_data
 
 let prepare_roam_id_links hls =
@@ -360,16 +371,22 @@ let file_page file_path () =
        in
        let file_data_s, set_file_data =
          Eliom_shared.React.S.create
-           (title, hls, nodes, Some id_links, set_nodes)
+           (title, hls, nodes, Some id_links, None, set_nodes)
        in
-       let set_file_path =
+       (* let (set_file_path ?target_hlid:int32 : string -> unit Lwt.t Eliom_client_value.t) = *)
+       let set_file_path ?target_hlid
+           : (string -> unit Lwt.t) Eliom_client_value.t
+         =
+         let target_hlid = target_hlid in
          [%client
-           fun file_path ->
-             let%lwt hls, nodes, id_links, title =
-               gather_org_file_data file_path
-             in
-             ~%set_file_data (title, hls, nodes, Some id_links, ~%set_nodes);
-             Lwt.return_unit]
+           (fun file_path ->
+              let%lwt hls, nodes, id_links, title =
+                gather_org_file_data file_path
+              in
+              ~%set_file_data
+                (title, hls, nodes, Some id_links, ~%target_hlid, ~%set_nodes);
+              Lwt.return_unit
+             : string -> unit Lwt.t)]
        in
        fuck_me_set_file_path := Some set_file_path;
        let backlinks_node = org_backlinks_content backlink_list set_file_path in
