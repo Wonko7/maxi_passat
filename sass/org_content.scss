@@ -1,0 +1,101 @@
+.header {
+}
+.content {
+    padding-left: $indent;
+}
+// body
+body {
+    background: #27212E;
+    color: white;
+}
+
+//links
+.link {
+  color: cyan;
+  cursor: pointer;
+}
+.link:hover {
+  color: cyan;
+  text-decoration: underline;
+  cursor: pointer;
+}
+a {
+  color: cyan;
+  outline-color: transparent;
+}
+a:link {
+  color: cyan;
+}
+
+a:visited {
+  color: cyan;
+}
+
+a:focus {
+  color: cyan;
+}
+a:hover {
+  text-decoration: underline;
+}
+a:active {
+  color: cyan;
+}
+.org_node_title {
+  color: #ED60BA;
+  padding-left: 0.5rem;
+}
+.org_node_content {
+  padding-left: 1rem;
+}
+
+@mixin indent(){
+  @for $i from 1 through 1 { // thought I'd need more
+    .indent-#{$i}{
+        padding-left: ($i * $indent);
+    }
+  }
+}
+
+@include indent();
+
+// org_page contains org_content & backlinks
+
+.os-body {
+    padding: 66px 16px 0 16px;
+}
+.org_page {
+    display: flex;
+    height: calc(100vh - 66px); // WARNING/danger header height / os-body margin
+}
+.org_content {
+    flex: 2;
+    overflow-y: scroll;
+    height: 100%;
+}
+.backlink_content {
+    flex: 1;
+    overflow-y: scroll;
+    height: 100%;
+    border-left: 3px solid #ED60BA;
+}
+.invisible {
+    display: none;
+}
+.selected_node {
+    background: #ED60BA;
+    color: black;
+    border-top:  1px solid #ED60BA;
+    border-left:  1px solid #ED60BA;
+    border-bottom:  1px solid #ED60BA;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+.right_pane_title {
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+
+// backlinsk
