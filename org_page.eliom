@@ -119,16 +119,7 @@ let processed_org_to_html ?(id_links = []) ~kind ~content ~link_dest ~link_desc
                   fun _ ->
                     Js_of_ocaml.(
                       let set_file_path = Option.get !fuck_me_set_file_path in
-                      set_file_path ?target_hlid:~%hlid ~%filepath
-                      (* ignore *)
-                      (* @@ Option.map *)
-                      (*      (fun hlid -> *)
-                      (*        let elt = *)
-                      (*          Dom_html.getElementById @@ String.cat "scroll_" *)
-                      (*          @@ string_of_int @@ Int32.to_int hlid *)
-                      (*        in *)
-                      (*        elt ## (scrollIntoView Js._true)) *)
-                      (*      ~%hlid *))]
+                      ignore @@ set_file_path ?target_hlid:~%hlid ~%filepath)]
             ; a_class ["link"] ]
           [txt link_desc]
     | _ -> a ~service:Maxi_passat_services.org_id [txt link_desc] @@ link_dest)
@@ -240,7 +231,25 @@ let make_ptree_org_note ?subtree_headline_id ?target_hlid ~title ~headlines
       [ div ~a:[a_class ["backlinks_link"]] (backlinks @? [])
       ; div ~a:[a_class ["content"]] (content @ children) ]
   in
-  Org.map_ptree_to_html hl_to_html tree
+  let html = Org.map_ptree_to_html hl_to_html tree in
+  ignore
+  @@ [%client
+       (Js_of_ocaml.(
+          ignore
+          @@ Dom_html.window##setTimeout
+               (Js.wrap_callback (fun () ->
+                    ignore
+                    @@ Option.map
+                         (fun hlid ->
+                           let elt =
+                             Dom_html.getElementById @@ String.cat "scroll_"
+                             @@ string_of_int @@ Int32.to_int hlid
+                           in
+                           elt ## (scrollIntoView Js._true))
+                         ~%target_hlid))
+               0.01)
+         : unit)];
+  html
 
 let rec group_by_headline_id (headlines : processed_org_headline list)
     (acc : processed_org_headline list)
@@ -284,7 +293,8 @@ let make_backnode_link
       [ a_onclick
           [%client
             fun _ ->
-              ignore @@ ~%set_file_path ~%f.p_file_path;
+              ignore
+              @@ ~%set_file_path ~target_hlid:~%f.p_headline_id ~%f.p_file_path;
               !last_selected_node false;
               ignore @@ ~%set_selected_title true;
               last_selected_node := ~%set_selected_title] ]
