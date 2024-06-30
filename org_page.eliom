@@ -87,7 +87,7 @@ let make_collapsible ~id ~title_class title content =
      ; div ~a:[a_class ["collapsible-content"; "org_node_content"]] content ]
 
 let fuck_me_set_file_path
-    : (?target_hlid:int32 -> (string -> unit Lwt.t) Eliom_client_value.t) option
+    : (?target_hlid:int32 -> string -> unit Lwt.t) Eliom_client_value.t option
     ref
   =
   ref None
@@ -207,7 +207,8 @@ let make_ptree_org_note ?subtree_headline_id ?target_hlid ~title ~headlines
     let title = List.filter_map (pp (fun h -> h.p_is_headline)) hls in
     let content = List.filter_map (pp (fun h -> not h.p_is_headline)) hls in
     let selected, set_selected_title =
-      Eliom_shared.React.S.create @@ Some f.p_headline_id = target_hlid
+      Eliom_shared.React.S.create
+      @@ if target_hlid = Some f.p_headline_id then true else false
     in
     let title_class =
       R.a_class
@@ -272,7 +273,7 @@ let hl_to_inactive_html ~title_selected_s hls =
 
 let make_backnode_link
     (set_file_path :
-      ?target_hlid:int32 -> (string -> unit Lwt.t) Eliom_client_value.t) hls
+      (?target_hlid:int32 -> string -> unit Lwt.t) Eliom_client_value.t) hls
   =
   let title_selected_s, set_selected_title =
     Eliom_shared.React.S.create false
@@ -292,7 +293,7 @@ let make_backnode_link
 let org_backlinks_content
     (backlinks_node : processed_org_headline list R.list_wrap)
     (set_file_path :
-      ?target_hlid:int32 -> (string -> unit Lwt.t) Eliom_client_value.t)
+      (?target_hlid:int32 -> string -> unit Lwt.t) Eliom_client_value.t)
   =
   R.div ~a:[a_class ["backlink_content"]]
   @@ Eliom_shared.ReactiveData.RList.map
@@ -373,20 +374,16 @@ let file_page file_path () =
          Eliom_shared.React.S.create
            (title, hls, nodes, Some id_links, None, set_nodes)
        in
-       (* let (set_file_path ?target_hlid:int32 : string -> unit Lwt.t Eliom_client_value.t) = *)
-       let set_file_path ?target_hlid
-           : (string -> unit Lwt.t) Eliom_client_value.t
-         =
-         let target_hlid = target_hlid in
+       let set_file_path =
          [%client
-           (fun file_path ->
+           (fun ?target_hlid file_path ->
               let%lwt hls, nodes, id_links, title =
                 gather_org_file_data file_path
               in
               ~%set_file_data
-                (title, hls, nodes, Some id_links, ~%target_hlid, ~%set_nodes);
+                (title, hls, nodes, Some id_links, target_hlid, ~%set_nodes);
               Lwt.return_unit
-             : string -> unit Lwt.t)]
+             : ?target_hlid:int32 -> string -> unit Lwt.t)]
        in
        fuck_me_set_file_path := Some set_file_path;
        let backlinks_node = org_backlinks_content backlink_list set_file_path in
