@@ -86,9 +86,8 @@ let make_collapsible ~id ~title_class title content =
      ; label ~a:[a_label_for id; title_class] title
      ; div ~a:[a_class ["collapsible-content"; "org_node_content"]] content ]
 
-let fuck_me_set_file_path
-    : (?target_hlid:int32 -> string -> unit Lwt.t) Eliom_client_value.t option
-    ref
+let%client fuck_me_set_file_path
+    : (?target_hlid:int32 -> string -> unit Lwt.t) option ref
   =
   ref None
 
@@ -111,24 +110,25 @@ let processed_org_to_html ?(id_links = []) ~kind ~content ~link_dest ~link_desc
       a ~service:Maxi_passat_services.org_file [txt link_desc]
       @@ String.split_on_char '\n' link_dest
   | _, "id_link" -> (
-    match List.assoc_opt link_dest id_links, !fuck_me_set_file_path with
-    | Some (filepath, hlid), Some set_file_path ->
+    match List.assoc_opt link_dest id_links with
+    | Some (filepath, hlid) ->
         span
           ~a:
             [ a_onclick
                 [%client
                   fun _ ->
                     Js_of_ocaml.(
-                      ignore @@ ~%set_file_path ?target_hlid:~%hlid ~%filepath;
-                      ignore
-                      @@ Option.map
-                           (fun hlid ->
-                             let elt =
-                               Dom_html.getElementById @@ String.cat "scroll_"
-                               @@ string_of_int @@ Int32.to_int hlid
-                             in
-                             elt ## (scrollIntoView Js._true))
-                           ~%hlid)]
+                      let set_file_path = Option.get !fuck_me_set_file_path in
+                      set_file_path ?target_hlid:~%hlid ~%filepath
+                      (* ignore *)
+                      (* @@ Option.map *)
+                      (*      (fun hlid -> *)
+                      (*        let elt = *)
+                      (*          Dom_html.getElementById @@ String.cat "scroll_" *)
+                      (*          @@ string_of_int @@ Int32.to_int hlid *)
+                      (*        in *)
+                      (*        elt ## (scrollIntoView Js._true)) *)
+                      (*      ~%hlid *))]
             ; a_class ["link"] ]
           [txt link_desc]
     | _ -> a ~service:Maxi_passat_services.org_id [txt link_desc] @@ link_dest)
@@ -385,7 +385,8 @@ let file_page file_path () =
               Lwt.return_unit
              : ?target_hlid:int32 -> string -> unit Lwt.t)]
        in
-       fuck_me_set_file_path := Some set_file_path;
+       ignore
+       @@ [%client (fuck_me_set_file_path := Some ~%set_file_path : unit)];
        let backlinks_node = org_backlinks_content backlink_list set_file_path in
        let org_content =
          org_file_content ~set_file_path ~file_data:file_data_s
