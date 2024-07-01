@@ -144,3 +144,13 @@ a:active {
 .selected_right_pane_node {
     @include node_style($selected_col, $flashy: true)
 }
+
+
+// search
+.search_results {
+    position: absolute;
+    background: red;
+    overflow-y: scroll;
+    left: 10%;
+    width: 80%;
+}

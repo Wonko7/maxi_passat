@@ -78,6 +78,7 @@ let%server _ = Org.preprocess_init ()
 [%%shared.start]
 
 module Org_page = Org_page
+module Org_search = Org_search
 
 [%%client.start]
 

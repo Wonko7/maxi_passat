@@ -13,6 +13,7 @@ let%shared os_header ?user () =
       ~text_sign_up:[%i18n S.sign_up ~capitalize:true]
       ~text_send_button:[%i18n S.send ~capitalize:true] ?user ()
   in
+  let%lwt search = Org_search.search_files () in
   Lwt.return
     (header
        ~a:[a_class ["os-page-header"]]
@@ -21,7 +22,7 @@ let%shared os_header ?user () =
            ~service:Os_services.main_service
            [txt Maxi_passat_base.displayed_app_name]
            ()
-       ; Org_search.search_files ()
+       ; search
        ; user_box ])
 
 let%shared os_footer () =
