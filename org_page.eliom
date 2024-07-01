@@ -220,17 +220,16 @@ let make_ptree_org_note ?subtree_headline_id ?target_hlid ~title ~headlines
           , Some "anchor_node" )
       | None -> [a_class content_cl], None, None
     in
-    let title_class =
+    let node_class =
       R.a_class
       @@ Eliom_shared.React.S.map
            [%shared
-             let classes = ["lbl-toggle"; "org_node_title"] in
+             let classes = [] in
              fun selected ->
                match selected, ~%target_hlid with
-               | true, _ -> "selected_node" :: classes
-               | _, Some tid when ~%f.p_headline_id = tid ->
-                   "target_node" :: classes
-               | _ -> ~%anchor @? classes]
+               | true, _ -> ["selected_node"]
+               | _, Some tid when ~%f.p_headline_id = tid -> ["target_node"]
+               | _ -> ~%anchor @? []]
            selected
     in
     let backlinks =
@@ -239,9 +238,10 @@ let make_ptree_org_note ?subtree_headline_id ?target_hlid ~title ~headlines
           span ~a:[a_class ["link"]; onclick] [txt "backlinks"; br ()])
         activate_backlinks
     in
-    make_collapsible
+    make_collapsible ~a:[node_class]
       ~id:(string_of_int @@ Int32.to_int f.p_headline_id)
-      ~title_class title
+      ~title_class:(a_class ["lbl-toggle"; "org_node_title"])
+      title
       [div ~a:anchor_a (backlinks @? content @ children)]
   in
   let html = Org.map_ptree_to_html hl_to_html tree in
