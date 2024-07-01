@@ -12,37 +12,37 @@ body {
 
 //links
 .link {
-  color: cyan;
+  color: $links_col;
   cursor: pointer;
 }
 .link:hover {
-  color: cyan;
+  color: $links_col;
   text-decoration: underline;
   cursor: pointer;
 }
 a {
-  color: cyan;
+  color: $links_col;
   outline-color: transparent;
 }
 a:link {
-  color: cyan;
+  color: $links_col;
 }
 
 a:visited {
-  color: cyan;
+  color: $links_col;
 }
 
 a:focus {
-  color: cyan;
+  color: $links_col;
 }
 a:hover {
   text-decoration: underline;
 }
 a:active {
-  color: cyan;
+  color: $links_col;
 }
 .org_node_title {
-  color: #ED60BA;
+  color: $title_col;
   padding: 0.2rem;
   padding-left: 0.5rem;
 }
@@ -88,7 +88,7 @@ a:active {
 
 // org node styles:
 
-@mixin title_style($colour) {
+@mixin title_style($colour, $flashy: false) {
     color: black;
     background: $colour;
     border-top: 1px solid $colour;
@@ -98,6 +98,11 @@ a:active {
     border-bottom-left-radius: 0.5rem;
     border-bottom-right-radius: 0rem;
     border-top-right-radius: 0.5rem;
+    @if $flashy {
+        .link, a {
+            color: $darker_links_col;
+        }
+    }
 }
 
 @mixin content_style($colour) {
@@ -113,9 +118,9 @@ a:active {
     padding: 0.6rem;
 }
 
-@mixin node_style($colour) {
+@mixin node_style($colour, $flashy: false) {
     >.org_node_title {
-        @include title_style($colour)
+        @include title_style($colour, $flashy)
     }
     >.org_node_content {
         @include content_style($colour)
@@ -124,10 +129,10 @@ a:active {
 
 // node styles:
 .selected_node {
-    @include node_style($selected_col)
+    @include node_style($selected_col, $flashy: true)
 }
 .target_node {
-    @include node_style($target_col)
+    @include node_style($target_col, $flashy: true)
 }
 .anchor_node {
     @include node_style($anchor_col)
@@ -137,5 +142,5 @@ a:active {
     @include node_style($anchor_col)
 }
 .selected_right_pane_node {
-    @include node_style($selected_col)
+    @include node_style($selected_col, $flashy: true)
 }
