@@ -198,3 +198,28 @@ SELECT pc.headline_id, pc.index, hc.parent_id, h.headline_index, h.level,
              AND h.headline_id = hc.headline_id
              AND (hc.depth = 1 OR (hc.depth = 0 AND h.level = 1))
            ORDER BY pc.index ASC, h.level ASC, h.headline_index ASC
+
+
+SELECT pc.headline_id, pc.index, hc.parent_id, hc.depth, h.headline_index, h.level, pc.kind, pc.is_headline, substring(pc.content, 1, 40)
+FROM org.processed_content pc, org.headline_closures hc, org.headlines h
+--WHERE pc.outline_hash = '18471498edea3d0a0f2ad5e8e62e83fe'
+WHERE pc.outline_hash = 'b08c20d0681e873fa55ff94a6960bab3'
+  AND pc.headline_id = hc.headline_id
+  AND h.headline_id = hc.headline_id
+  AND (hc.depth = 1 OR (hc.depth = 0 AND h.level = 1))
+   ORDER BY h.headline_id
+
+
+
+
+select m.file_path, hp.headline_id from org.properties p, org.headline_properties hp,  org.file_metadata m
+-- where  p.val_text = '61ff0e60-0d01-4813-9673-cfa19d6c9934'
+where  p.val_text = 'ae49f1f5-8302-4556-857b-1830baf58e53'
+ AND p.key_text = 'ID'
+ AND hp.property_id = p.property_id
+ AND p.outline_hash = m.outline_hash
+
+select m.file_path from org.properties p, org.file_metadata m
+where  p.val_text = '61ff0e60-0d01-4813-9673-cfa19d6c9934'
+ AND p.key_text = 'ID'
+ AND p.outline_hash = m.outline_hash
