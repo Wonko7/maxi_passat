@@ -23,16 +23,26 @@ let%shared search_files () =
   let result =
     R.node
     @@ Eliom_shared.React.S.map ~eq:[%shared ( == )]
-         [%shared fun fs -> ul @@ List.map (fun m -> li @@ [txt m]) fs]
+         [%shared
+           fun fs ->
+             ul
+             @@ List.map
+                  (fun m ->
+                    li
+                    @@ [ a ~service:Maxi_passat_services.org_file [txt m]
+                         @@ String.split_on_char '/' m ])
+                  fs]
          res_s
   in
   let _ =
     [%client
       (React.S.map
-         (fun s ->
-           let r = Str.regexp_string s in
-           let fs = List.filter (search_str r) ~%fs in
-           ~%set_results fs)
+         (function
+           | "" -> ~%set_results []
+           | s ->
+               let r = Str.regexp_string s in
+               let fs = List.filter (search_str r) ~%fs in
+               ~%set_results fs)
          ~%signal
         : unit Eliom_shared.React.S.t)]
   in

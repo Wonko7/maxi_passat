@@ -145,11 +145,10 @@ a:active {
     @include node_style($selected_col, $flashy: true)
 }
 
-
 // search
-.search_results {
+.search_results >ul{
     position: absolute;
-    background: red;
+    background: $dark_background;
     overflow-y: scroll;
     left: 10%;
     width: 80%;
