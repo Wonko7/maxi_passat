@@ -223,3 +223,5 @@ select m.file_path from org.properties p, org.file_metadata m
 where  p.val_text = '61ff0e60-0d01-4813-9673-cfa19d6c9934'
  AND p.key_text = 'ID'
  AND p.outline_hash = m.outline_hash
+
+select m.file_path from org.file_metadata m;

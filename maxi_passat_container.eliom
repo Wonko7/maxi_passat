@@ -21,6 +21,7 @@ let%shared os_header ?user () =
            ~service:Os_services.main_service
            [txt Maxi_passat_base.displayed_app_name]
            ()
+       ; Org_search.search_files ()
        ; user_box ])
 
 let%shared os_footer () =
