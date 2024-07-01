@@ -57,19 +57,18 @@ let safe_get_title_outline_for_file_path file_path =
   | Some r -> Lwt.return r
   | None -> Lwt.return ("", "")
 
-let make_inactive_header_entry ~id ~title_class title content =
+let make_inactive_header_entry ?(a = []) ~id ~title_class title content =
   (* this one does not toggle *)
-  div ~a:[a_class ["header"]]
-  @@ [ div
-         [ input
-             ~a:
-               [ a_id id
-               ; a_class ["toggle"]
-               ; a_input_type `Checkbox
-               ; a_checked ()
-               ; a_tabindex 0 ]
-             ()
-         ; label ~a:[a_label_for id; title_class] title ]
+  div ~a:([a_class ["header"]] @ a)
+  @@ [ input
+         ~a:
+           [ a_id id
+           ; a_class ["toggle"]
+           ; a_input_type `Checkbox
+           ; a_checked ()
+           ; a_tabindex 0 ]
+         ()
+     ; label ~a:[a_label_for id; title_class] title
      ; div ~a:[a_class ["org_node_content"]] content ]
 
 let make_collapsible ?(a = []) ~id ~title_class title content =
@@ -276,21 +275,22 @@ let rec group_by_headline_id (headlines : processed_org_headline list)
   | hs, acc -> Org.reverse acc :: group_by_headline_id hs []
 
 let hl_to_inactive_html ~title_selected_s hls =
-  let title_class =
+  let node_class =
     R.a_class
     @@ Eliom_shared.React.S.map
          [%shared
-           let classes = ["lbl-toggle"; "org_node_title"; "right_pane_title"] in
-           function false -> classes | true -> "selected_node" :: classes]
+           function
+           | false -> ["right_pane_node"] | true -> ["selected_right_pane_node"]]
          title_selected_s
   in
   let pp = predicate_org_to_html ~active_links:false in
   let title = List.filter_map (pp (fun h -> h.p_is_headline)) hls in
   let content = List.filter_map (pp (fun h -> not h.p_is_headline)) hls in
   let f = List.hd hls in
-  make_inactive_header_entry
+  make_inactive_header_entry ~a:[node_class]
     ~id:(string_of_int @@ Int32.to_int f.p_headline_id)
-    ~title_class title
+    ~title_class:(a_class ["lbl-toggle"; "org_node_title"])
+    title
     [div ~a:[a_class ["content"]] content]
 
 let make_backnode_link

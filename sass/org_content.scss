@@ -80,7 +80,7 @@ a:active {
     flex: 1;
     overflow-y: scroll;
     height: 100%;
-    border-left: 3px solid #ED60BA;
+    // border-left: 3px solid #ED60BA;
 }
 .invisible {
     display: none;
@@ -122,20 +122,20 @@ a:active {
     }
 }
 
+// node styles:
 .selected_node {
     @include node_style($selected_col)
 }
-
 .target_node {
     @include node_style($target_col)
 }
 .anchor_node {
     @include node_style($anchor_col)
 }
-
-.right_pane_title {
-    border-top-left-radius: 0px;
-    border-bottom-left-radius: 0px;
-    border-top-right-radius: 5px;
-    border-bottom-right-radius: 5px;
+// right pane:
+.right_pane_node {
+    @include node_style($anchor_col)
+}
+.selected_right_pane_node {
+    @include node_style($selected_col)
 }
