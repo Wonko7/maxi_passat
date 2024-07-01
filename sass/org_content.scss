@@ -1,4 +1,5 @@
 .header {
+    margin-top: 0.5rem;
 }
 .content {
     padding-left: $indent;
@@ -42,6 +43,7 @@ a:active {
 }
 .org_node_title {
   color: #ED60BA;
+  padding: 0.2rem;
   padding-left: 0.5rem;
 }
 .org_node_content {
@@ -71,6 +73,7 @@ a:active {
     flex: 2;
     overflow-y: scroll;
     height: 100%;
+    padding-right: 1rem;
 }
 .backlink_content {
     flex: 1;
@@ -87,8 +90,10 @@ a:active {
     border-top: 1px solid #ED60BA;
     border-left: 1px solid #ED60BA;
     border-bottom: 1px solid #ED60BA;
-    border-top-left-radius: 5px;
-    border-bottom-left-radius: 5px;
+    border-top-left-radius: 0.5rem;
+    border-bottom-left-radius: 0.5rem;
+    border-bottom-right-radius: 0rem;
+    border-top-right-radius: 0.5rem;
 }
 .target_node {
     @extend .selected_node;
@@ -108,6 +113,18 @@ a:active {
 }
 .anchor_content {
     cursor: pointer;
+    border-radius: 0.5rem;
+    border-right: 1px solid $anchor_col;
+    border-left: 1px solid $anchor_col;
+    border-bottom: 1px solid $anchor_col;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+    border-bottom-left-radius: 0.5rem;
+    border-bottom-right-radius: 0.5rem;
+    padding: 0.6rem;
+    //margin-right: $indent;
+    // padding: 0.2rem;
+    // padding: 0.2rem;
 }
 .right_pane_title {
     border-top-left-radius: 0px;
