@@ -19,6 +19,9 @@ cordova
 static/css/maxi_passat.css.map
 static/css/maxi_passat.css
 
+# SQL backups
+*.sql.gz
+
 # generated:
 _build
 client/dune.client
