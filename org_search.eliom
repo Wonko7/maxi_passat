@@ -21,24 +21,7 @@ let%shared search_files
   =
   let%lwt fs = get_all_org_files () in
   let res_s, set_results = Eliom_shared.React.S.create (0, []) in
-  let a_search_keyboard_ui =
-    [ a_onkeydown
-        [%client
-          let incr_sel i =
-            let i', fs = React.S.value ~%res_s in
-            ~%set_results (i + i', fs)
-          in
-          fun ev ->
-            match ev##.keyCode with
-            (* arrows order [37-40] = lurd *)
-            | 38 -> print_endline "up"; incr_sel (-1)
-            | 40 -> print_endline "down"; incr_sel 1
-            | 13 -> print_endline "enter"
-            | e -> print_int e; print_endline ""] ]
-  in
-  let e, (in_s, set_in), (out_s, set_out) =
-    Ww_lib.reactive_input ~a:a_search_keyboard_ui ()
-  in
+  let in_s, set_in = Eliom_shared.React.S.create "" in
   let reset_search =
     [%client
       (fun () ->
@@ -47,6 +30,39 @@ let%shared search_files
          ~%set_in @@ String.cat "__None_"
          @@ string_of_float ((new%js Js_of_ocaml.Js.date_now)##getTime /. 1000.)
         : unit -> unit)]
+  in
+  let a_search_keyboard_ui =
+    [ a_onkeydown
+        [%client
+          let incr_sel i =
+            let i', fs = React.S.value ~%res_s in
+            let l = List.length fs in
+            let i' = if i' > l then l - 1 else i' in
+            let i' = if i' < 0 then 0 else i' in
+            ~%set_results (i + i', fs)
+          in
+          let visit () =
+            let i', fs = React.S.value ~%res_s in
+            let target = List.nth fs i' in
+            match ~%onclick with
+            | None ->
+                Js_of_ocaml.(
+                  Dom_html.window##.location##assign
+                    (Js.string @@ String.cat "/org/file/" target))
+            | Some onclick ->
+                ignore @@ onclick target;
+                ~%reset_search ()
+          in
+          fun ev ->
+            match ev##.keyCode with
+            (* arrows order [37-40] = lurd *)
+            | 38 -> incr_sel (-1)
+            | 40 -> incr_sel 1
+            | 13 -> visit ()
+            | e -> ()] ]
+  in
+  let e, _, (out_s, set_out) =
+    Ww_lib.reactive_input ~a:a_search_keyboard_ui ~input_r:(in_s, set_in) ()
   in
   let result =
     R.node
@@ -60,10 +76,6 @@ let%shared search_files
                     let selected_class =
                       if i = nb_selected then ["search_selected"] else []
                     in
-                    print_int i;
-                    print_endline " i";
-                    print_int nb_selected;
-                    print_endline " n";
                     li ~a:[a_class selected_class]
                     @@ [ (match ~%onclick with
                          | None ->
