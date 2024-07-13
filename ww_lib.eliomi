@@ -24,8 +24,8 @@ val reactive_input
   -> unit
   -> (* [> `Input] Eliom_content.Html.elt *)
      (* Js_of_ocaml.Dom_html.element Js_of_ocaml.Js.t Eliom_client_value.t *)
-     (* [> `Input] Eliom_content.Html.elt *)
      [> Html_types.span] Eliom_content.Html.elt
+     (* [> `Input] Eliom_content.Html.elt *)
      * (string Eliom_shared.React.S.t
        * (?step:React.step -> string -> unit) Eliom_shared.Value.t)
      * (string Eliom_shared.React.S.t

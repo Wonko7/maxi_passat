@@ -31,7 +31,10 @@ let%shared search_files
     [%client
       (fun () ->
          print_endline "!!!!!!!!!!  reset";
-         ~%set_in "None";
+         (* this only works if the signal is new, if you repeat "" it
+            does not work. if you repeat "None" it won't work either. *)
+         ~%set_in @@ String.cat "__None_"
+         @@ string_of_float ((new%js Js_of_ocaml.Js.date_now)##getTime /. 1000.);
          print_endline "!!!!!!!!!!  reset to ''"
         : unit -> unit)]
   in

@@ -62,44 +62,48 @@ let reactive_input ?(a = []) ?input_r ?output_r ?(value = "") ?validate () =
               Js_of_ocaml__.Js.prop >
           Js_of_ocaml__.Js.t)]
   in
-  (* let _ = *)
-  (*   [%client *)
-  (*     (Eliom_lib.Dom_reference.retain ~%e' *)
-  (*        ~keep: *)
-  (*          (React.S.map *)
-  (*             (fun s -> *)
-  (*               print_endline "yes I will do something"; *)
-  (*               print_endline s; *)
-  (*               print_endline @@ Js.to_string ~%e_with_value##.value; *)
-  (*               if Js.to_string ~%e_with_value##.value <> s *)
-  (*               then ~%e_with_value##.value := Js.string s) *)
-  (*             ~%in_signal) *)
-  (*       : unit)] *)
-  (* in *)
-  let tmp_set_input =
+  let fuckme_node = span [] in
+  let _ =
     [%client
-      (* (React.S.map *)
-      (fun s ->
-         print_endline "yes I will do something";
-         print_endline s;
-         print_endline @@ Js.to_string ~%e_with_value##.value;
-         if Js.to_string ~%e_with_value##.value <> s
-         then ~%e_with_value##.value := Js.string s
-       (* ~%in_signal *)
-        : string -> unit)]
+      (Eliom_lib.Dom_reference.retain
+         (To_dom.of_element ~%fuckme_node)
+         ~keep:
+           (React.S.map
+              (fun s ->
+                print_endline "yes I will do something";
+                print_endline s;
+                print_endline @@ Js.to_string ~%e_with_value##.value;
+                if String.length s >= 7 && String.sub s 0 7 = "__None_"
+                then (
+                  ~%e_with_value##.value := Js.string "";
+                  ~%set_out_signal "")
+                else if Js.to_string ~%e_with_value##.value <> s
+                then ~%e_with_value##.value := Js.string s)
+              ~%in_signal)
+        : unit)]
   in
-  let fuck_me_node =
-    R.node
-    @@ Eliom_shared.React.S.map ~eq:[%shared ( == )]
-         [%shared
-           fun s ->
-             print_endline "!!!!!!!!!!!!!!!!11 fuckme node";
-             print_endline s;
-             let tmp_set_input = ~%tmp_set_input in
-             ignore @@ [%client (~%tmp_set_input ~%s : unit)];
-             span [txt s]]
-         in_signal
-  in
-  ( span [e; fuck_me_node]
-  , (in_signal, set_in_signal)
-  , (out_signal, set_out_signal) )
+  (* let tmp_set_input = *)
+  (*   [%client *)
+  (*     (\* (React.S.map *\) *)
+  (*     (fun s -> *)
+  (*        print_endline "yes I will do something"; *)
+  (*        print_endline s; *)
+  (*        print_endline @@ Js.to_string ~%e_with_value##.value; *)
+  (*        if Js.to_string ~%e_with_value##.value <> s *)
+  (*        then ~%e_with_value##.value := Js.string s *)
+  (*      (\* ~%in_signal *\) *)
+  (*       : string -> unit)] *)
+  (* in *)
+  (* let fuck_me_node = *)
+  (*   R.node *)
+  (*   @@ Eliom_shared.React.S.map ~eq:[%shared ( == )] *)
+  (*        [%shared *)
+  (*          fun s -> *)
+  (*            print_endline "!!!!!!!!!!!!!!!!11 fuckme node"; *)
+  (*            print_endline s; *)
+  (*            let tmp_set_input = ~%tmp_set_input in *)
+  (*            ignore @@ [%client (~%tmp_set_input ~%s : unit)]; *)
+  (*            span [txt s]] *)
+  (*        in_signal *)
+  (* in *)
+  span [e; fuckme_node], (in_signal, set_in_signal), (out_signal, set_out_signal)
