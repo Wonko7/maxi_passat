@@ -59,9 +59,9 @@ let reactive_input ?(a = []) ?input_r ?output_r ?(value = "") ?validate () =
          ~keep:
            (React.S.map
               (fun s ->
-                print_endline "yes I will do something";
-                print_endline s;
-                print_endline @@ Js.to_string ~%e_with_value##.value;
+                (* print_endline "yes I will do something"; *)
+                (* print_endline s; *)
+                (* print_endline @@ Js.to_string ~%e_with_value##.value; *)
                 if String.length s >= 7 && String.sub s 0 7 = "__None_"
                 then (
                   ~%e_with_value##.value := Js.string "";
@@ -74,14 +74,18 @@ let reactive_input ?(a = []) ?input_r ?output_r ?(value = "") ?validate () =
   span [e; fuckme_node], (in_signal, set_in_signal), (out_signal, set_out_signal)
 
 let scroll_fade_div ?(a = []) ?(aclass = []) =
-  let scrolltop_s, set_scrolltop = Eliom_shared.React.S.create true in
+  let scrolltop_s, set_scrolltop = Eliom_shared.React.S.create (true, false) in
   div
     ~a:
       [ Eliom_content.Html.R.a_class
         @@ Eliom_shared.React.S.map
              [%shared
                let cl = ~%aclass in
-               function true -> cl | false -> "fade-top" :: cl]
+               function
+               | false, false -> "fade-both" :: cl
+               | false, _ -> "fade-top" :: cl
+               | _, false -> "fade-bottom" :: cl
+               | _ -> cl]
              scrolltop_s
       ; a_onscroll
           [%client
@@ -89,4 +93,8 @@ let scroll_fade_div ?(a = []) ?(aclass = []) =
               let open Js_of_ocaml in
               let target = Js.Opt.get ev##.target (fun () -> raise Not_found) in
               let t = Js.Unsafe.coerce target in
-              ~%set_scrolltop (t##.scrollTop = 0)] ]
+              let bottom_scroll =
+                t##.scrollHeight < t##.clientHeight + t##.scrollTop + 1
+              in
+              let top_scroll = t##.scrollTop = 0 in
+              ~%set_scrolltop (top_scroll, bottom_scroll)] ]

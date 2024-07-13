@@ -66,8 +66,28 @@ a:active {
 .os-body {
     padding: 50px 16px 0 16px;
 }
+.fade-bottom {
+    mask-image: linear-gradient(
+    to bottom,
+    $fade_col 95%, /* Opaque center */
+    transparent 100% /* Fade out bottom content */
+  );
+}
 .fade-top {
-    mask-image: linear-gradient(to top, black calc(100% - 48px), transparent 100%);
+    mask-image: linear-gradient(
+    to top,
+    $fade_col 95%,
+    transparent 100%
+  );
+}
+.fade-both {
+    mask-image: linear-gradient(
+    to bottom,
+    transparent 0%, /* Fade out top content */
+    $fade_col 3%, /* Opaque center */
+    $fade_col 97%, /* Opaque center */
+    transparent 100% /* Fade out bottom content */
+  );
 }
 .org_page {
     display: flex;
