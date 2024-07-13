@@ -22,17 +22,6 @@ let reactive_input ?(a = []) ?input_r ?output_r ?(value = "") ?validate () =
   let out_signal, set_out_signal =
     match output_r with Some r -> r | None -> Eliom_shared.React.S.create ""
   in
-  (* let e = *)
-  (*   F.input *)
-  (*     ~a: *)
-  (* [ a_oninput *)
-  (*     [%client *)
-  (*       fun ev -> *)
-  (*         let t = Js.Opt.get ev##.target (fun () -> raise Not_found) in *)
-  (*         let v = Js.Unsafe.coerce t in *)
-  (*         ~%set_signal @@ Js.to_string @@ v##.value] ] *)
-  (*     () *)
-  (* in *)
   let e =
     D.Raw.input
       ~a:
