@@ -122,7 +122,8 @@ a:active {
     >.org_node_title {
         @include title_style($colour, $flashy)
     }
-    >.org_node_content {
+    // warning: if you style .org_node_content, padding will affect collapsible.
+    >.org_node_content >.content {
         @include content_style($colour)
     }
 }
