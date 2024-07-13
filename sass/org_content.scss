@@ -98,12 +98,13 @@ a:active {
     overflow-y: scroll;
     height: 100%;
     padding-right: 1rem;
+    padding-bottom: $main_content_padding;
 }
 .backlink_content {
     flex: 1;
     overflow-y: scroll;
     height: 100%;
-    // border-left: 3px solid #ED60BA;
+    padding-bottom: $main_content_padding;
 }
 .invisible {
     display: none;
