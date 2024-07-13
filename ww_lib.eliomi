@@ -30,3 +30,9 @@ val reactive_input
        * (?step:React.step -> string -> unit) Eliom_shared.Value.t)
      * (string Eliom_shared.React.S.t
        * (?step:React.step -> string -> unit) Eliom_shared.Value.t)
+
+val scroll_fade_div
+  :  ?a:'a list
+  -> ?aclass:Html_types.nmtokens
+  -> [< Html_types.div_content_fun] Eliom_content.Html.elt list
+  -> [> Html_types.div] Eliom_content.Html.elt

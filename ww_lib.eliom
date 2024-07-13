@@ -72,3 +72,21 @@ let reactive_input ?(a = []) ?input_r ?output_r ?(value = "") ?validate () =
         : unit)]
   in
   span [e; fuckme_node], (in_signal, set_in_signal), (out_signal, set_out_signal)
+
+let scroll_fade_div ?(a = []) ?(aclass = []) =
+  let scrolltop_s, set_scrolltop = Eliom_shared.React.S.create true in
+  div
+    ~a:
+      [ Eliom_content.Html.R.a_class
+        @@ Eliom_shared.React.S.map
+             [%shared
+               let cl = ~%aclass in
+               function true -> cl | false -> "fade-top" :: cl]
+             scrolltop_s
+      ; a_onscroll
+          [%client
+            fun ev ->
+              let open Js_of_ocaml in
+              let target = Js.Opt.get ev##.target (fun () -> raise Not_found) in
+              let t = Js.Unsafe.coerce target in
+              ~%set_scrolltop (t##.scrollTop = 0)] ]
