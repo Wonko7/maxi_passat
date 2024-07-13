@@ -25,7 +25,8 @@ let%shared search_files
   let reset_search =
     [%client
       (fun () ->
-         (* this only works if the signal is new, if you repeat "" it
+         (* fixme: find a better workaround.
+            this only works if the signal is new, if you repeat "" it
             does not work. if you repeat "None" it won't work either. *)
          ~%set_in @@ String.cat "__None_"
          @@ string_of_float ((new%js Js_of_ocaml.Js.date_now)##getTime /. 1000.)
@@ -64,7 +65,29 @@ let%shared search_files
   let e, _, (out_s, set_out) =
     Ww_lib.reactive_input ~a:a_search_keyboard_ui ~input_r:(in_s, set_in) ()
   in
+  let _ =
+    (* react to new user input: search and filter results signal *)
+    [%client
+      (React.S.map
+         (function
+           | "" -> ~%set_results (0, [])
+           | s ->
+               let ws = String.split_on_char ' ' s in
+               let rs = List.map Str.regexp_string ws in
+               let fs =
+                 List.filter
+                   (fun file ->
+                     List.fold_left
+                       (fun acc r -> acc && search_str r file)
+                       true rs)
+                   ~%fs
+               in
+               ~%set_results (0, fs))
+         ~%out_s
+        : unit Eliom_shared.React.S.t)]
+  in
   let result =
+    (* react to results signal: make dom entries for each search result *)
     R.node
     @@ Eliom_shared.React.S.map ~eq:[%shared ( == )]
          [%shared
@@ -93,17 +116,5 @@ let%shared search_files
                                [txt m]) ])
                   fs]
          res_s
-  in
-  let _ =
-    [%client
-      (React.S.map
-         (function
-           | "" -> ~%set_results (0, [])
-           | s ->
-               let r = Str.regexp_string s in
-               let fs = List.filter (search_str r) ~%fs in
-               ~%set_results (0, fs))
-         ~%out_s
-        : unit Eliom_shared.React.S.t)]
   in
   Lwt.return @@ div [e; div ~a:[a_class ["search_results"]] [result]]
