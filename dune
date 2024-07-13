@@ -3,7 +3,7 @@
 (executables
     (names maxi_passat)
     (modes (byte plugin) (native plugin))
-    (libraries eliom.server ocsigen-start.server ocsipersist.pgsql)
+    (libraries eliom.server ocsigen-start.server ocsipersist.pgsql js_of_ocaml)
     (preprocess
        (pps
            lwt_ppx

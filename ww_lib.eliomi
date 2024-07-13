@@ -10,13 +10,23 @@ val ( @$? ) : 'a -> 'a option -> 'a list
 val ( @?? ) : 'a option -> 'a option -> 'a list
 
 val reactive_input
-  :  ?a:[< Html_types.input_attrib] Eliom_content.Html.attrib list
+  :  ?a:
+       [< Html_types.input_attrib > `OnInput `Value] Eliom_content.Html.attrib
+       list
   -> ?input_r:
+       string Eliom_shared.React.S.t
+       * (?step:React.step -> string -> unit) Eliom_shared.Value.t
+  -> ?output_r:
        string Eliom_shared.React.S.t
        * (?step:React.step -> string -> unit) Eliom_shared.Value.t
   -> ?value:string
   -> ?validate:(string -> bool) Eliom_client_value.t
   -> unit
-  -> [> `Input] Eliom_content.Html.elt
+  -> (* [> `Input] Eliom_content.Html.elt *)
+     (* Js_of_ocaml.Dom_html.element Js_of_ocaml.Js.t Eliom_client_value.t *)
+     (* [> `Input] Eliom_content.Html.elt *)
+     [> Html_types.span] Eliom_content.Html.elt
+     * (string Eliom_shared.React.S.t
+       * (?step:React.step -> string -> unit) Eliom_shared.Value.t)
      * (string Eliom_shared.React.S.t
        * (?step:React.step -> string -> unit) Eliom_shared.Value.t)

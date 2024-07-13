@@ -119,9 +119,8 @@ let processed_org_to_html ?(id_links = []) ~kind ~content ~link_dest ~link_desc
             [ a_onclick
                 [%client
                   fun _ ->
-                    Js_of_ocaml.(
-                      let set_file_path = Option.get !fuck_me_set_file_path in
-                      ignore @@ set_file_path ?target_hlid:~%hlid ~%filepath)]
+                    let set_file_path = Option.get !fuck_me_set_file_path in
+                    ignore @@ set_file_path ?target_hlid:~%hlid ~%filepath]
             ; a_class ["link"] ]
           [txt link_desc]
     | _ -> a ~service:Maxi_passat_services.org_id [txt link_desc] @@ link_dest)
@@ -380,47 +379,46 @@ let gather_org_file_data file_path =
 
 let file_page file_path () =
   let file_path = String.concat "" @@ add_slash file_path in
-  let%lwt org_note =
-    Ot_spinner.with_spinner
-      (let%lwt hls, nodes, id_links, title = gather_org_file_data file_path in
-       let backlink_list, set_backlink_nodes =
-         Eliom_shared.ReactiveData.RList.create []
-       in
-       let set_nodes =
-         [%client
-           fun roam_id ->
-             let%lwt nodes = get_processed_org_backlinks roam_id in
-             Eliom_shared.ReactiveData.RList.set ~%set_backlink_nodes [nodes];
-             Lwt.return_unit]
-       in
-       let file_data_s, set_file_data =
-         Eliom_shared.React.S.create
-           (title, hls, nodes, Some id_links, None, set_nodes)
-       in
-       let set_file_path =
-         [%client
-           (fun ?target_hlid file_path ->
-              let%lwt hls, nodes, id_links, title =
-                gather_org_file_data file_path
-              in
-              ~%set_file_data
-                (title, hls, nodes, Some id_links, target_hlid, ~%set_nodes);
-              Lwt.return_unit
-             : ?target_hlid:int32 -> string -> unit Lwt.t)]
-       in
-       ignore
-       @@ [%client (fuck_me_set_file_path := Some ~%set_file_path : unit)];
-       let backlinks_node = org_backlinks_content backlink_list set_file_path in
-       let org_content =
-         org_file_content ~set_file_path ~file_data:file_data_s
-       in
-       Lwt.return
-         [ div
-             ~a:[a_class ["org_page"]]
-             [div ~a:[a_class ["org_content"]] [org_content]; backlinks_node] ])
+  let%lwt org_note, set_file_path =
+    (* Ot_spinner.with_spinner *)
+    let%lwt hls, nodes, id_links, title = gather_org_file_data file_path in
+    let backlink_list, set_backlink_nodes =
+      Eliom_shared.ReactiveData.RList.create []
+    in
+    let set_nodes =
+      [%client
+        fun roam_id ->
+          let%lwt nodes = get_processed_org_backlinks roam_id in
+          Eliom_shared.ReactiveData.RList.set ~%set_backlink_nodes [nodes];
+          Lwt.return_unit]
+    in
+    let file_data_s, set_file_data =
+      Eliom_shared.React.S.create
+        (title, hls, nodes, Some id_links, None, set_nodes)
+    in
+    let set_file_path =
+      [%client
+        (fun ?target_hlid file_path ->
+           let%lwt hls, nodes, id_links, title =
+             gather_org_file_data file_path
+           in
+           ~%set_file_data
+             (title, hls, nodes, Some id_links, target_hlid, ~%set_nodes);
+           Lwt.return_unit
+          : ?target_hlid:int32 -> string -> unit Lwt.t)]
+    in
+    ignore @@ [%client (fuck_me_set_file_path := Some ~%set_file_path : unit)];
+    let backlinks_node = org_backlinks_content backlink_list set_file_path in
+    let org_content = org_file_content ~set_file_path ~file_data:file_data_s in
+    Lwt.return
+      ( (* Ot_spinner.with_spinner *)
+        [ div
+            ~a:[a_class ["org_page"]]
+            [div ~a:[a_class ["org_content"]] [org_content]; backlinks_node] ]
+      , set_file_path )
   in
   (* a title would be nice: h1 [%i18n Demo.pgocaml]; *)
-  Lwt.return [org_note]
+  Lwt.return (org_note, set_file_path)
 
 let id_page roam_id () =
   let%lwt org_note =
@@ -447,8 +445,9 @@ let id_page roam_id () =
 let () =
   Maxi_passat_base.App.register ~service:Maxi_passat_services.org_file
     ( Maxi_passat_page.Opt.connected_page @@ fun myid_o file_path () ->
-      let%lwt p = file_page file_path () in
-      Maxi_passat_container.page ~a:[a_class ["org-page"]] myid_o p );
+      let%lwt p, search_onclick = file_page file_path () in
+      let search = Org_search.search_files ~onclick:search_onclick () in
+      Maxi_passat_container.page ~search ~a:[a_class ["org-page"]] myid_o p );
   Maxi_passat_base.App.register ~service:Maxi_passat_services.org_id
     ( Maxi_passat_page.Opt.connected_page @@ fun myid_o id () ->
       let%lwt p = id_page id () in

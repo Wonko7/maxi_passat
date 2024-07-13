@@ -1,6 +1,7 @@
 [%%shared.start]
 open%client Js_of_ocaml
-open%client Js_of_ocaml_lwt
+
+(* open%client Js_of_ocaml_lwt *)
 
 open Eliom_content.Html
 open Eliom_content.Html.F
@@ -14,19 +15,91 @@ let ( @?$ ) x y = x @? [y]
 let ( @$? ) x y = x @: y @? []
 let ( @?? ) x y = x @? y @? []
 
-let reactive_input ?(a = []) ?input_r ?(value = "") ?validate () =
-  let signal, set_signal =
+let reactive_input ?(a = []) ?input_r ?output_r ?(value = "") ?validate () =
+  let in_signal, set_in_signal =
     match input_r with Some r -> r | None -> Eliom_shared.React.S.create value
   in
+  let out_signal, set_out_signal =
+    match output_r with Some r -> r | None -> Eliom_shared.React.S.create ""
+  in
+  (* let e = *)
+  (*   F.input *)
+  (*     ~a: *)
+  (* [ a_oninput *)
+  (*     [%client *)
+  (*       fun ev -> *)
+  (*         let t = Js.Opt.get ev##.target (fun () -> raise Not_found) in *)
+  (*         let v = Js.Unsafe.coerce t in *)
+  (*         ~%set_signal @@ Js.to_string @@ v##.value] ] *)
+  (*     () *)
+  (* in *)
   let e =
-    F.input
+    D.Raw.input
       ~a:
-        [ a_oninput
-            [%client
-              fun ev ->
-                let t = Js.Opt.get ev##.target (fun () -> raise Not_found) in
-                let v = Js.Unsafe.coerce t in
-                ~%set_signal @@ Js.to_string @@ v##.value] ]
+        ([ a_value value
+         ; a_oninput
+             [%client
+               fun ev ->
+                 let t = Js.Opt.get ev##.target (fun () -> raise Not_found) in
+                 let v = Js.Unsafe.coerce t in
+                 ~%set_out_signal @@ Js.to_string @@ v##.value] ]
+        @ a)
       ()
   in
-  e, (signal, set_signal)
+  let e' =
+    [%client
+      (To_dom.of_element ~%e : Js_of_ocaml.Dom_html.element Js_of_ocaml__.Js.t)]
+  in
+  let e_with_value =
+    [%client
+      (match Dom_html.tagged ~%e' with
+       | Dom_html.Input e -> (e :> < value : Js.js_string Js.t Js.prop > Js.t)
+       | Dom_html.Textarea e ->
+           (e :> < value : Js.js_string Js.t Js.prop > Js.t)
+       | _ -> assert false
+        : < value :
+              Js_of_ocaml__.Js.js_string Js_of_ocaml__.Js.t
+              Js_of_ocaml__.Js.prop >
+          Js_of_ocaml__.Js.t)]
+  in
+  (* let _ = *)
+  (*   [%client *)
+  (*     (Eliom_lib.Dom_reference.retain ~%e' *)
+  (*        ~keep: *)
+  (*          (React.S.map *)
+  (*             (fun s -> *)
+  (*               print_endline "yes I will do something"; *)
+  (*               print_endline s; *)
+  (*               print_endline @@ Js.to_string ~%e_with_value##.value; *)
+  (*               if Js.to_string ~%e_with_value##.value <> s *)
+  (*               then ~%e_with_value##.value := Js.string s) *)
+  (*             ~%in_signal) *)
+  (*       : unit)] *)
+  (* in *)
+  let tmp_set_input =
+    [%client
+      (* (React.S.map *)
+      (fun s ->
+         print_endline "yes I will do something";
+         print_endline s;
+         print_endline @@ Js.to_string ~%e_with_value##.value;
+         if Js.to_string ~%e_with_value##.value <> s
+         then ~%e_with_value##.value := Js.string s
+       (* ~%in_signal *)
+        : string -> unit)]
+  in
+  let fuck_me_node =
+    R.node
+    @@ Eliom_shared.React.S.map ~eq:[%shared ( == )]
+         [%shared
+           fun s ->
+             print_endline "!!!!!!!!!!!!!!!!11 fuckme node";
+             print_endline s;
+             let tmp_set_input = ~%tmp_set_input in
+             ignore @@ [%client (~%tmp_set_input ~%s : unit)];
+             span [txt s]]
+         in_signal
+  in
+  ( span [e; fuck_me_node]
+  , (in_signal, set_in_signal)
+  , (out_signal, set_out_signal) )
