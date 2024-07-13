@@ -130,17 +130,17 @@ let%shared main_service_handler myid_o () () =
   Maxi_passat_container.page
     ~a:[a_class ["os-page-main"]]
     myid_o
-    [ p [%i18n welcome_text1]
-    ; p [%i18n welcome_text2]
-    ; ul [li [%i18n welcome_text3]; li [%i18n welcome_text4]]
-    ; p [%i18n welcome_text5]
+    [ p [txt "welcome! have a look at these files:"]
     ; ul
-        [ li [%i18n welcome_text6]
-        ; li [%i18n welcome_text7]
-        ; li [%i18n welcome_text8]
-        ; li [%i18n welcome_text9]
-        ; li [%i18n welcome_text10] ]
-    ; p [%i18n welcome_text11] ]
+      @@ List.map
+           (fun m ->
+             li
+             @@ [ a ~service:Maxi_passat_services.org_file [txt m]
+                  @@ String.split_on_char '/' m ])
+           [ "here-be-dragons/wip/20210906190642-family.org"
+           ; "here-be-dragons/wtf/20210905155320-wtf.org"
+           ; "here-be-dragons/20210825125550-besport_team.org"
+           ; "here-be-dragons/wip/20220722133001-ssdd.org" ] ]
 
 let%shared about_handler myid_o () () =
   let open Eliom_content.Html.F in
