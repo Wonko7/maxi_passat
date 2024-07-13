@@ -64,11 +64,14 @@ a:active {
 // org_page contains org_content & backlinks
 
 .os-body {
-    padding: 66px 16px 0 16px;
+    padding: 50px 16px 0 16px;
+}
+.fade-top {
+    mask-image: linear-gradient(to top, black calc(100% - 48px), transparent 100%);
 }
 .org_page {
     display: flex;
-    height: calc(100vh - 66px); // WARNING/danger header height / os-body margin
+    height: calc(100vh - 50px); // WARNING/danger header height / os-body margin
 }
 .org_content {
     flex: 2;

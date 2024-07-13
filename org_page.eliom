@@ -410,11 +410,35 @@ let file_page file_path () =
     ignore @@ [%client (fuck_me_set_file_path := Some ~%set_file_path : unit)];
     let backlinks_node = org_backlinks_content backlink_list set_file_path in
     let org_content = org_file_content ~set_file_path ~file_data:file_data_s in
+    let scrolltop_s, set_scrolltop = Eliom_shared.React.S.create true in
     Lwt.return
       ( (* Ot_spinner.with_spinner *)
         [ div
             ~a:[a_class ["org_page"]]
-            [div ~a:[a_class ["org_content"]] [org_content]; backlinks_node] ]
+            [ div
+                ~a:
+                  [ Eliom_content.Html.R.a_class
+                    @@ Eliom_shared.React.S.map
+                         [%shared
+                           let cl = ["org_content"] in
+                           function
+                           | true -> cl
+                           | false ->
+                               print_endline "got false"; "fade-top" :: cl]
+                         scrolltop_s
+                  ; a_onscroll
+                      [%client
+                        fun ev ->
+                          print_endline "scroll";
+                          let open Js_of_ocaml in
+                          let target =
+                            Js.Opt.get ev##.target (fun () -> raise Not_found)
+                          in
+                          let t = Js.Unsafe.coerce target in
+                          ~%set_scrolltop (t##.scrollTop = 0)] ]
+                (* ~a:[a_class ["org_content"]] *)
+                [org_content]
+            ; backlinks_node ] ]
       , set_file_path )
   in
   (* a title would be nice: h1 [%i18n Demo.pgocaml]; *)
