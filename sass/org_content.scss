@@ -61,11 +61,6 @@ a:active {
 
 @include indent();
 
-// org_page contains org_content & backlinks
-
-.os-body {
-    padding: 50px 16px 0 16px;
-}
 .fade-bottom {
     mask-image: linear-gradient(
     to bottom,
@@ -89,6 +84,22 @@ a:active {
     transparent 100% /* Fade out bottom content */
   );
 }
+
+// animations
+@keyframes fadeIn {
+    0%   { opacity: 0; }
+    100% { opacity: 1; }
+}
+.fade-in {
+    animation: fadeIn 0.3s;
+}
+
+// org_page contains org_content & backlinks
+
+.os-body {
+    padding: 50px 16px 0 16px;
+}
+
 .org_page {
     display: flex;
     height: calc(100vh - 50px); // WARNING/danger header height / os-body margin

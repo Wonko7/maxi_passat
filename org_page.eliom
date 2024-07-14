@@ -260,7 +260,7 @@ let make_ptree_org_note ?subtree_headline_id ?target_hlid ~title ~headlines
                          ~%target_hlid))
                0.01)
          : unit)];
-  html
+  div ~a:[a_class ["fade-in"]] [html]
 
 let rec group_by_headline_id (headlines : processed_org_headline list)
     (acc : processed_org_headline list)
@@ -321,7 +321,7 @@ let org_backlinks_content
   @@ Eliom_shared.ReactiveData.RList.map
        [%shared
          fun headlines ->
-           let aclass = ["backlinks"] in
+           let aclass = ["backlinks"; "fade-in"] in
            match headlines with
            | [] -> div ~a:[a_class ("invisible" :: aclass)] []
            | headlines ->
