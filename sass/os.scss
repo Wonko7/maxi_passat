@@ -193,26 +193,28 @@ a.os-page-header-app-name {
     }
 }
 
-.os-page-main .os-page-header .os-connection-box {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-}
+// disable big header for main page:
 
-.os-page-main:not(.os-connected) {
-    .os-page-header {
-        display: block;
-        height: 40vh;
-        .os-page-header-app-name {
-            display: block;
-            position: absolute;
-            top: 30vh;
-        }
-    }
-    .os-body {
-        margin-top: 40vh;
-    }
-}
+// .os-page-main .os-page-header .os-connection-box {
+//     position: absolute;
+//     top: 15px;
+//     right: 15px;
+// }
+
+// .os-page-main:not(.os-connected) {
+//     .os-page-header {
+//         display: block;
+//         // height: 40vh;
+//         .os-page-header-app-name {
+//             display: block;
+//             position: absolute;
+//             top: 30vh;
+//         }
+//     }
+//     .os-body {
+//         // margin-top: 40vh;
+//     }
+// }
 
 @media (max-width: $breakpoint1) {
     .os-page-footer { display: none; }
