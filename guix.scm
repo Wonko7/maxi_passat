@@ -238,7 +238,7 @@ structure.")
        (sha256
         (base32 "0zp60zp101mcygwhsh62jj61sy61yh2k31d8kgznily1jv6jnm09"))))
     (build-system dune-build-system)
-    (propagated-inputs (list ocaml-dune-configurator ocaml-eqaf
+    (propagated-inputs (list dune-configurator ocaml-eqaf
                              ocaml-mirage-crypto-rng ocaml-digestif))
     (native-inputs (list ocaml-alcotest
                          ocaml-ppx-deriving-yojson
@@ -269,7 +269,7 @@ this package.")
        (sha256
         (base32 "0zp60zp101mcygwhsh62jj61sy61yh2k31d8kgznily1jv6jnm09"))))
     (build-system dune-build-system)
-    (propagated-inputs (list ocaml-dune-configurator ocaml-duration ocaml-logs
+    (propagated-inputs (list dune-configurator ocaml-duration ocaml-logs
                              ocaml-mirage-crypto ocaml-digestif))
     (native-inputs (list ocaml-ounit2 ocaml-randomconv ocaml-ohex))
     (home-page "https://github.com/mirage/mirage-crypto")
@@ -414,7 +414,7 @@ PKCS 1, PKCS 5, PKCS 7, PKCS 8, PKCS 9, PKCS 10, and PKCS 12.")
        (sha256
         (base32 "0zp60zp101mcygwhsh62jj61sy61yh2k31d8kgznily1jv6jnm09"))))
     (build-system dune-build-system)
-    (propagated-inputs (list ocaml-dune-configurator ocaml-eqaf))
+    (propagated-inputs (list dune-configurator ocaml-eqaf))
     (native-inputs (list ocaml-ounit2 ocaml-ohex))
     (home-page "https://github.com/mirage/mirage-crypto")
     (synopsis "Simple symmetric cryptography for the modern age")
@@ -660,28 +660,28 @@ implies that this only works under Unix, it should also be fine under Windows
 too.")
     (license license:isc)))
 
-(define-public ocaml-dune-configurator
-  (package
-    (name "ocaml-dune-configurator")
-    (version "3.17.2")
-    (source
-     (origin
-       (method url-fetch)
-       (uri
-        "https://github.com/ocaml/dune/releases/download/3.17.2/dune-3.17.2.tbz")
-       (sha256
-        (base32 "0r7al83jwkdfk6qvb53vrlzzfr08gwcydn1ccigfdsfg1vnzxslx"))))
-    (build-system dune-build-system)
-    (propagated-inputs (list ocaml-csexp ocaml-odoc))
-    (home-page "https://github.com/ocaml/dune")
-    (synopsis "Helper library for gathering system configuration")
-    (description
-     "dune-configurator is a small library that helps writing OCaml scripts that test
-features available on the system, in order to generate config.h files for
-instance.  Among other things, dune-configurator allows one to: - test if a C
-program compiles - query pkg-config - import #define from OCaml header files -
-generate config.h file.")
-    (license license:expat)))
+;; (define-public ocaml-dune-configurator
+;;   (package
+;;     (name "ocaml-dune-configurator")
+;;     (version "3.17.2")
+;;     (source
+;;      (origin
+;;        (method url-fetch)
+;;        (uri
+;;         "https://github.com/ocaml/dune/releases/download/3.17.2/dune-3.17.2.tbz")
+;;        (sha256
+;;         (base32 "0r7al83jwkdfk6qvb53vrlzzfr08gwcydn1ccigfdsfg1vnzxslx"))))
+;;     (build-system dune-build-system)
+;;     (propagated-inputs (list ocaml-csexp ocaml-odoc))
+;;     (home-page "https://github.com/ocaml/dune")
+;;     (synopsis "Helper library for gathering system configuration")
+;;     (description
+;;      "dune-configurator is a small library that helps writing OCaml scripts that test
+;; features available on the system, in order to generate config.h files for
+;; instance.  Among other things, dune-configurator allows one to: - test if a C
+;; program compiles - query pkg-config - import #define from OCaml header files -
+;; generate config.h file.")
+;;     (license license:expat)))
 
 (define-public ocaml-cryptokit
   (package
