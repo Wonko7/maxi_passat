@@ -36,7 +36,7 @@ each with its own connection pool.")
     (home-page "https://github.com/ocsigen/ocsigen-ppx-rpc/")
     (synopsis "This PPX adds a syntax for RPCs for Eliom and Ocsigen Start")
     (description #f)
-    (license #f)))
+    (license license:lgpl2.1)))
 
 (define-public ocaml-ocsigen-toolkit
   (package
@@ -57,7 +57,7 @@ each with its own connection pool.")
     (description
      "The Ocsigen Toolkit is a set of user interface widgets that facilitate the
 development of Eliom applications.")
-    (license #f)))
+    (license license:lgpl2.1)))
 
 (define-public ocaml-ocsipersist-lib
   (package
@@ -80,7 +80,7 @@ the Ocsipersist frontent.  Ocsipersist is used pervasively in Eliom/Ocsigen to
 handle sessions and references.  It can be used as an extension for
 ocsigenserver or as a library.  Implementations of the following backends
 currently exist: DBM, @code{PostgreSQL}, SQLite.")
-    (license #f)))
+    (license license:lgpl2.1)))
 
 (define-public ocaml-ocsipersist
   (package
@@ -101,7 +101,7 @@ currently exist: DBM, @code{PostgreSQL}, SQLite.")
      "This is an virtual library defining a unified frontend for a number of key-value
 storage implementations.  Implementations of the following backends currently
 exist: DBM, @code{PostgreSQL}, SQLite.")
-    (license #f)))
+    (license license:lgpl2.1)))
 
 (define-public ocaml-camlzip
   (package
@@ -122,7 +122,7 @@ exist: DBM, @code{PostgreSQL}, SQLite.")
      "The Camlzip library provides easy access to compressed files in ZIP and GZIP
 format, as well as to Java JAR files.  It provides functions for reading from
 and writing to compressed files in these formats.")
-    (license #f)))
+    (license license:lgpl2.1+)))
 
 (define-public ocaml-magic-mime
   (package
@@ -675,7 +675,7 @@ ciphers (AES, DES, 3DES), stream ciphers (Chacha20, ARCfour), public-key
 cryptography (RSA, DH), hashes (SHA-256, SHA-512, SHA-3, Blake2, Blake3), MACs,
 compression, random number generation -- all presented with a compositional,
 extensible interface.")
-    (license #f)))
+    (license license:lgpl2.0+)))
 
 (define-public ocaml-lwt-ssl
   (package
@@ -694,7 +694,7 @@ extensible interface.")
     (home-page "https://github.com/ocsigen/lwt_ssl")
     (synopsis "OpenSSL binding with concurrent I/O")
     (description #f)
-    (license #f)))
+    (license license:lgpl2.1))) ;; looked it up on the webpage
 
 (define-public ocaml-ocsigenserver
   (package
@@ -729,7 +729,7 @@ as an executable (taking its configuration from a file).  It has a very powerful
 extension mechanism that makes it very easy to plug your own OCaml modules for
 generating pages.  Many extensions are already implemented, like a reverse
 proxy, content compression, access control, authentication, etc.")
-    (license #f)))
+    (license license:lgpl2.1)))
 
 (define-public ocaml-lwt-ppx
   (package
@@ -769,7 +769,7 @@ proxy, content compression, access control, authentication, etc.")
 support to program with time varying values : declarative events and signals.
 React doesn't define any primitive event or signal, it lets the client chooses
 the concrete timeline.")
-    (license #f)))
+    (license license:lgpl3+)))
 
 (define-public ocaml-js-of-ocaml-tyxml
   (package
@@ -797,7 +797,7 @@ the concrete timeline.")
      "Js_of_ocaml is a compiler from OCaml bytecode to @code{JavaScript}.  It makes it
 possible to run pure OCaml programs in @code{JavaScript} environment like
 browsers and Node.js.")
-    (license (list license:gpl2+ #f))))
+    (license (list license:gpl2+ license:lgpl2.1+))))
 
 (define-public ocaml-js-of-ocaml-ppx-deriving-json
   (package
@@ -820,7 +820,7 @@ browsers and Node.js.")
      "Js_of_ocaml is a compiler from OCaml bytecode to @code{JavaScript}.  It makes it
 possible to run pure OCaml programs in @code{JavaScript} environment like
 browsers and Node.js.")
-    (license (list license:gpl2+ #f))))
+    (license (list license:gpl2+ license:lgpl2.1+))))
 
 (define-public ocaml-js-of-ocaml-ocamlbuild
   (package
@@ -864,7 +864,7 @@ browsers and Node.js.")
      "Js_of_ocaml is a compiler from OCaml bytecode to @code{JavaScript}.  It makes it
 possible to run pure OCaml programs in @code{JavaScript} environment like
 browsers and Node.js.")
-    (license (list license:gpl2+ #f))))
+    (license (list license:gpl2+ license:lgpl2.1+))))
 
 (define-public ocaml-js-of-ocaml-lwt
   (package
@@ -888,7 +888,7 @@ browsers and Node.js.")
      "Js_of_ocaml is a compiler from OCaml bytecode to @code{JavaScript}.  It makes it
 possible to run pure OCaml programs in @code{JavaScript} environment like
 browsers and Node.js.")
-    (license (list license:gpl2+ #f))))
+    (license (list license:gpl2+ license:lgpl2.1+))))
 
 (define-public ocaml-js-of-ocaml
   (package
@@ -912,7 +912,7 @@ browsers and Node.js.")
      "Js_of_ocaml is a compiler from OCaml bytecode to @code{JavaScript}.  It makes it
 possible to run pure OCaml programs in @code{JavaScript} environment like
 browsers and Node.js.")
-    (license (list license:gpl2+ #f))))
+    (license (list license:gpl2+ license:lgpl2.1+))))
 
 (define-public ocaml-menhirSdk
   (package
@@ -929,7 +929,7 @@ browsers and Node.js.")
     (home-page "http://gitlab.inria.fr/fpottier/menhir")
     (synopsis "Compile-time library for auxiliary tools related to Menhir")
     (description #f)
-    (license #f)))
+    (license license:lgpl2.0)))
 
 (define-public ocaml-menhirLib
   (package
@@ -946,7 +946,7 @@ browsers and Node.js.")
     (home-page "http://gitlab.inria.fr/fpottier/menhir")
     (synopsis "Runtime support library for parsers generated by Menhir")
     (description #f)
-    (license #f)))
+    (license license:lgpl2.0)))
 
 (define-public ocaml-js-of-ocaml-compiler
   (package
@@ -976,7 +976,7 @@ browsers and Node.js.")
      "Js_of_ocaml is a compiler from OCaml bytecode to @code{JavaScript}.  It makes it
 possible to run pure OCaml programs in @code{JavaScript} environment like
 browsers and Node.js.")
-    (license (list license:gpl2+ #f))))
+    (license (list license:gpl2+ license:lgpl2.1+))))
 
 (define-public ocaml-eliom
   (package
@@ -1025,7 +1025,7 @@ forms, URLs, bookmarks, sessions ...).  It is possible to generate mobile
 applications for Android and @code{iOS} with the exact same code as your Web
 application.  The client-side code is compiled to JS using Ocsigen Js_of_ocaml
 or to Wasm using Wasm_of_ocaml.")
-    (license #f)))
+    (license license:lgpl2.1)))
 
 (define-public ocaml-ocsigen-i18n
   (package
@@ -1046,7 +1046,7 @@ or to Wasm using Wasm_of_ocaml.")
 eliom file from a file containing tab-separated values; ocsigen-i18n-rewriter
 for implementing a PPX syntax for referencing entries in the generated eliom
 file.")
-    (license #f)))
+    (license license:lgpl2.1+)))
 
 (define-public ocaml-safepass
   (package
@@ -1063,7 +1063,7 @@ file.")
     (home-page "https://github.com/darioteixeira/ocaml-safepass")
     (synopsis "Facilities for the safe storage of user passwords")
     (description #f)
-    (license #f)))
+    (license license:lgpl2.1)))
 
 (define-public ocaml-pgocaml-ppx
   (package
@@ -1088,7 +1088,7 @@ statements inside the OCaml code.  The extension uses the describe feature of
 @code{PostgreSQL} to obtain type information about the database.  This allows
 PGOCaml to check at compile-time if the program is indeed consistent with the
 database structure.")
-    (license #f)))
+    (license license:lgpl2.0)))
 
 (define-public ocaml-pgocaml
   (package
@@ -1119,7 +1119,7 @@ applications.  Note that it speaks the @code{PostgreSQL} wire protocol directly,
 and therefore does not need to create bindings to the @code{PostgreSQL} libpq C
 library.  The PPX syntax extension is now packaged separately as pgocaml_ppx'.
 You will want to take a look at it if you're considering using PGOCaml.")
-    (license #f)))
+    (license license:lgpl2.0)))
 
 (define-public ocaml-ocsigen-start
   (package
@@ -1160,5 +1160,4 @@ This template is intended to serve as a basis for quickly building the Minimum
 Viable Product for Web and mobile applications with users.  The goal is to
 enable the programmer to concentrate on the core of the app, and not on user
 management.")
-    (license #f)))
-
+    (license license:lgpl2.1)))
