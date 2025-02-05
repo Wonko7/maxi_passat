@@ -577,7 +577,12 @@ implementation.")
     (name "ocaml-cohttp-lwt")
     (version "6.0.0~beta2")
     (source
-     no-source-information)
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/mirage/ocaml-cohttp/releases/download/v6.0.0_beta2/cohttp-v6.0.0_beta2.tbz")
+       (sha256
+        (base32 "05xh4hvjy90mqslwd0q6sa2h99f0p7vb4cf0f911nhc0sn5yrv4h"))))
     (build-system dune-build-system)
     (propagated-inputs (list ocaml-http
                              ocaml-cohttp
@@ -634,7 +639,12 @@ interoperate with Cohttp.")
     (name "ocaml-cohttp-lwt-unix")
     (version "6.0.0~beta2")
     (source
-     no-source-information)
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/mirage/ocaml-cohttp/releases/download/v6.0.0_beta2/cohttp-v6.0.0_beta2.tbz")
+       (sha256
+        (base32 "05xh4hvjy90mqslwd0q6sa2h99f0p7vb4cf0f911nhc0sn5yrv4h"))))
     (build-system dune-build-system)
     (propagated-inputs (list ocaml-http
                              ocaml-cohttp
