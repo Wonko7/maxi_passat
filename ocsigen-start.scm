@@ -1,0 +1,1164 @@
+(define-public ocaml-resource-pooling
+  (package
+    (name "ocaml-resource-pooling")
+    (version "1.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri "https://github.com/ocsigen/resource-pooling/archive/1.2.tar.gz")
+       (sha256
+        (base32 "0z9ik320ip8xhpklwq8q1cfrvf2frc9n37zfc575bzkil3vm76md"))))
+    (build-system dune-build-system)
+    (propagated-inputs (list ocaml-lwt ocaml-lwt-log))
+    (home-page "https://github.com/ocsigen/resource-pooling")
+    (synopsis
+     "Library for pooling resources like connections, threads, or similar")
+    (description
+     "This package is derived from the module Lwt_pool from the lwt package, which
+implements resource pooling.  With Resource_pool this package provides a
+modified version with additional features.  Also there is a module called
+Server_pool that manages resource clusters, specifically a cluster of servers
+each with its own connection pool.")
+    (license license:expat)))
+
+(define-public ocaml-ocsigen-ppx-rpc
+  (package
+    (name "ocaml-ocsigen-ppx-rpc")
+    (version "1.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri "https://github.com/ocsigen/ocsigen-ppx-rpc/archive/1.0.tar.gz")
+       (sha256
+        (base32 "0wmdj1szpnfx8jh07cxwknmzdnwzhdyjpmvvcscrd7bbgyh0pv0j"))))
+    (build-system dune-build-system)
+    (propagated-inputs (list ocaml-ppxlib))
+    (home-page "https://github.com/ocsigen/ocsigen-ppx-rpc/")
+    (synopsis "This PPX adds a syntax for RPCs for Eliom and Ocsigen Start")
+    (description #f)
+    (license #f)))
+
+(define-public ocaml-ocsigen-toolkit
+  (package
+    (name "ocaml-ocsigen-toolkit")
+    (version "4.1.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/ocsigen/ocsigen-toolkit/archive/refs/tags/4.1.0.tar.gz")
+       (sha256
+        (base32 "1gan4qbcd8vsw5ibfh6fm4v8m6jkalickdvig2s2v6g7jjg5xnp8"))))
+    (build-system ocaml-build-system)
+    (propagated-inputs (list ocaml-js-of-ocaml ocaml-eliom ocaml-calendar))
+    (home-page "http://www.ocsigen.org")
+    (synopsis
+     "Reusable UI components for Eliom applications (client only, or client-server)")
+    (description
+     "The Ocsigen Toolkit is a set of user interface widgets that facilitate the
+development of Eliom applications.")
+    (license #f)))
+
+(define-public ocaml-ocsipersist-lib
+  (package
+    (name "ocaml-ocsipersist-lib")
+    (version "2.0.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/ocsigen/ocsipersist/archive/refs/tags/2.0.0.tar.gz")
+       (sha256
+        (base32 "0ppa3y8ldfw0jbi1njk7p3ygssh5hpa63ns4fglmcpdsy151ybvb"))))
+    (build-system dune-build-system)
+    (propagated-inputs (list ocaml-lwt ocaml-lwt-ppx))
+    (home-page "https://github.com/ocsigen/ocsipersist")
+    (synopsis "Persistent key/value storage for OCaml - support library")
+    (description
+     "This library defines signatures and auxiliary tools for defining backends for
+the Ocsipersist frontent.  Ocsipersist is used pervasively in Eliom/Ocsigen to
+handle sessions and references.  It can be used as an extension for
+ocsigenserver or as a library.  Implementations of the following backends
+currently exist: DBM, @code{PostgreSQL}, SQLite.")
+    (license #f)))
+
+(define-public ocaml-ocsipersist
+  (package
+    (name "ocaml-ocsipersist")
+    (version "2.0.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/ocsigen/ocsipersist/archive/refs/tags/2.0.0.tar.gz")
+       (sha256
+        (base32 "0ppa3y8ldfw0jbi1njk7p3ygssh5hpa63ns4fglmcpdsy151ybvb"))))
+    (build-system dune-build-system)
+    (propagated-inputs (list ocaml-lwt ocaml-ocsipersist-lib))
+    (home-page "https://github.com/ocsigen/ocsipersist")
+    (synopsis "Persistent key-value storage for OCaml using multiple backends")
+    (description
+     "This is an virtual library defining a unified frontend for a number of key-value
+storage implementations.  Implementations of the following backends currently
+exist: DBM, @code{PostgreSQL}, SQLite.")
+    (license #f)))
+
+(define-public ocaml-camlzip
+  (package
+    (name "ocaml-camlzip")
+    (version "1.13")
+    (source
+     (origin
+       (method url-fetch)
+       (uri "https://github.com/xavierleroy/camlzip/archive/rel113.tar.gz")
+       (sha256
+        (base32 "17jxasc7sx99mrz1hh960k115adpj9c7pczrvwpxs741mj98c0wa"))))
+    (build-system ocaml-build-system)
+    (propagated-inputs (list zlib))
+    (native-inputs (list ocaml-findlib))
+    (home-page "https://github.com/xavierleroy/camlzip")
+    (synopsis "Accessing compressed files in ZIP, GZIP and JAR format")
+    (description
+     "The Camlzip library provides easy access to compressed files in ZIP and GZIP
+format, as well as to Java JAR files.  It provides functions for reading from
+and writing to compressed files in these formats.")
+    (license #f)))
+
+(define-public ocaml-magic-mime
+  (package
+    (name "ocaml-magic-mime")
+    (version "1.3.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/mirage/ocaml-magic-mime/releases/download/v1.3.1/magic-mime-1.3.1.tbz")
+       (sha256
+        (base32 "021vy409qq0gzsn4kzr1lvlsax9dcy3y6mwfqpx1xfjxc81ls8z0"))))
+    (build-system dune-build-system)
+    (home-page "https://github.com/mirage/ocaml-magic-mime")
+    (synopsis "Map filenames to common MIME types")
+    (description
+     "This library contains a database of MIME types that maps filename extensions
+into MIME types suitable for use in many Internet protocols such as HTTP or
+e-mail.  It is generated from the `mime.types` file found in Unix systems, but
+has no dependency on a filesystem since it includes the contents of the database
+as an ML datastructure.  For example, here's how to lookup MIME types in the
+[utop] REPL: #require \"magic-mime\";; Magic_mime.lookup \"/foo/bar.txt\";; - :
+bytes = \"text/plain\" Magic_mime.lookup \"bar.css\";; - : bytes = \"text/css\".")
+    (license license:isc)))
+
+(define-public ocaml-kdf
+  (package
+    (name "ocaml-kdf")
+    (version "1.0.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/robur-coop/kdf/releases/download/v1.0.0/kdf-1.0.0.tbz")
+       (sha256
+        (base32 "1kp0cbn3v0l7rzb7g0r1rra697wf0qhrr33bvmcdjrpy1qmmhqfi"))))
+    (build-system dune-build-system)
+    (propagated-inputs (list ocaml-digestif ocaml-mirage-crypto))
+    (native-inputs (list ocaml-alcotest ocaml-ohex))
+    (home-page "https://github.com/robur-coop/kdf")
+    (synopsis
+     "Key Derivation Functions: HKDF RFC 5869, PBKDF RFC 2898, SCRYPT RFC 7914")
+    (description
+     "This package provides a pure OCaml implementation of
+[scrypt](https://tools.ietf.org/html/rfc7914), [PBKDF 1 and 2 as defined by
+PKCS#5](https://tools.ietf.org/html/rfc2898), and
+[HKDF](https://tools.ietf.org/html/rfc5869).")
+    (license license:bsd-2)))
+
+(define-public ocaml-gmap
+  (package
+    (name "ocaml-gmap")
+    (version "0.3.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/hannesm/gmap/releases/download/0.3.0/gmap-0.3.0.tbz")
+       (sha256
+        (base32 "073wa0lrb0jj706j87cwzf1a8d1ff14100mnrjs8z3xc4ri9xp84"))))
+    (build-system dune-build-system)
+    (native-inputs (list ocaml-alcotest ocaml-fmt))
+    (home-page "https://github.com/hannesm/gmap")
+    (synopsis "Heterogenous maps over a GADT")
+    (description
+     "Gmap exposes the functor `Make` which takes a key type (a
+[GADT](https://en.wikipedia.org/wiki/Generalized_algebraic_data_type) a key) and
+outputs a type-safe Map where each a key is associated with a a value.  This
+removes the need for additional packing.  It uses OCaml's stdlib
+[Map](http://caml.inria.fr/pub/docs/manual-ocaml/libref/Map.html) data
+structure.")
+    (license license:isc)))
+
+(define-public ocaml-mirage-crypto-ec
+  (package
+    (name "ocaml-mirage-crypto-ec")
+    (version "1.2.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/mirage/mirage-crypto/releases/download/v1.2.0/mirage-crypto-1.2.0.tbz")
+       (sha256
+        (base32 "0zp60zp101mcygwhsh62jj61sy61yh2k31d8kgznily1jv6jnm09"))))
+    (build-system dune-build-system)
+    (propagated-inputs (list ocaml-dune-configurator ocaml-eqaf
+                             ocaml-mirage-crypto-rng ocaml-digestif))
+    (native-inputs (list ocaml-alcotest
+                         ocaml-ppx-deriving-yojson
+                         ocaml-ppx-deriving
+                         ocaml-yojson
+                         ocaml-asn1-combinators
+                         ocaml-ohex
+                         ocaml-ounit2))
+    (home-page "https://github.com/mirage/mirage-crypto")
+    (synopsis "Elliptic Curve Cryptography with primitives taken from Fiat")
+    (description
+     "An implementation of key exchange (ECDH) and digital signature
+(ECDSA/@code{EdDSA}) algorithms using code from Fiat
+(<https://github.com/mit-plv/fiat-crypto>).  The curves P256 (SECP256R1), P384
+(SECP384R1), P521 (SECP521R1), and 25519 (X25519, Ed25519) are implemented by
+this package.")
+    (license license:expat)))
+
+(define-public ocaml-mirage-crypto-rng
+  (package
+    (name "ocaml-mirage-crypto-rng")
+    (version "1.2.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/mirage/mirage-crypto/releases/download/v1.2.0/mirage-crypto-1.2.0.tbz")
+       (sha256
+        (base32 "0zp60zp101mcygwhsh62jj61sy61yh2k31d8kgznily1jv6jnm09"))))
+    (build-system dune-build-system)
+    (propagated-inputs (list ocaml-dune-configurator ocaml-duration ocaml-logs
+                             ocaml-mirage-crypto ocaml-digestif))
+    (native-inputs (list ocaml-ounit2 ocaml-randomconv ocaml-ohex))
+    (home-page "https://github.com/mirage/mirage-crypto")
+    (synopsis "A cryptographically secure PRNG")
+    (description
+     "Mirage-crypto-rng provides a random number generator interface, and
+implementations: Fortuna, HMAC-DRBG, getrandom/getentropy based (in the unix
+sublibrary).")
+    (license license:isc)))
+
+(define-public ocaml-randomconv
+  (package
+    (name "ocaml-randomconv")
+    (version "0.2.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/hannesm/randomconv/releases/download/v0.2.0/randomconv-0.2.0.tbz")
+       (sha256
+        (base32 "1sk3bdfz1nlqrivp8vy3slpbhqw858gc5zwjix3a8hg30zgiw5xk"))))
+    (build-system dune-build-system)
+    (home-page "https://github.com/hannesm/randomconv")
+    (synopsis
+     "Convert from random byte vectors (int -> string) to random native numbers")
+    (description
+     "Given a function which produces random byte vectors, convert it to a number of
+your choice (int8/int16/int32/int64/int/float).")
+    (license license:isc)))
+
+(define-public ocaml-mirage-crypto-pk
+  (package
+    (name "ocaml-mirage-crypto-pk")
+    (version "1.2.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/mirage/mirage-crypto/releases/download/v1.2.0/mirage-crypto-1.2.0.tbz")
+       (sha256
+        (base32 "0zp60zp101mcygwhsh62jj61sy61yh2k31d8kgznily1jv6jnm09"))))
+    (build-system dune-build-system)
+    (propagated-inputs (list ocaml-mirage-crypto ocaml-mirage-crypto-rng
+                             ocaml-digestif ocaml-zarith ocaml-eqaf))
+    (native-inputs (list gmp-powm-sec ocaml-ounit2 ocaml-randomconv ocaml-ohex))
+    (home-page "https://github.com/mirage/mirage-crypto")
+    (synopsis "Simple public-key cryptography for the modern age")
+    (description
+     "Mirage-crypto-pk provides public-key cryptography (RSA, DSA, DH).")
+    (license license:isc)))
+
+(define-public ocaml-asn1-combinators
+  (package
+    (name "ocaml-asn1-combinators")
+    (version "0.3.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/mirleft/ocaml-asn1-combinators/releases/download/v0.3.2/asn1-combinators-0.3.2.tbz")
+       (sha256
+        (base32 "0zwa1pxprzq77h5y6j2s7dj14zkmsrdkb14zrlyhf8i7drgrh9ib"))))
+    (build-system dune-build-system)
+    (propagated-inputs (list ocaml-ptime))
+    (native-inputs (list ocaml-alcotest ocaml-ohex))
+    (home-page "https://github.com/mirleft/ocaml-asn1-combinators")
+    (synopsis "Embed typed ASN.1 grammars in OCaml")
+    (description
+     "asn1-combinators is a library for expressing ASN.1 in OCaml.  Skip the notation
+part of ASN.1, and embed the abstract syntax directly in the language.  These
+abstract syntax representations can be used for parsing, serialization, or
+random testing.  The only ASN.1 encodings currently supported are BER and DER.")
+    (license license:isc)))
+
+(define-public ocaml-x509
+  (package
+    (name "ocaml-x509")
+    (version "1.0.5")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/mirleft/ocaml-x509/releases/download/v1.0.5/x509-1.0.5.tbz")
+       (sha256
+        (base32 "06r9k862g52jzpf588lmx5mvnf8rikrgqd5gm6i1wlhfwnxrvc7g"))))
+    (build-system dune-build-system)
+    (propagated-inputs (list ocaml-asn1-combinators
+                             ocaml-ptime
+                             ocaml-base64
+                             ocaml-mirage-crypto
+                             ocaml-mirage-crypto-pk
+                             ocaml-mirage-crypto-ec
+                             ocaml-mirage-crypto-rng
+                             ocaml-fmt
+                             ocaml-gmap
+                             ocaml-domain-name
+                             ocaml-logs
+                             ocaml-kdf
+                             ocaml-ohex
+                             ocaml-ipaddr))
+    (native-inputs (list ocaml-mirage-crypto-rng ocaml-alcotest))
+    (home-page "https://github.com/mirleft/ocaml-x509")
+    (synopsis "Public Key Infrastructure (RFC 5280, PKCS) purely in OCaml")
+    (description
+     "X.509 is a public key infrastructure used mostly on the Internet.  It consists
+of certificates which include public keys and identifiers, signed by an
+authority.  Authorities must be exchanged over a second channel to establish the
+trust relationship.  This library implements most parts of RFC5280 and RFC6125.
+The Public Key Cryptography Standards (PKCS) defines encoding and decoding (in
+ASN.1 DER and PEM format), which is also implemented by this library - namely
+PKCS 1, PKCS 5, PKCS 7, PKCS 8, PKCS 9, PKCS 10, and PKCS 12.")
+    (license license:bsd-2)))
+
+(define-public ocaml-ohex
+  (package
+    (name "ocaml-ohex")
+    (version "0.2.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/ocaml/opam-source-archives/raw/main/ohex-0.2.0.tar.gz")
+       (sha256
+        (base32 "1v6qwz6a0anbcjy74bgfinmib4c8wzc64y3b9dvhrc1lpanppdd6"))))
+    (build-system dune-build-system)
+    (native-inputs (list ocaml-alcotest))
+    (home-page "https://git.robur.coop/robur/ohex")
+    (synopsis "Hexadecimal encoding and decoding")
+    (description
+     "This package provides a library to encode and decode hexadecimal byte sequences.")
+    (license license:bsd-2)))
+
+(define-public ocaml-mirage-crypto
+  (package
+    (name "ocaml-mirage-crypto")
+    (version "1.2.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/mirage/mirage-crypto/releases/download/v1.2.0/mirage-crypto-1.2.0.tbz")
+       (sha256
+        (base32 "0zp60zp101mcygwhsh62jj61sy61yh2k31d8kgznily1jv6jnm09"))))
+    (build-system dune-build-system)
+    (propagated-inputs (list ocaml-dune-configurator ocaml-eqaf))
+    (native-inputs (list ocaml-ounit2 ocaml-ohex))
+    (home-page "https://github.com/mirage/mirage-crypto")
+    (synopsis "Simple symmetric cryptography for the modern age")
+    (description "Mirage-crypto provides symmetric ciphers (DES, AES, RC4,
+@code{ChaCha20/Poly1305}).")
+    (license license:isc)))
+
+(define-public ocaml-ca-certs
+  (package
+    (name "ocaml-ca-certs")
+    (version "1.0.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/mirage/ca-certs/releases/download/v1.0.0/ca-certs-1.0.0.tbz")
+       (sha256
+        (base32 "0wha5i3f5dz2l01lh5nl4yq2gdhnxj2bd8fqyaclfwj64cqz5446"))))
+    (build-system dune-build-system)
+    (propagated-inputs (list ocaml-bos
+                             ocaml-fpath
+                             ocaml-ptime
+                             ocaml-logs
+                             ocaml-digestif
+                             ocaml-mirage-crypto
+                             ocaml-x509
+                             ocaml-ohex))
+    (native-inputs (list ocaml-alcotest ocaml-fmt))
+    (home-page "https://github.com/mirage/ca-certs")
+    (synopsis "Detect root CA certificates from the operating system")
+    (description
+     "TLS requires a set of root anchors (Certificate Authorities) to authenticate
+servers.  This library exposes this list so that it can be registered with
+ocaml-tls.")
+    (license license:isc)))
+
+(define-public ocaml-conduit-lwt-unix
+  (package
+    (name "ocaml-conduit-lwt-unix")
+    (version "7.1.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/mirage/ocaml-conduit/releases/download/v7.1.0/conduit-7.1.0.tbz")
+       (sha256
+        (base32 "1xspxb5v8hb9f1zx7b2cbgrp1s9k68js1373bl10c5z70y523ljq"))))
+    (build-system dune-build-system)
+    (propagated-inputs (list ocaml-logs
+                             ocaml-ppx-sexp-conv
+                             ocaml-conduit-lwt
+                             ocaml-lwt
+                             ocaml-uri
+                             ocaml-ipaddr
+                             ocaml-ipaddr-sexp
+                             ocaml-ca-certs))
+    (native-inputs (list ocaml-lwt-log ocaml-ssl ocaml-lwt-ssl))
+    (home-page "https://github.com/mirage/ocaml-conduit")
+    (synopsis "A network connection establishment library for Lwt_unix")
+    (description #f)
+    (license license:isc)))
+
+(define-public ocaml-ipaddr-cstruct
+  (package
+    (name "ocaml-ipaddr-cstruct")
+    (version "5.6.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/mirage/ocaml-ipaddr/releases/download/v5.6.0/ipaddr-5.6.0.tbz")
+       (sha256
+        (base32 "0cw1431idd54v067p3mqbxhsgsx5mixl9ywgmak3g92cvczl6c4y"))))
+    (build-system dune-build-system)
+    (propagated-inputs (list ocaml-ipaddr ocaml-cstruct))
+    (home-page "https://github.com/mirage/ocaml-ipaddr")
+    (synopsis
+     "A library for manipulation of IP address representations using Cstructs")
+    (description "Cstruct convertions for macaddr.")
+    (license license:isc)))
+
+(define-public ocaml-ipaddr-sexp
+  (package
+    (name "ocaml-ipaddr-sexp")
+    (version "5.6.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/mirage/ocaml-ipaddr/releases/download/v5.6.0/ipaddr-5.6.0.tbz")
+       (sha256
+        (base32 "0cw1431idd54v067p3mqbxhsgsx5mixl9ywgmak3g92cvczl6c4y"))))
+    (build-system dune-build-system)
+    (propagated-inputs (list ocaml-ipaddr ocaml-ppx-sexp-conv ocaml-sexplib0))
+    (native-inputs (list ocaml-ipaddr-cstruct ocaml-ounit2))
+    (home-page "https://github.com/mirage/ocaml-ipaddr")
+    (synopsis
+     "A library for manipulation of IP address representations using sexp")
+    (description "Sexp convertions for ipaddr.")
+    (license license:isc)))
+
+(define-public ocaml-conduit
+  (package
+    (name "ocaml-conduit")
+    (version "7.1.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/mirage/ocaml-conduit/releases/download/v7.1.0/conduit-7.1.0.tbz")
+       (sha256
+        (base32 "1xspxb5v8hb9f1zx7b2cbgrp1s9k68js1373bl10c5z70y523ljq"))))
+    (build-system dune-build-system)
+    (propagated-inputs (list ocaml-ppx-sexp-conv
+                             ocaml-sexplib0
+                             ocaml-astring
+                             ocaml-uri
+                             ocaml-logs
+                             ocaml-ipaddr
+                             ocaml-ipaddr-sexp))
+    (home-page "https://github.com/mirage/ocaml-conduit")
+    (synopsis "A network connection establishment library")
+    (description
+     "The `conduit` library takes care of establishing and listening for TCP and
+SSL/TLS connections for the Lwt and Async libraries.  The reason this library
+exists is to provide a degree of abstraction from the precise SSL library used,
+since there are a variety of ways to bind to a library (e.g. the C FFI, or the
+Ctypes library), as well as well as which library is used (just @code{OpenSSL}
+for now).  By default, @code{OpenSSL} is used as the preferred connection
+library, but you can force the use of the pure OCaml TLS stack by setting the
+environment variable `CONDUIT_TLS=native` when starting your program.  The
+useful opam packages available that extend this library are: - `conduit`: the
+main `Conduit` module - `conduit-lwt`: the portable Lwt implementation -
+`conduit-lwt-unix`: the Lwt/Unix implementation - `conduit-async` the Jane
+Street Async implementation - `conduit-mirage`: the @code{MirageOS} compatible
+implementation.")
+    (license license:isc)))
+
+(define-public ocaml-conduit-lwt
+  (package
+    (name "ocaml-conduit-lwt")
+    (version "7.1.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/mirage/ocaml-conduit/releases/download/v7.1.0/conduit-7.1.0.tbz")
+       (sha256
+        (base32 "1xspxb5v8hb9f1zx7b2cbgrp1s9k68js1373bl10c5z70y523ljq"))))
+    (build-system dune-build-system)
+    (propagated-inputs (list ocaml-ppx-sexp-conv ocaml-sexplib0 ocaml-conduit
+                             ocaml-lwt))
+    (home-page "https://github.com/mirage/ocaml-conduit")
+    (synopsis "A portable network connection establishment library using Lwt")
+    (description #f)
+    (license license:isc)))
+
+(define-public ocaml-cohttp-lwt
+  (package
+    (name "ocaml-cohttp-lwt")
+    (version "6.0.0~beta2")
+    (source
+     no-source-information)
+    (build-system dune-build-system)
+    (propagated-inputs (list ocaml-http
+                             ocaml-cohttp
+                             ocaml-lwt
+                             ocaml-sexplib0
+                             ocaml-ppx-sexp-conv
+                             ocaml-logs
+                             ocaml-uri
+                             ocaml-odoc))
+    (home-page "https://github.com/mirage/ocaml-cohttp")
+    (synopsis "CoHTTP implementation using the Lwt concurrency library")
+    (description
+     "This is a portable implementation of HTTP that uses the Lwt concurrency library
+to multiplex IO. It implements as much of the logic in an OS-independent way as
+possible, so that more specialised modules can be tailored for different
+targets.  For example, you can install `cohttp-lwt-unix` or `cohttp-lwt-jsoo`
+for a Unix or @code{JavaScript} backend, or `cohttp-mirage` for the
+@code{MirageOS} unikernel version of the library.  All of these implementations
+share the same IO logic from this module.")
+    (license license:isc)))
+
+(define-public ocaml-http
+  (package
+    (name "ocaml-http")
+    (version "6.0.0~beta2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/mirage/ocaml-cohttp/releases/download/v6.0.0_beta2/cohttp-v6.0.0_beta2.tbz")
+       (sha256
+        (base32 "05xh4hvjy90mqslwd0q6sa2h99f0p7vb4cf0f911nhc0sn5yrv4h"))))
+    (build-system dune-build-system)
+    (propagated-inputs (list ocaml-odoc))
+    (native-inputs (list ocaml-ppx-expect
+                         ocaml-alcotest
+                         ocaml-base-quickcheck
+                         ocaml-ppx-assert
+                         ocaml-ppx-sexp-conv
+                         ocaml-ppx-compare
+                         ocaml-ppx-here
+                         ocaml-crowbar
+                         ocaml-sexplib0))
+    (home-page "https://github.com/mirage/ocaml-cohttp")
+    (synopsis "Type definitions of HTTP essentials")
+    (description
+     "This package contains essential type definitions used in Cohttp.  It is designed
+to have no dependencies and make it easy for other packages to easily
+interoperate with Cohttp.")
+    (license license:isc)))
+
+(define-public ocaml-cohttp-lwt-unix
+  (package
+    (name "ocaml-cohttp-lwt-unix")
+    (version "6.0.0~beta2")
+    (source
+     no-source-information)
+    (build-system dune-build-system)
+    (propagated-inputs (list ocaml-http
+                             ocaml-cohttp
+                             ocaml-cohttp-lwt
+                             ocaml-cmdliner
+                             ocaml-lwt
+                             ocaml-conduit-lwt
+                             ocaml-conduit-lwt-unix
+                             ocaml-fmt
+                             ocaml-ppx-sexp-conv
+                             ocaml-magic-mime
+                             ocaml-logs
+                             ocaml-odoc))
+    (native-inputs (list ocaml-ounit))
+    (home-page "https://github.com/mirage/ocaml-cohttp")
+    (synopsis "CoHTTP implementation for Unix and Windows using Lwt")
+    (description
+     "An implementation of an HTTP client and server using the Lwt concurrency
+library.  See the `Cohttp_lwt_unix` module for information on how to use this.
+The package also installs `cohttp-curl-lwt` and a `cohttp-server-lwt` binaries
+for quick uses of a HTTP(S) client and server respectively.  Although the name
+implies that this only works under Unix, it should also be fine under Windows
+too.")
+    (license license:isc)))
+
+(define-public ocaml-dune-configurator
+  (package
+    (name "ocaml-dune-configurator")
+    (version "3.17.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/ocaml/dune/releases/download/3.17.2/dune-3.17.2.tbz")
+       (sha256
+        (base32 "0r7al83jwkdfk6qvb53vrlzzfr08gwcydn1ccigfdsfg1vnzxslx"))))
+    (build-system dune-build-system)
+    (propagated-inputs (list ocaml-csexp ocaml-odoc))
+    (home-page "https://github.com/ocaml/dune")
+    (synopsis "Helper library for gathering system configuration")
+    (description
+     "dune-configurator is a small library that helps writing OCaml scripts that test
+features available on the system, in order to generate config.h files for
+instance.  Among other things, dune-configurator allows one to: - test if a C
+program compiles - query pkg-config - import #define from OCaml header files -
+generate config.h file.")
+    (license license:expat)))
+
+(define-public ocaml-cryptokit
+  (package
+    (name "ocaml-cryptokit")
+    (version "1.20")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/xavierleroy/cryptokit/archive/release1201.tar.gz")
+       (sha256
+        (base32 "19nf1wjphnil3yxwmlmbivzswhgj7mc2z74nvmm27rq39qmw6cxr"))))
+    (build-system dune-build-system)
+    (propagated-inputs (list ocaml-dune-configurator ocaml-zarith zlib
+                             gmp-powm-sec))
+    (home-page "https://github.com/xavierleroy/cryptokit")
+    (synopsis "A library of cryptographic primitives")
+    (description
+     "Cryptokit includes authenticated encryption (AES-GCM, Chacha20-Poly1305), block
+ciphers (AES, DES, 3DES), stream ciphers (Chacha20, ARCfour), public-key
+cryptography (RSA, DH), hashes (SHA-256, SHA-512, SHA-3, Blake2, Blake3), MACs,
+compression, random number generation -- all presented with a compositional,
+extensible interface.")
+    (license #f)))
+
+(define-public ocaml-lwt-ssl
+  (package
+    (name "ocaml-lwt-ssl")
+    (version "1.2.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/ocsigen/lwt_ssl/releases/download/1.2.0/lwt_ssl-1.2.0.tbz")
+       (sha256
+        (base32 "0xwsi140ahap2d8ncc443ycvmjvdnc40lx7jqghpgwzcgb90l0mk"))))
+    (build-system dune-build-system)
+    (propagated-inputs (list ocaml-lwt ocaml-ssl))
+    (properties `((upstream-name . "lwt_ssl")))
+    (home-page "https://github.com/ocsigen/lwt_ssl")
+    (synopsis "OpenSSL binding with concurrent I/O")
+    (description #f)
+    (license #f)))
+
+(define-public ocaml-ocsigenserver
+  (package
+    (name "ocaml-ocsigenserver")
+    (version "6.0.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/ocsigen/ocsigenserver/archive/refs/tags/6.0.0.tar.gz")
+       (sha256
+        (base32 "061y0rlnlf6awsqx66w8n8k4pzq6ria16hhmydmvjqz9ra72qsa0"))))
+    (build-system dune-build-system)
+    (propagated-inputs (list ocaml-react
+                             ocaml-ssl
+                             ocaml-lwt
+                             ocaml-lwt-ssl
+                             ocaml-lwt-react
+                             ocaml-lwt-log
+                             ocaml-re
+                             ocaml-cryptokit
+                             ocaml-ipaddr
+                             ocaml-cohttp-lwt-unix
+                             ocaml-conduit-lwt-unix
+                             ocaml-xml-light
+                             ocaml-camlzip))
+    (home-page "http://ocsigen.org/ocsigenserver/")
+    (synopsis "A full-featured and extensible Web server")
+    (description
+     "Ocsigen Server is a Web Server that can be used either as a library for OCaml or
+as an executable (taking its configuration from a file).  It has a very powerful
+extension mechanism that makes it very easy to plug your own OCaml modules for
+generating pages.  Many extensions are already implemented, like a reverse
+proxy, content compression, access control, authentication, etc.")
+    (license #f)))
+
+(define-public ocaml-lwt-ppx
+  (package
+    (name "ocaml-lwt-ppx")
+    (version "5.8.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri "https://github.com/ocsigen/lwt/archive/refs/tags/5.8.0.tar.gz")
+       (sha256
+        (base32 "17dzjiy1smv2791399j6gn2jxa4mkps2vrss231pp9m10lxfkdyi"))))
+    (build-system dune-build-system)
+    (propagated-inputs (list ocaml-ppxlib ocaml-lwt))
+    (properties `((upstream-name . "lwt_ppx")))
+    (home-page "https://github.com/ocsigen/lwt")
+    (synopsis
+     "PPX syntax for Lwt, providing something similar to async/await from JavaScript")
+    (description #f)
+    (license license:expat)))
+
+(define-public ocaml-reactiveData
+  (package
+    (name "ocaml-reactiveData")
+    (version "0.3.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri "https://github.com/ocsigen/reactiveData/archive/0.3.tar.gz")
+       (sha256
+        (base32 "1xjbzjpihmyi1d324xz1kp1ph38vmik1gdzvznq096w3199gvri9"))))
+    (build-system dune-build-system)
+    (propagated-inputs (list ocaml-react))
+    (home-page "https://github.com/ocsigen/reactiveData")
+    (synopsis "Declarative events and signals for OCaml")
+    (description
+     "React is an OCaml module for functional reactive programming (FRP).  It provides
+support to program with time varying values : declarative events and signals.
+React doesn't define any primitive event or signal, it lets the client chooses
+the concrete timeline.")
+    (license #f)))
+
+(define-public ocaml-js-of-ocaml-tyxml
+  (package
+    (name "ocaml-js-of-ocaml-tyxml")
+    (version "5.9.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/ocsigen/js_of_ocaml/releases/download/5.9.1/js_of_ocaml-5.9.1.tbz")
+       (sha256
+        (base32 "01vk3kpa3chn6l5hs8hg8k5knhahxpi3aby8ajd9r3hxhxh5rjb8"))))
+    (build-system dune-build-system)
+    (propagated-inputs (list ocaml-js-of-ocaml
+                             ocaml-js-of-ocaml-ppx
+                             ocaml-react
+                             ocaml-reactiveData
+                             ocaml-tyxml
+                             ocaml-odoc))
+    (native-inputs (list ocaml-num ocaml-ppx-expect ocaml-ppxlib ocaml-re))
+    (properties `((upstream-name . "js_of_ocaml-tyxml")))
+    (home-page "https://ocsigen.org/js_of_ocaml/latest/manual/overview")
+    (synopsis "Compiler from OCaml bytecode to JavaScript")
+    (description
+     "Js_of_ocaml is a compiler from OCaml bytecode to @code{JavaScript}.  It makes it
+possible to run pure OCaml programs in @code{JavaScript} environment like
+browsers and Node.js.")
+    (license (list license:gpl2+ #f))))
+
+(define-public ocaml-js-of-ocaml-ppx-deriving-json
+  (package
+    (name "ocaml-js-of-ocaml-ppx-deriving-json")
+    (version "5.9.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/ocsigen/js_of_ocaml/releases/download/5.9.1/js_of_ocaml-5.9.1.tbz")
+       (sha256
+        (base32 "01vk3kpa3chn6l5hs8hg8k5knhahxpi3aby8ajd9r3hxhxh5rjb8"))))
+    (build-system dune-build-system)
+    (propagated-inputs (list ocaml-js-of-ocaml ocaml-ppxlib ocaml-odoc))
+    (native-inputs (list ocaml-num ocaml-ppx-expect ocaml-re))
+    (properties `((upstream-name . "js_of_ocaml-ppx_deriving_json")))
+    (home-page "https://ocsigen.org/js_of_ocaml/latest/manual/overview")
+    (synopsis "Compiler from OCaml bytecode to JavaScript")
+    (description
+     "Js_of_ocaml is a compiler from OCaml bytecode to @code{JavaScript}.  It makes it
+possible to run pure OCaml programs in @code{JavaScript} environment like
+browsers and Node.js.")
+    (license (list license:gpl2+ #f))))
+
+(define-public ocaml-js-of-ocaml-ocamlbuild
+  (package
+    (name "ocaml-js-of-ocaml-ocamlbuild")
+    (version "5.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/ocsigen/js_of_ocaml-ocamlbuild/releases/download/5.0/js_of_ocaml-ocamlbuild-5.0.tbz")
+       (sha256
+        (base32 "0yy0l6qfn76ak2hy6h7jw3drszpi3wn8lymp7qmcnyz23jzvqnda"))))
+    (build-system dune-build-system)
+    (propagated-inputs (list ocamlbuild ocaml-odoc))
+    (properties `((upstream-name . "js_of_ocaml-ocamlbuild")))
+    (home-page "https://github.com/ocsigen/js_of_ocaml-ocamlbuild")
+    (synopsis
+     "An ocamlbuild plugin to compile to JavaScript using js_of_ocaml")
+    (description
+     "An ocamlbuild plugin to compile to @code{JavaScript} using js_of_ocaml.")
+    (license (list license:lgpl2.1+))))
+
+(define-public ocaml-js-of-ocaml-ppx
+  (package
+    (name "ocaml-js-of-ocaml-ppx")
+    (version "5.9.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/ocsigen/js_of_ocaml/releases/download/5.9.1/js_of_ocaml-5.9.1.tbz")
+       (sha256
+        (base32 "01vk3kpa3chn6l5hs8hg8k5knhahxpi3aby8ajd9r3hxhxh5rjb8"))))
+    (build-system dune-build-system)
+    (propagated-inputs (list ocaml-js-of-ocaml ocaml-ppxlib ocaml-odoc))
+    (native-inputs (list ocaml-num ocaml-ppx-expect ocaml-re))
+    (properties `((upstream-name . "js_of_ocaml-ppx")))
+    (home-page "https://ocsigen.org/js_of_ocaml/latest/manual/overview")
+    (synopsis "Compiler from OCaml bytecode to JavaScript")
+    (description
+     "Js_of_ocaml is a compiler from OCaml bytecode to @code{JavaScript}.  It makes it
+possible to run pure OCaml programs in @code{JavaScript} environment like
+browsers and Node.js.")
+    (license (list license:gpl2+ #f))))
+
+(define-public ocaml-js-of-ocaml-lwt
+  (package
+    (name "ocaml-js-of-ocaml-lwt")
+    (version "5.9.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/ocsigen/js_of_ocaml/releases/download/5.9.1/js_of_ocaml-5.9.1.tbz")
+       (sha256
+        (base32 "01vk3kpa3chn6l5hs8hg8k5knhahxpi3aby8ajd9r3hxhxh5rjb8"))))
+    (build-system dune-build-system)
+    (propagated-inputs (list ocaml-js-of-ocaml ocaml-js-of-ocaml-ppx ocaml-lwt
+                             ocaml-odoc))
+    (native-inputs (list ocaml-num ocaml-ppx-expect ocaml-ppxlib ocaml-re))
+    (properties `((upstream-name . "js_of_ocaml-lwt")))
+    (home-page "https://ocsigen.org/js_of_ocaml/latest/manual/overview")
+    (synopsis "Compiler from OCaml bytecode to JavaScript")
+    (description
+     "Js_of_ocaml is a compiler from OCaml bytecode to @code{JavaScript}.  It makes it
+possible to run pure OCaml programs in @code{JavaScript} environment like
+browsers and Node.js.")
+    (license (list license:gpl2+ #f))))
+
+(define-public ocaml-js-of-ocaml
+  (package
+    (name "ocaml-js-of-ocaml")
+    (version "5.9.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/ocsigen/js_of_ocaml/releases/download/5.9.1/js_of_ocaml-5.9.1.tbz")
+       (sha256
+        (base32 "01vk3kpa3chn6l5hs8hg8k5knhahxpi3aby8ajd9r3hxhxh5rjb8"))))
+    (build-system dune-build-system)
+    (propagated-inputs (list ocaml-js-of-ocaml-compiler ocaml-ppxlib
+                             ocaml-odoc))
+    (native-inputs (list ocaml-num ocaml-ppx-expect ocaml-re))
+    (properties `((upstream-name . "js_of_ocaml")))
+    (home-page "https://ocsigen.org/js_of_ocaml/latest/manual/overview")
+    (synopsis "Compiler from OCaml bytecode to JavaScript")
+    (description
+     "Js_of_ocaml is a compiler from OCaml bytecode to @code{JavaScript}.  It makes it
+possible to run pure OCaml programs in @code{JavaScript} environment like
+browsers and Node.js.")
+    (license (list license:gpl2+ #f))))
+
+(define-public ocaml-menhirSdk
+  (package
+    (name "ocaml-menhirSdk")
+    (version "20240715")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://gitlab.inria.fr/fpottier/menhir/-/archive/20240715/archive.tar.gz")
+       (sha256
+        (base32 "0c60kby2b1zmr0ypqaclakhk3kk4km4qvw7blynzmjxam928cj7g"))))
+    (build-system dune-build-system)
+    (home-page "http://gitlab.inria.fr/fpottier/menhir")
+    (synopsis "Compile-time library for auxiliary tools related to Menhir")
+    (description #f)
+    (license #f)))
+
+(define-public ocaml-menhirLib
+  (package
+    (name "ocaml-menhirLib")
+    (version "20240715")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://gitlab.inria.fr/fpottier/menhir/-/archive/20240715/archive.tar.gz")
+       (sha256
+        (base32 "0c60kby2b1zmr0ypqaclakhk3kk4km4qvw7blynzmjxam928cj7g"))))
+    (build-system dune-build-system)
+    (home-page "http://gitlab.inria.fr/fpottier/menhir")
+    (synopsis "Runtime support library for parsers generated by Menhir")
+    (description #f)
+    (license #f)))
+
+(define-public ocaml-js-of-ocaml-compiler
+  (package
+    (name "ocaml-js-of-ocaml-compiler")
+    (version "5.9.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/ocsigen/js_of_ocaml/releases/download/5.9.1/js_of_ocaml-5.9.1.tbz")
+       (sha256
+        (base32 "01vk3kpa3chn6l5hs8hg8k5knhahxpi3aby8ajd9r3hxhxh5rjb8"))))
+    (build-system dune-build-system)
+    (propagated-inputs (list ocaml-ppxlib
+                             ocaml-cmdliner
+                             ocaml-sedlex
+                             ocaml-menhir
+                             ocaml-menhirLib
+                             ocaml-menhirSdk
+                             ocaml-yojson
+                             ocaml-odoc))
+    (native-inputs (list ocaml-num ocaml-ppx-expect ocaml-re ocaml-qcheck))
+    (properties `((upstream-name . "js_of_ocaml-compiler")))
+    (home-page "https://ocsigen.org/js_of_ocaml/latest/manual/overview")
+    (synopsis "Compiler from OCaml bytecode to JavaScript")
+    (description
+     "Js_of_ocaml is a compiler from OCaml bytecode to @code{JavaScript}.  It makes it
+possible to run pure OCaml programs in @code{JavaScript} environment like
+browsers and Node.js.")
+    (license (list license:gpl2+ #f))))
+
+(define-public ocaml-eliom
+  (package
+    (name "ocaml-eliom")
+    (version "11.1.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri "https://github.com/ocsigen/eliom/archive/refs/tags/11.1.1.tar.gz")
+       (sha256
+        (base32 "0kxjxih4madgmgdj4a0i0219i191583vlyzlpgndn3k7l6nsqshs"))))
+    (build-system dune-build-system)
+    (propagated-inputs (list ocaml-ppx-deriving
+                             ocaml-ppxlib
+                             ocaml-js-of-ocaml-compiler
+                             ocaml-js-of-ocaml
+                             ocaml-js-of-ocaml-lwt
+                             ocaml-js-of-ocaml-ppx
+                             ocaml-js-of-ocaml-ppx-deriving-json
+                             ocaml-js-of-ocaml-tyxml
+                             ocaml-lwt-log
+                             ocaml-lwt-ppx
+                             ocaml-tyxml
+                             ocaml-ocsigenserver
+                             ocaml-ipaddr
+                             ocaml-reactiveData
+                             ocaml-ocsipersist
+                             ocaml-ppx-optcomp
+                             ocaml-xml-light
+                             ocaml-odoc))
+    (native-inputs (list ocaml-js-of-ocaml-ocamlbuild))
+    (home-page "https://ocsigen.org/eliom/")
+    (synopsis "Advanced client/server Web and mobile framework")
+    (description
+     "Eliom is a framework for implementing Web sites and client/server Web and mobile
+applications.  It uses advanced concepts to simplify the implementation of
+common behaviors (e.g. scoped sessions, continuation based Web programming ...).
+ It uses advanced static typing features of OCaml to check many properties of
+the Web application at compile-time (html, page parameters ...).  Eliom allows
+implementing the whole application as a single program that includes both the
+client and the server code.  For example, you can implement event handlers
+(onclick ...) directly in OCaml, and you can call a server-side OCaml function
+from the client.  Pages are generated either on the server or the client.  These
+client-side features remain compatible with traditional Web programming (links,
+forms, URLs, bookmarks, sessions ...).  It is possible to generate mobile
+applications for Android and @code{iOS} with the exact same code as your Web
+application.  The client-side code is compiled to JS using Ocsigen Js_of_ocaml
+or to Wasm using Wasm_of_ocaml.")
+    (license #f)))
+
+(define-public ocaml-ocsigen-i18n
+  (package
+    (name "ocaml-ocsigen-i18n")
+    (version "4.0.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri "https://github.com/besport/ocsigen-i18n/archive/4.0.0.tar.gz")
+       (sha256
+        (base32 "12vbqaz0zxwkk1la0w9i25w86749w7896ris84blwia575yc9x2p"))))
+    (build-system dune-build-system)
+    (propagated-inputs (list ocaml-ppxlib))
+    (home-page "https://github.com/besport/ocsigen-i18n")
+    (synopsis "I18n made easy for web sites written with eliom")
+    (description
+     "This package provides executables: ocsigen-i18n-generator for generating an
+eliom file from a file containing tab-separated values; ocsigen-i18n-rewriter
+for implementing a PPX syntax for referencing entries in the generated eliom
+file.")
+    (license #f)))
+
+(define-public ocaml-safepass
+  (package
+    (name "ocaml-safepass")
+    (version "3.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/darioteixeira/ocaml-safepass/archive/v3.1.tar.gz")
+       (sha256
+        (base32 "04ahndliia0cd291b9dp68a7zzjxby0gx249yagfmzhjv9880h0k"))))
+    (build-system dune-build-system)
+    (home-page "https://github.com/darioteixeira/ocaml-safepass")
+    (synopsis "Facilities for the safe storage of user passwords")
+    (description #f)
+    (license #f)))
+
+(define-public ocaml-pgocaml-ppx
+  (package
+    (name "ocaml-pgocaml-ppx")
+    (version "4.4.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/darioteixeira/pgocaml/archive/refs/tags/v4.4.0.tar.gz")
+       (sha256
+        (base32 "0cg2n5wp391d51pprd2piz29dvgfhs3yrbk80w9fwb3xsf5vmahg"))))
+    (build-system dune-build-system)
+    (propagated-inputs (list ocaml-pgocaml ocaml-ppxlib ocaml-ppx-optcomp))
+    (properties `((upstream-name . "pgocaml_ppx")))
+    (home-page "https://github.com/darioteixeira/pgocaml")
+    (synopsis "PPX extension for PGOCaml")
+    (description
+     "PGOCaml provides an interface to @code{PostgreSQL} databases for OCaml
+applications.  This PPX syntax extension enables one to directly embed SQL
+statements inside the OCaml code.  The extension uses the describe feature of
+@code{PostgreSQL} to obtain type information about the database.  This allows
+PGOCaml to check at compile-time if the program is indeed consistent with the
+database structure.")
+    (license #f)))
+
+(define-public ocaml-pgocaml
+  (package
+    (name "ocaml-pgocaml")
+    (version "4.4.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/darioteixeira/pgocaml/archive/refs/tags/v4.4.0.tar.gz")
+       (sha256
+        (base32 "0cg2n5wp391d51pprd2piz29dvgfhs3yrbk80w9fwb3xsf5vmahg"))))
+    (build-system dune-build-system)
+    (propagated-inputs (list ocaml-calendar
+                             ocaml-camlp-streams
+                             ocaml-csv
+                             ocaml-hex
+                             ocaml-ppx-sexp-conv
+                             ocaml-re
+                             ocaml-ppx-deriving
+                             ocaml-rresult
+                             ocaml-sexplib))
+    (home-page "https://github.com/darioteixeira/pgocaml")
+    (synopsis "Native OCaml interface to PostgreSQL databases")
+    (description
+     "PGOCaml provides an interface to @code{PostgreSQL} databases for OCaml
+applications.  Note that it speaks the @code{PostgreSQL} wire protocol directly,
+and therefore does not need to create bindings to the @code{PostgreSQL} libpq C
+library.  The PPX syntax extension is now packaged separately as pgocaml_ppx'.
+You will want to take a look at it if you're considering using PGOCaml.")
+    (license #f)))
+
+(define-public ocaml-ocsigen-start
+  (package
+    (name "ocaml-ocsigen-start")
+    (version "7.1.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/ocsigen/ocsigen-start/archive/refs/tags/7.1.0.tar.gz")
+       (sha256
+        (base32 "1jibnf5zkzrxzladgyp92cqbkhqb7m0kzw38n0rkllpg8chwyyk5"))))
+    (build-system ocaml-build-system)
+    (propagated-inputs (list ocaml-pgocaml
+                             ocaml-pgocaml-ppx
+                             ocaml-safepass
+                             ocaml-ocsigen-i18n
+                             ocaml-eliom
+                             ocaml-ocsigen-toolkit
+                             ocaml-ocsigen-ppx-rpc
+                             ocaml-ocsigen-i18n
+                             ocaml-yojson
+                             ocaml-resource-pooling
+                             ocaml-cohttp-lwt-unix
+                             ocaml-js-of-ocaml
+                             ocaml-re))
+    (home-page "https://ocsigen.org/ocsigen-start/")
+    (synopsis
+     "Higher-level library for developing Web and mobile applications with users, registration, notifications, etc")
+    (description
+     "Ocsigen Start is a set of higher-level libraries for building client-server Web
+and mobile applications with Ocsigen (Js_of_ocaml and Eliom).  It provides
+modules for user management (session management, registration, activation keys,
+...), managing groups of users, displaying tips, and easily sending
+notifications to the users.  Ocsigen Start comes with an eliom-distillery
+template for an app with a database, user management, and session management.
+This template is intended to serve as a basis for quickly building the Minimum
+Viable Product for Web and mobile applications with users.  The goal is to
+enable the programmer to concentrate on the core of the app, and not on user
+management.")
+    (license #f)))
+
