@@ -1,3 +1,33 @@
+(use-modules (guix)
+             (guix gexp)
+             (guix download)
+             (guix build-system gnu)
+             (guix build-system dune)
+             (guix build-system ocaml)
+             ((guix licenses) #:prefix license:)
+             (gnu packages autotools)
+             (gnu packages base)
+             (gnu packages bash)
+             (gnu packages bdw-gc)
+             (gnu packages compression)
+             (gnu packages flex)
+             (gnu packages gdb)
+             (gnu packages gettext)
+             (gnu packages gperf)
+             (gnu packages libffi)
+             (gnu packages libunistring)
+             (gnu packages libevent)
+             (gnu packages linux)
+             (gnu packages ocaml)
+             (gnu packages llvm)
+             (gnu packages m4)
+             (gnu packages multiprecision)
+             (gnu packages pkg-config)
+             (gnu packages readline)
+             (gnu packages tex)
+             (gnu packages texinfo)
+             (gnu packages version-control))
+
 (define-public ocaml-resource-pooling
   (package
     (name "ocaml-resource-pooling")
@@ -1161,3 +1191,26 @@ Viable Product for Web and mobile applications with users.  The goal is to
 enable the programmer to concentrate on the core of the app, and not on user
 management.")
     (license license:lgpl2.1)))
+
+
+(package
+  (name "maxi-passat")
+  (version "0.1")
+  (source #f)                                     ;no source
+  (build-system dune-build-system)
+  (native-inputs
+   (append (list
+            ocaml-ocsigen-start)))
+  ;; (inputs (list))
+  ;; (propagated-inputs (list libunistring libgc))
+  ;; (native-search-paths
+  ;;  (list (search-path-specification
+  ;;         (variable "GUILE_LOAD_PATH")
+  ;;         (files '("share/guile/site/3.0")))
+  ;;        (search-path-specification
+  ;;         (variable "GUILE_LOAD_COMPILED_PATH")
+  ;;         (files '("lib/guile/3.0/site-ccache")))))
+  (synopsis "maxi passat")
+  (description "maxi passat")
+  (home-page "http://127.0.0.1/")
+  (license license:lgpl3+))
