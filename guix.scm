@@ -231,6 +231,9 @@ exist: DBM, @code{PostgreSQL}, SQLite.")
        (sha256
         (base32 "17jxasc7sx99mrz1hh960k115adpj9c7pczrvwpxs741mj98c0wa"))))
     (build-system ocaml-build-system)
+    (arguments
+     (list #:phases #~(modify-phases %standard-phases
+                        (delete 'configure))))
     (propagated-inputs (list zlib))
     (native-inputs (list ocaml-findlib))
     (home-page "https://github.com/xavierleroy/camlzip")
