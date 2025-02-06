@@ -1,6 +1,7 @@
 (use-modules (guix)
              (guix gexp)
              (guix download)
+             (guix git-download)
              (guix build-system gnu)
              (guix build-system dune)
              (guix build-system ocaml)
@@ -177,6 +178,37 @@ as an ML datastructure.  For example, here's how to lookup MIME types in the
 [utop] REPL: #require \"magic-mime\";; Magic_mime.lookup \"/foo/bar.txt\";; - :
 bytes = \"text/plain\" Magic_mime.lookup \"bar.css\";; - : bytes = \"text/css\".")
     (license license:isc)))
+
+(define-public ocaml-digestif ;; opam
+  (package
+    (name "ocaml-digestif")
+    (version "1.2.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/mirage/digestif/releases/download/v1.2.0/digestif-1.2.0.tbz")
+       (sha256
+        (base32 "0255nb9wjpkdh9v0w9p5y5s79zcqcdg3wsw0cx9nd6i7zv56h0f3"))))
+    (build-system dune-build-system)
+    (propagated-inputs (list ocaml-eqaf))
+    (native-inputs (list ocaml-fmt
+                         ocaml-alcotest
+                         ocaml-bos
+                         ocaml-astring
+                         ocaml-fpath
+                         ocaml-rresult
+                         ocaml-findlib
+                         ocaml-crowbar))
+    (home-page "https://github.com/mirage/digestif")
+    (synopsis "Hashes implementations (SHA*, RIPEMD160, BLAKE2* and MD5)")
+    (description
+     "Digestif is a toolbox to provide hashes implementations in C and OCaml.  It uses
+the linking trick and user can decide at the end to use the C implementation or
+the OCaml implementation.  We provides implementation of: * MD5 * SHA1 * SHA224
+* SHA256 * SHA384 * SHA512 * SHA3 * Keccak-256 * WHIRLPOOL * BLAKE2B * BLAKE2S *
+RIPEMD160.")
+    (license license:expat)))
 
 (define-public ocaml-kdf
   (package
