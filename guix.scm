@@ -20,6 +20,7 @@
              (gnu packages libevent)
              (gnu packages linux)
              (gnu packages ocaml)
+             (gnu packages perl)
              (gnu packages llvm)
              (gnu packages m4)
              (gnu packages multiprecision)
@@ -422,6 +423,63 @@ sublibrary).")
      "Given a function which produces random byte vectors, convert it to a number of
 your choice (int8/int16/int32/int64/int/float).")
     (license license:isc)))
+
+;; (define-public ocaml-zarith
+;;   (package
+;;     (name "ocaml-zarith")
+;;     (version "1.14")
+;;     (source
+;;      (origin
+;;        (method url-fetch)
+;;        (uri "https://github.com/ocaml/Zarith/archive/release-1.14.tar.gz")
+;;        (sha256
+;;         (base32 "0n8q9lnlgq17a62qprkzqswg5wyh8vcan7sq10m98lwijfyxrfax"))))
+;;     (build-system ocaml-build-system)
+;;     (propagated-inputs (list pkg-config gmp))
+;;     (home-page "https://github.com/ocaml/Zarith")
+;;     (synopsis
+;;      "Implements arithmetic and logical operations over arbitrary-precision integers")
+;;     (description
+;;      "The Zarith library implements arithmetic and logical operations over
+;; arbitrary-precision integers.  It uses GMP to efficiently implement arithmetic
+;; over big integers.  Small integers are represented as Caml unboxed integers, for
+;; speed and space economy.")
+;;     (license license:lgpl2.0)))
+(define-public ocaml-zarith
+  (package
+    (name "ocaml-zarith")
+    (version "1.14")
+    (source
+     (origin
+       (method url-fetch)
+       (uri "https://github.com/ocaml/Zarith/archive/release-1.14.tar.gz")
+       (sha256
+        (base32 "0n8q9lnlgq17a62qprkzqswg5wyh8vcan7sq10m98lwijfyxrfax"))))
+    (build-system ocaml-build-system)
+    (native-inputs
+     (list perl))
+    (inputs
+     (list gmp))
+    (arguments
+     `(#:tests? #f ; no test target
+       #:phases
+       (modify-phases %standard-phases
+         (replace 'configure
+           (lambda _ (invoke "./configure")))
+         (add-after 'install 'move-sublibs
+           (lambda* (#:key outputs #:allow-other-keys)
+             (let* ((out (assoc-ref outputs "out"))
+                    (lib (string-append out "/lib/ocaml/site-lib")))
+               (mkdir-p (string-append lib "/stublibs"))
+               (rename-file (string-append lib "/zarith/dllzarith.so")
+                            (string-append lib "/stublibs/dllzarith.so"))))))))
+    (home-page "https://forge.ocamlcore.org/projects/zarith/")
+    (synopsis "Implements arbitrary-precision integers")
+    (description "Implements arithmetic and logical operations over
+arbitrary-precision integers.  It uses GMP to efficiently implement arithmetic
+over big integers. Small integers are represented as Caml unboxed integers,
+for speed and space economy.")
+    (license license:lgpl2.1+)))
 
 (define-public ocaml-mirage-crypto-pk
   (package
