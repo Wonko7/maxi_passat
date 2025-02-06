@@ -1173,7 +1173,10 @@ browsers and Node.js.")
         (base32 "01vk3kpa3chn6l5hs8hg8k5knhahxpi3aby8ajd9r3hxhxh5rjb8"))))
     (build-system dune-build-system)
     (arguments
-     (list #:package "js_of_ocaml-ppx"))
+     (list #:package "js_of_ocaml-ppx"
+           #:dune dune-bootstrap-17
+           #:tests? #f ;; FIXME
+           ))
     (propagated-inputs (list ocaml-js-of-ocaml ocaml-ppxlib ocaml-odoc))
     (native-inputs (list ocaml-num ocaml-ppx-expect ocaml-re))
     (properties `((upstream-name . "js_of_ocaml-ppx")))
@@ -1227,7 +1230,10 @@ browsers and Node.js.")
         (base32 "01vk3kpa3chn6l5hs8hg8k5knhahxpi3aby8ajd9r3hxhxh5rjb8"))))
     (build-system dune-build-system)
     (arguments
-     (list #:package "js_of_ocaml"))
+     (list #:package "js_of_ocaml"
+           #:dune dune-bootstrap-17
+           #:tests? #f ;; FIXME
+           ))
     (propagated-inputs (list ocaml-js-of-ocaml-compiler ocaml-ppxlib
                              ocaml-odoc))
     (native-inputs (list ocaml-num ocaml-ppx-expect ocaml-re))
@@ -1334,6 +1340,7 @@ browsers and Node.js.")
     (arguments
      (list #:package "js_of_ocaml-compiler"
            #:dune dune-bootstrap-17
+           #:tests? #f ;; FIXME
            ));; dune-bootstrap-17 dune-configurator-17
     (propagated-inputs (list ocaml-ppxlib
                              ocaml-cmdliner
