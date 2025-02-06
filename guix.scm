@@ -222,6 +222,8 @@ RIPEMD160.")
        (sha256
         (base32 "1kp0cbn3v0l7rzb7g0r1rra697wf0qhrr33bvmcdjrpy1qmmhqfi"))))
     (build-system dune-build-system)
+    (arguments
+     (list #:package "kdf"))
     (propagated-inputs (list ocaml-digestif ocaml-mirage-crypto))
     (native-inputs (list ocaml-alcotest ocaml-ohex))
     (home-page "https://github.com/robur-coop/kdf")
@@ -301,6 +303,8 @@ this package.")
        (sha256
         (base32 "0zp60zp101mcygwhsh62jj61sy61yh2k31d8kgznily1jv6jnm09"))))
     (build-system dune-build-system)
+    (arguments
+     (list #:package "mirage-crypto-rng")) ;; also -lwt
     (propagated-inputs (list dune-configurator ocaml-duration ocaml-logs
                              ocaml-mirage-crypto ocaml-digestif))
     (native-inputs (list ocaml-ounit2 ocaml-randomconv ocaml-ohex))
@@ -446,6 +450,8 @@ PKCS 1, PKCS 5, PKCS 7, PKCS 8, PKCS 9, PKCS 10, and PKCS 12.")
        (sha256
         (base32 "0zp60zp101mcygwhsh62jj61sy61yh2k31d8kgznily1jv6jnm09"))))
     (build-system dune-build-system)
+    (arguments
+     (list #:package "mirage-crypto"))
     (propagated-inputs (list dune-configurator ocaml-eqaf))
     (native-inputs (list ocaml-ounit2 ocaml-ohex))
     (home-page "https://github.com/mirage/mirage-crypto")
