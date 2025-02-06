@@ -840,7 +840,7 @@ implementation.")
 (define-public ocaml-cohttp-lwt
   (package
     (name "ocaml-cohttp-lwt")
-    (version "6.0.0~beta2")
+    (version "6.0.0-beta2")
     (source
      (origin
        (method url-fetch)
@@ -849,6 +849,8 @@ implementation.")
        (sha256
         (base32 "05xh4hvjy90mqslwd0q6sa2h99f0p7vb4cf0f911nhc0sn5yrv4h"))))
     (build-system dune-build-system)
+    (arguments
+     `(#:package "cohttp-lwt"))
     (propagated-inputs (list ocaml-http
                              ocaml-cohttp
                              ocaml-lwt
@@ -872,7 +874,7 @@ share the same IO logic from this module.")
 (define-public ocaml-http
   (package
     (name "ocaml-http")
-    (version "6.0.0~beta2")
+    (version "6.0.0-beta2")
     (source
      (origin
        (method url-fetch)
@@ -881,6 +883,8 @@ share the same IO logic from this module.")
        (sha256
         (base32 "05xh4hvjy90mqslwd0q6sa2h99f0p7vb4cf0f911nhc0sn5yrv4h"))))
     (build-system dune-build-system)
+    (arguments
+     `(#:package "http"))
     (propagated-inputs (list ocaml-odoc))
     (native-inputs (list ocaml-ppx-expect
                          ocaml-alcotest
@@ -902,7 +906,7 @@ interoperate with Cohttp.")
 (define-public ocaml-cohttp-lwt-unix
   (package
     (name "ocaml-cohttp-lwt-unix")
-    (version "6.0.0~beta2")
+    (version "6.0.0-beta2")
     (source
      (origin
        (method url-fetch)
@@ -911,6 +915,8 @@ interoperate with Cohttp.")
        (sha256
         (base32 "05xh4hvjy90mqslwd0q6sa2h99f0p7vb4cf0f911nhc0sn5yrv4h"))))
     (build-system dune-build-system)
+    (arguments
+     `(#:package "cohttp-lwt-unix"))
     (propagated-inputs (list ocaml-http
                              ocaml-cohttp
                              ocaml-cohttp-lwt
