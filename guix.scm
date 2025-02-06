@@ -29,6 +29,87 @@
              (gnu packages texinfo)
              (gnu packages version-control))
 
+;;
+
+(define-public dune-bootstrap-17
+  (package
+    (name "dune")
+    (version "3.17.0")
+    (source (origin
+              (method git-fetch)
+              (uri (git-reference
+                    (url "https://github.com/ocaml/dune")
+                    (commit version)))
+              (file-name (git-file-name name version))
+              (sha256
+               (base32
+                "07id6bw4fmwaf7q5f6rpmcqryg5lr5z8ijbp3ifwq40gzxig067j"))))
+    (build-system ocaml-build-system)
+    (arguments
+     `(#:tests? #f; require odoc
+       #:make-flags ,#~(list "release"
+                             (string-append "PREFIX=" #$output)
+                             (string-append "LIBDIR=" #$output
+                                            "/lib/ocaml/site-lib"))
+       #:phases
+       (modify-phases %standard-phases
+         (replace 'configure
+           (lambda* (#:key outputs #:allow-other-keys)
+             (mkdir-p "src/dune")
+             (invoke "./configure")
+             #t)))))
+    (home-page "https://github.com/ocaml/dune")
+    (synopsis "OCaml build system")
+    (description "Dune is a build system for OCaml.  It provides a consistent
+experience and takes care of the low-level details of OCaml compilation.
+Descriptions of projects, libraries and executables are provided in
+@file{dune} files following an s-expression syntax.")
+    (properties '((hidden? . #t)))
+    (license license:expat)))
+
+;; (define-public ocaml4.09-dune-bootstrap
+;;   (package-with-ocaml4.09 dune-bootstrap-17))
+
+;; (define-public ocaml5.0-dune-bootstrap
+;;   (package-with-ocaml5.0 dune-bootstrap-17))
+
+(define-public dune-configurator-17
+  (package
+    (inherit dune-bootstrap-17)
+    (name "dune-configurator")
+    (build-system dune-build-system)
+    (arguments
+     `(#:package "dune-configurator"
+       #:dune ,dune-bootstrap
+                                        ; require ppx_expect
+       #:tests? #f
+       #:phases
+       (modify-phases %standard-phases
+         ;; When building dune, these directories are normally removed after
+         ;; the bootstrap.
+         (add-before 'build 'remove-vendor
+           (lambda _
+             (delete-file-recursively "vendor/csexp")
+             (delete-file-recursively "vendor/pp"))))))
+    (propagated-inputs
+     (list ocaml-csexp))
+    (properties `((ocaml4.09-variant . ,(delay ocaml4.09-dune-configurator))
+                  (ocaml5.0-variant . ,(delay ocaml5.0-dune-configurator))))
+    (synopsis "Dune helper library for gathering system configuration")
+    (description "Dune-configurator is a small library that helps writing
+OCaml scripts that test features available on the system, in order to generate
+config.h files for instance.  Among other things, dune-configurator allows one to:
+
+@itemize
+@item test if a C program compiles
+@item query pkg-config
+@item import #define from OCaml header files
+@item generate config.h file
+@end itemize")))
+
+
+;;
+
 (define-public ocaml-resource-pooling
   (package
     (name "ocaml-resource-pooling")
@@ -1070,6 +1151,9 @@ browsers and Node.js.")
        (sha256
         (base32 "01vk3kpa3chn6l5hs8hg8k5knhahxpi3aby8ajd9r3hxhxh5rjb8"))))
     (build-system dune-build-system)
+    (arguments
+     (list #:package "js_of_ocaml-compiler"
+           #:dune dune-configurator-17))
     (propagated-inputs (list ocaml-ppxlib
                              ocaml-cmdliner
                              ocaml-sedlex
