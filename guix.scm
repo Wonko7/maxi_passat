@@ -102,6 +102,8 @@ development of Eliom applications.")
        (sha256
         (base32 "0ppa3y8ldfw0jbi1njk7p3ygssh5hpa63ns4fglmcpdsy151ybvb"))))
     (build-system dune-build-system)
+    (arguments
+     (list #:package "ocsipersist-lib"))
     (propagated-inputs (list ocaml-lwt ocaml-lwt-ppx))
     (home-page "https://github.com/ocsigen/ocsipersist")
     (synopsis "Persistent key/value storage for OCaml - support library")
@@ -125,6 +127,8 @@ currently exist: DBM, @code{PostgreSQL}, SQLite.")
        (sha256
         (base32 "0ppa3y8ldfw0jbi1njk7p3ygssh5hpa63ns4fglmcpdsy151ybvb"))))
     (build-system dune-build-system)
+    (arguments
+     (list #:package "ocsipersist"))
     (propagated-inputs (list ocaml-lwt ocaml-ocsipersist-lib))
     (home-page "https://github.com/ocsigen/ocsipersist")
     (synopsis "Persistent key-value storage for OCaml using multiple backends")
@@ -272,6 +276,8 @@ structure.")
        (sha256
         (base32 "0zp60zp101mcygwhsh62jj61sy61yh2k31d8kgznily1jv6jnm09"))))
     (build-system dune-build-system)
+    (arguments
+     (list #:package "mirage-crypto-ec"))
     (propagated-inputs (list dune-configurator ocaml-eqaf
                              ocaml-mirage-crypto-rng ocaml-digestif))
     (native-inputs (list ocaml-alcotest
@@ -348,6 +354,8 @@ your choice (int8/int16/int32/int64/int/float).")
        (sha256
         (base32 "0zp60zp101mcygwhsh62jj61sy61yh2k31d8kgznily1jv6jnm09"))))
     (build-system dune-build-system)
+    (arguments
+     (list #:package "mirage-crypto-pk"))
     (propagated-inputs (list ocaml-mirage-crypto ocaml-mirage-crypto-rng
                              ocaml-digestif ocaml-zarith ocaml-eqaf))
     (native-inputs (list gmp-powm-sec ocaml-ounit2 ocaml-randomconv ocaml-ohex))
@@ -501,6 +509,8 @@ ocaml-tls.")
        (sha256
         (base32 "1xspxb5v8hb9f1zx7b2cbgrp1s9k68js1373bl10c5z70y523ljq"))))
     (build-system dune-build-system)
+    (arguments
+     (list #:package "conduit-lwt-unix"))
     (propagated-inputs (list ocaml-logs
                              ocaml-ppx-sexp-conv
                              ocaml-conduit-lwt
@@ -527,6 +537,8 @@ ocaml-tls.")
        (sha256
         (base32 "0cw1431idd54v067p3mqbxhsgsx5mixl9ywgmak3g92cvczl6c4y"))))
     (build-system dune-build-system)
+    (arguments
+     (list #:package "ipaddr-cstruct"))
     (propagated-inputs (list ocaml-ipaddr ocaml-cstruct))
     (home-page "https://github.com/mirage/ocaml-ipaddr")
     (synopsis
@@ -566,6 +578,8 @@ ocaml-tls.")
        (sha256
         (base32 "1xspxb5v8hb9f1zx7b2cbgrp1s9k68js1373bl10c5z70y523ljq"))))
     (build-system dune-build-system)
+    (arguments
+     (list #:package "conduit"))
     (propagated-inputs (list ocaml-ppx-sexp-conv
                              ocaml-sexplib0
                              ocaml-astring
@@ -603,6 +617,8 @@ implementation.")
        (sha256
         (base32 "1xspxb5v8hb9f1zx7b2cbgrp1s9k68js1373bl10c5z70y523ljq"))))
     (build-system dune-build-system)
+    (arguments
+     (list #:package "conduit-lwt"))
     (propagated-inputs (list ocaml-ppx-sexp-conv ocaml-sexplib0 ocaml-conduit
                              ocaml-lwt))
     (home-page "https://github.com/mirage/ocaml-conduit")
@@ -865,6 +881,8 @@ the concrete timeline.")
        (sha256
         (base32 "01vk3kpa3chn6l5hs8hg8k5knhahxpi3aby8ajd9r3hxhxh5rjb8"))))
     (build-system dune-build-system)
+    (arguments
+     (list #:package "js_of_ocaml-tyxml"))
     (propagated-inputs (list ocaml-js-of-ocaml
                              ocaml-js-of-ocaml-ppx
                              ocaml-react
@@ -893,6 +911,8 @@ browsers and Node.js.")
        (sha256
         (base32 "01vk3kpa3chn6l5hs8hg8k5knhahxpi3aby8ajd9r3hxhxh5rjb8"))))
     (build-system dune-build-system)
+    (arguments
+     (list #:package "js_of_ocaml-ppx-deriving-json"))
     (propagated-inputs (list ocaml-js-of-ocaml ocaml-ppxlib ocaml-odoc))
     (native-inputs (list ocaml-num ocaml-ppx-expect ocaml-re))
     (properties `((upstream-name . "js_of_ocaml-ppx_deriving_json")))
@@ -916,6 +936,8 @@ browsers and Node.js.")
        (sha256
         (base32 "0yy0l6qfn76ak2hy6h7jw3drszpi3wn8lymp7qmcnyz23jzvqnda"))))
     (build-system dune-build-system)
+    (arguments ;; not in version 6:
+     (list #:package "js_of_ocaml-ocamlbuild"))
     (propagated-inputs (list ocamlbuild ocaml-odoc))
     (properties `((upstream-name . "js_of_ocaml-ocamlbuild")))
     (home-page "https://github.com/ocsigen/js_of_ocaml-ocamlbuild")
@@ -937,6 +959,8 @@ browsers and Node.js.")
        (sha256
         (base32 "01vk3kpa3chn6l5hs8hg8k5knhahxpi3aby8ajd9r3hxhxh5rjb8"))))
     (build-system dune-build-system)
+    (arguments
+     (list #:package "js_of_ocaml-ppx"))
     (propagated-inputs (list ocaml-js-of-ocaml ocaml-ppxlib ocaml-odoc))
     (native-inputs (list ocaml-num ocaml-ppx-expect ocaml-re))
     (properties `((upstream-name . "js_of_ocaml-ppx")))
@@ -960,6 +984,8 @@ browsers and Node.js.")
        (sha256
         (base32 "01vk3kpa3chn6l5hs8hg8k5knhahxpi3aby8ajd9r3hxhxh5rjb8"))))
     (build-system dune-build-system)
+    (arguments
+     (list #:package "js_of_ocaml-lwt"))
     (propagated-inputs (list ocaml-js-of-ocaml ocaml-js-of-ocaml-ppx ocaml-lwt
                              ocaml-odoc))
     (native-inputs (list ocaml-num ocaml-ppx-expect ocaml-ppxlib ocaml-re))
@@ -984,6 +1010,8 @@ browsers and Node.js.")
        (sha256
         (base32 "01vk3kpa3chn6l5hs8hg8k5knhahxpi3aby8ajd9r3hxhxh5rjb8"))))
     (build-system dune-build-system)
+    (arguments
+     (list #:package "js_of_ocaml"))
     (propagated-inputs (list ocaml-js-of-ocaml-compiler ocaml-ppxlib
                              ocaml-odoc))
     (native-inputs (list ocaml-num ocaml-ppx-expect ocaml-re))
