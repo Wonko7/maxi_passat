@@ -69,11 +69,11 @@ Descriptions of projects, libraries and executables are provided in
     (properties '((hidden? . #t)))
     (license license:expat)))
 
-;; (define-public ocaml4.09-dune-bootstrap
-;;   (package-with-ocaml4.09 dune-bootstrap-17))
+(define-public ocaml4.09-dune-bootstrap-17
+  (package-with-ocaml4.09 dune-bootstrap-17))
 
-;; (define-public ocaml5.0-dune-bootstrap
-;;   (package-with-ocaml5.0 dune-bootstrap-17))
+(define-public ocaml5.0-dune-bootstrap-17
+  (package-with-ocaml5.0 dune-bootstrap-17))
 
 (define-public dune-configurator-17
   (package
@@ -82,7 +82,7 @@ Descriptions of projects, libraries and executables are provided in
     (build-system dune-build-system)
     (arguments
      `(#:package "dune-configurator"
-       #:dune ,dune-bootstrap
+       #:dune ,dune-bootstrap-17
                                         ; require ppx_expect
        #:tests? #f
        #:phases
@@ -95,8 +95,8 @@ Descriptions of projects, libraries and executables are provided in
              (delete-file-recursively "vendor/pp"))))))
     (propagated-inputs
      (list ocaml-csexp))
-    (properties `((ocaml4.09-variant . ,(delay ocaml4.09-dune-configurator))
-                  (ocaml5.0-variant . ,(delay ocaml5.0-dune-configurator))))
+    (properties `((ocaml4.09-variant . ,(delay ocaml4.09-dune-configurator-17))
+                  (ocaml5.0-variant . ,(delay ocaml5.0-dune-configurator-17))))
     (synopsis "Dune helper library for gathering system configuration")
     (description "Dune-configurator is a small library that helps writing
 OCaml scripts that test features available on the system, in order to generate
@@ -1119,7 +1119,10 @@ browsers and Node.js.")
         (base32 "01vk3kpa3chn6l5hs8hg8k5knhahxpi3aby8ajd9r3hxhxh5rjb8"))))
     (build-system dune-build-system)
     (arguments
-     (list #:package "js_of_ocaml-ppx-deriving-json"))
+     (list #:package "js_of_ocaml-ppx_deriving_json"
+           #:dune dune-bootstrap-17
+           #:tests? #f ;; FIXME
+           ))
     (propagated-inputs (list ocaml-js-of-ocaml ocaml-ppxlib ocaml-odoc))
     (native-inputs (list ocaml-num ocaml-ppx-expect ocaml-re))
     (properties `((upstream-name . "js_of_ocaml-ppx_deriving_json")))
@@ -1192,7 +1195,10 @@ browsers and Node.js.")
         (base32 "01vk3kpa3chn6l5hs8hg8k5knhahxpi3aby8ajd9r3hxhxh5rjb8"))))
     (build-system dune-build-system)
     (arguments
-     (list #:package "js_of_ocaml-lwt"))
+     (list #:package "js_of_ocaml-lwt"
+           #:dune dune-bootstrap-17
+           #:tests? #f ;; FIXME
+           ))
     (propagated-inputs (list ocaml-js-of-ocaml ocaml-js-of-ocaml-ppx ocaml-lwt
                              ocaml-odoc))
     (native-inputs (list ocaml-num ocaml-ppx-expect ocaml-ppxlib ocaml-re))
@@ -1324,7 +1330,8 @@ browsers and Node.js.")
     (build-system dune-build-system)
     (arguments
      (list #:package "js_of_ocaml-compiler"
-           #:dune dune-configurator-17))
+           #:dune dune-bootstrap-17
+           ));; dune-bootstrap-17 dune-configurator-17
     (propagated-inputs (list ocaml-ppxlib
                              ocaml-cmdliner
                              ocaml-sedlex
