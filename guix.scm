@@ -112,6 +112,33 @@ config.h files for instance.  Among other things, dune-configurator allows one t
 
 ;;
 
+(define-public ocaml-lwt
+  (package
+    (name "ocaml-lwt")
+    (version "5.9.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri "https://github.com/ocsigen/lwt/archive/refs/tags/5.9.0.tar.gz")
+       (sha256
+        (base32 "1p9fc6kkjb0dh1c1lrvf929l342hpmkr0rp66kfxb4scwzs10ws2"))))
+    (build-system dune-build-system)
+    (arguments
+     `(#:package "lwt"))
+    (propagated-inputs (list ocaml-odoc dune-configurator
+                             ocaml-ocplib-endian))
+    (native-inputs (list ocaml-cppo))
+    (home-page "https://github.com/ocsigen/lwt")
+    (synopsis "Promises and event-driven I/O")
+    (description
+     "This package provides a promise is a value that may become determined in the
+future.  Lwt provides typed, composable promises.  Promises that are resolved by
+I/O are resolved by Lwt in parallel.  Meanwhile, OCaml code, including code
+creating and waiting on promises, runs in a single thread by default.  This
+reduces the need for locks or other synchronization primitives.  Code can be run
+in parallel on an opt-in basis.")
+    (license license:expat)))
+
 (define-public ocaml-resource-pooling
   (package
     (name "ocaml-resource-pooling")
