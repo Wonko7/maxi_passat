@@ -664,6 +664,41 @@ ocaml-tls.")
     (description #f)
     (license license:isc)))
 
+(define-public ocaml-ipaddr
+  (package
+    (name "ocaml-ipaddr")
+    (version "5.6.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/mirage/ocaml-ipaddr/releases/download/v5.6.0/ipaddr-5.6.0.tbz")
+       (sha256
+        (base32 "0cw1431idd54v067p3mqbxhsgsx5mixl9ywgmak3g92cvczl6c4y"))))
+    (build-system dune-build-system)
+    (arguments
+     (list #:package "ipaddr"))
+    (propagated-inputs (list ocaml-macaddr ocaml-domain-name))
+    (native-inputs (list ocaml-ounit2 ocaml-ppx-sexp-conv))
+    (home-page "https://github.com/mirage/ocaml-ipaddr")
+    (synopsis
+     "A library for manipulation of IP (and MAC) address representations")
+    (description
+     "Features: * Depends only on sexplib (conditionalization under consideration) *
+ounit2-based tests * IPv4 and IPv6 support * IPv4 and IPv6 CIDR prefix support *
+IPv4 and IPv6 [CIDR-scoped
+address](http://tools.ietf.org/html/rfc4291#section-2.3) support * `Ipaddr.V4`
+and `Ipaddr.V4.Prefix` modules are `Map.@code{OrderedType`} * `Ipaddr.V6` and
+`Ipaddr.V6.Prefix` modules are `Map.@code{OrderedType`} * `Ipaddr` and
+`Ipaddr.Prefix` modules are `Map.@code{OrderedType`} * `Ipaddr_unix` in findlib
+subpackage `ipaddr.unix` provides compatibility with the standard library `Unix`
+module * `Ipaddr_top` in findlib subpackage `ipaddr.top` provides top-level
+pretty printers (requires compiler-libs default since OCaml 4.0) * IP address
+scope classification * IPv4-mapped addresses in IPv6 (::ffff:0:0/96) are an
+embedding of IPv4 * MAC-48 (Ethernet) address support * `Macaddr` is a
+`Map.@code{OrderedType`} * All types have sexplib serializers/deserializers.")
+    (license license:isc)))
+
 (define-public ocaml-ipaddr-cstruct
   (package
     (name "ocaml-ipaddr-cstruct")
@@ -697,6 +732,8 @@ ocaml-tls.")
        (sha256
         (base32 "0cw1431idd54v067p3mqbxhsgsx5mixl9ywgmak3g92cvczl6c4y"))))
     (build-system dune-build-system)
+    (arguments
+     (list #:package "ipaddr-sexp"))
     (propagated-inputs (list ocaml-ipaddr ocaml-ppx-sexp-conv ocaml-sexplib0))
     (native-inputs (list ocaml-ipaddr-cstruct ocaml-ounit2))
     (home-page "https://github.com/mirage/ocaml-ipaddr")
