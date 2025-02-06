@@ -528,7 +528,8 @@ for speed and space economy.")
      (list #:package "mirage-crypto-pk"))
     (propagated-inputs (list ocaml-mirage-crypto ocaml-mirage-crypto-rng
                              ocaml-digestif ocaml-zarith ocaml-eqaf))
-    (native-inputs (list gmp-powm-sec ocaml-ounit2 ocaml-randomconv ocaml-ohex))
+    ;; (native-inputs (list gmp-powm-sec ocaml-ounit2 ocaml-randomconv ocaml-ohex)) FIXME
+    (native-inputs (list gmp ocaml-ounit2 ocaml-randomconv ocaml-ohex))
     (home-page "https://github.com/mirage/mirage-crypto")
     (synopsis "Simple public-key cryptography for the modern age")
     (description
@@ -976,8 +977,10 @@ too.")
        (sha256
         (base32 "19nf1wjphnil3yxwmlmbivzswhgj7mc2z74nvmm27rq39qmw6cxr"))))
     (build-system dune-build-system)
-    (propagated-inputs (list ocaml-dune-configurator ocaml-zarith zlib
-                             gmp-powm-sec))
+    (propagated-inputs (list dune-configurator ocaml-zarith zlib
+                             ;; FIXME gmp-powm-sec
+                             gmp
+                             ))
     (home-page "https://github.com/xavierleroy/cryptokit")
     (synopsis "A library of cryptographic primitives")
     (description
