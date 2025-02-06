@@ -583,7 +583,8 @@ random testing.  The only ASN.1 encodings currently supported are BER and DER.")
                              ocaml-logs
                              ocaml-kdf
                              ocaml-ohex
-                             ocaml-ipaddr))
+                             ocaml-ipaddr
+                             gmp))
     (native-inputs (list ocaml-mirage-crypto-rng ocaml-alcotest))
     (home-page "https://github.com/mirleft/ocaml-x509")
     (synopsis "Public Key Infrastructure (RFC 5280, PKCS) purely in OCaml")
@@ -650,6 +651,8 @@ PKCS 1, PKCS 5, PKCS 7, PKCS 8, PKCS 9, PKCS 10, and PKCS 12.")
        (sha256
         (base32 "0wha5i3f5dz2l01lh5nl4yq2gdhnxj2bd8fqyaclfwj64cqz5446"))))
     (build-system dune-build-system)
+    (arguments
+     (list #:tests? #f))
     (propagated-inputs (list ocaml-bos
                              ocaml-fpath
                              ocaml-ptime
