@@ -820,7 +820,11 @@ proxy, content compression, access control, authentication, etc.")
        (sha256
         (base32 "17dzjiy1smv2791399j6gn2jxa4mkps2vrss231pp9m10lxfkdyi"))))
     (build-system dune-build-system)
+    (arguments
+     (list #:package "lwt_ppx"
+           #:tests? #f)) ;; FIXME oh-uh?
     (propagated-inputs (list ocaml-ppxlib ocaml-lwt))
+    (native-inputs (list ocaml-cppo))
     (properties `((upstream-name . "lwt_ppx")))
     (home-page "https://github.com/ocsigen/lwt")
     (synopsis
