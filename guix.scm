@@ -139,6 +139,59 @@ reduces the need for locks or other synchronization primitives.  Code can be run
 in parallel on an opt-in basis.")
     (license license:expat)))
 
+;; redefine here to depend on our updated ocaml-lwt
+(define-public ocaml-lwt-log
+  (package
+    (name "ocaml-lwt-log")
+    (version "1.1.2")
+    (source (origin
+              (method git-fetch)
+              (uri (git-reference
+                    (url "https://github.com/aantron/lwt_log")
+                    (commit version)))
+              (file-name (git-file-name name version))
+              (sha256
+               (base32
+                "0mbv5l9gj09jd1c4lr2axcl4v043ipmhjd9xrk27l4hylzfc6d1q"))))
+    (build-system dune-build-system)
+    (arguments
+     `(#:tests? #f)); require lwt_ppx
+    (propagated-inputs
+     `(("lwt" ,ocaml-lwt)))
+    (properties `((upstream-name . "lwt_log")))
+    (home-page "https://github.com/aantron/lwt_log")
+    (synopsis "Logging library")
+    (description "This package provides a deprecated logging component for
+ocaml lwt.")
+    (license license:lgpl2.1)))
+
+(define-public ocaml-tyxml
+  (package
+    (name "ocaml-tyxml")
+    (version "4.6.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/ocsigen/tyxml/releases/download/4.6.0/tyxml-4.6.0.tbz")
+       (sha256
+        (base32 "1p82r68lxk6wzxihzd620a6kzp27vn548j2cr970l4jfdcy6gsxz"))))
+    (build-system dune-build-system)
+    (arguments `(#:package "tyxml"))
+    (propagated-inputs (list ocaml-re ocaml-seq ocaml-uutf ocaml-odoc))
+    (native-inputs
+     (list ocaml-alcotest))
+    (home-page "https://github.com/ocsigen/tyxml/")
+    (synopsis "TyXML is a library for building correct HTML and SVG documents")
+    (description "TyXML provides a set of convenient combinators that uses the
+OCaml type system to ensure the validity of the generated documents.  TyXML can
+be used with any representation of HTML and SVG: the textual one, provided
+directly by this package, or DOM trees (@code{js_of_ocaml-tyxml}) virtual DOM
+(@code{virtual-dom}) and reactive or replicated trees (@code{eliom}).  You can
+also create your own representation and use it to instantiate a new set of
+combinators.")
+    (license license:lgpl2.1)))
+
 (define-public ocaml-resource-pooling
   (package
     (name "ocaml-resource-pooling")
