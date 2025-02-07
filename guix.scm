@@ -1560,6 +1560,9 @@ browsers and Node.js.")
        (sha256
         (base32 "0kxjxih4madgmgdj4a0i0219i191583vlyzlpgndn3k7l6nsqshs"))))
     (build-system dune-build-system)
+    (arguments
+     (list #:package "eliom"
+           #:dune dune-bootstrap-17))
     (propagated-inputs (list ocaml-ppx-deriving
                              ocaml-ppxlib
                              ocaml-js-of-ocaml-compiler
