@@ -1535,31 +1535,6 @@ file.")
     (description #f)
     (license license:lgpl2.1)))
 
-(define-public ocaml-pgocaml-ppx
-  (package
-    (name "ocaml-pgocaml-ppx")
-    (version "4.4.0")
-    (source
-     (origin
-       (method url-fetch)
-       (uri
-        "https://github.com/darioteixeira/pgocaml/archive/refs/tags/v4.4.0.tar.gz")
-       (sha256
-        (base32 "0cg2n5wp391d51pprd2piz29dvgfhs3yrbk80w9fwb3xsf5vmahg"))))
-    (build-system dune-build-system)
-    (propagated-inputs (list ocaml-pgocaml ocaml-ppxlib ocaml-ppx-optcomp))
-    (properties `((upstream-name . "pgocaml_ppx")))
-    (home-page "https://github.com/darioteixeira/pgocaml")
-    (synopsis "PPX extension for PGOCaml")
-    (description
-     "PGOCaml provides an interface to @code{PostgreSQL} databases for OCaml
-applications.  This PPX syntax extension enables one to directly embed SQL
-statements inside the OCaml code.  The extension uses the describe feature of
-@code{PostgreSQL} to obtain type information about the database.  This allows
-PGOCaml to check at compile-time if the program is indeed consistent with the
-database structure.")
-    (license license:lgpl2.0)))
-
 (define-public ocaml-pgocaml
   (package
     (name "ocaml-pgocaml")
@@ -1572,6 +1547,8 @@ database structure.")
        (sha256
         (base32 "0cg2n5wp391d51pprd2piz29dvgfhs3yrbk80w9fwb3xsf5vmahg"))))
     (build-system dune-build-system)
+    (arguments `(#:tests? #f)) ;; FIXME needs running pg db.
+    (native-inputs (list ocaml-ounit))
     (propagated-inputs (list ocaml-calendar
                              ocaml-camlp-streams
                              ocaml-csv
@@ -1590,6 +1567,33 @@ applications.  Note that it speaks the @code{PostgreSQL} wire protocol directly,
 and therefore does not need to create bindings to the @code{PostgreSQL} libpq C
 library.  The PPX syntax extension is now packaged separately as pgocaml_ppx'.
 You will want to take a look at it if you're considering using PGOCaml.")
+    (license license:lgpl2.0)))
+
+(define-public ocaml-pgocaml-ppx
+  (package
+    (name "ocaml-pgocaml-ppx")
+    (version "4.4.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/darioteixeira/pgocaml/archive/refs/tags/v4.4.0.tar.gz")
+       (sha256
+        (base32 "0cg2n5wp391d51pprd2piz29dvgfhs3yrbk80w9fwb3xsf5vmahg"))))
+    (build-system dune-build-system)
+    (arguments `(#:tests? #f)) ;; FIXME needs running pg db.
+    (native-inputs (list ocaml-ounit))
+    (propagated-inputs (list ocaml-pgocaml ocaml-ppxlib ocaml-ppx-optcomp))
+    (properties `((upstream-name . "pgocaml_ppx")))
+    (home-page "https://github.com/darioteixeira/pgocaml")
+    (synopsis "PPX extension for PGOCaml")
+    (description
+     "PGOCaml provides an interface to @code{PostgreSQL} databases for OCaml
+applications.  This PPX syntax extension enables one to directly embed SQL
+statements inside the OCaml code.  The extension uses the describe feature of
+@code{PostgreSQL} to obtain type information about the database.  This allows
+PGOCaml to check at compile-time if the program is indeed consistent with the
+database structure.")
     (license license:lgpl2.0)))
 
 (define-public ocaml-ocsigen-start
