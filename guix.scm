@@ -1395,7 +1395,7 @@ browsers and Node.js.")
            #:tests? #f ;; FIXME
            ))
     (propagated-inputs (list ocaml-js-of-ocaml ocaml-js-of-ocaml-ppx ocaml-lwt
-                             ocaml-odoc))
+                             ocaml-lwt-log ocaml-odoc))
     (native-inputs (list ocaml-num ocaml-ppx-expect ocaml-ppxlib ocaml-re))
     (properties `((upstream-name . "js_of_ocaml-lwt")))
     (home-page "https://ocsigen.org/js_of_ocaml/latest/manual/overview")
