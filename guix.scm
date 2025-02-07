@@ -388,6 +388,20 @@ each with its own connection pool.")
        (sha256
         (base32 "1gan4qbcd8vsw5ibfh6fm4v8m6jkalickdvig2s2v6g7jjg5xnp8"))))
     (build-system ocaml-build-system)
+    (arguments
+     (list
+      #:tests? #f
+      #:phases #~(modify-phases %standard-phases
+                   (add-after 'prepare-install 'mkdir
+                     (lambda*  (#:key outputs #:allow-other-keys)
+                       (let* ((out (assoc-ref outputs "out"))
+                              (dst (string-append out "/lib/ocaml/site-lib/ocsigen-toolkit")))
+                         (mkdir-p (string-append dst "/client"))
+                         (mkdir-p (string-append dst "/server"))
+                         (substitute* "Makefile"
+                           (("`\\$\\(OCAMLFIND\\) query \\$\\(PKG_NAME\\)`") dst)))
+                       #t))
+                   (delete 'configure))))
     (propagated-inputs (list ocaml-js-of-ocaml ocaml-eliom ocaml-calendar))
     (home-page "http://www.ocsigen.org")
     (synopsis
