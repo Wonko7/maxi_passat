@@ -724,17 +724,38 @@ servers.  This library exposes this list so that it can be registered with
 ocaml-tls.")
     (license license:isc)))
 
-(define-public ocaml-conduit-lwt-unix
+(define-public ocaml-conduit-lwt
   (package
-    (name "ocaml-conduit-lwt-unix")
-    (version "7.1.0")
+    (name "ocaml-conduit-lwt")
+    (version "7.0.0")
     (source
      (origin
        (method url-fetch)
        (uri
-        "https://github.com/mirage/ocaml-conduit/releases/download/v7.1.0/conduit-7.1.0.tbz")
+        "https://github.com/mirage/ocaml-conduit/releases/download/v7.0.0/conduit-7.0.0.tbz")
        (sha256
-        (base32 "1xspxb5v8hb9f1zx7b2cbgrp1s9k68js1373bl10c5z70y523ljq"))))
+        (base32 "060jrfmy3kh59nbfmw0argwj9js6g8p7jdfiv1wd35bai62c43iy"))))
+    (build-system dune-build-system)
+    (arguments
+     (list #:package "conduit-lwt"))
+    (propagated-inputs (list ocaml-ppx-sexp-conv ocaml-sexplib0 ocaml-conduit
+                             ocaml-lwt))
+    (home-page "https://github.com/mirage/ocaml-conduit")
+    (synopsis "A portable network connection establishment library using Lwt")
+    (description #f)
+    (license license:isc)))
+
+(define-public ocaml-conduit-lwt-unix
+  (package
+    (name "ocaml-conduit-lwt-unix")
+    (version "7.0.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/mirage/ocaml-conduit/releases/download/v7.0.0/conduit-7.0.0.tbz")
+       (sha256
+        (base32 "060jrfmy3kh59nbfmw0argwj9js6g8p7jdfiv1wd35bai62c43iy"))))
     (build-system dune-build-system)
     (arguments
      (list #:package "conduit-lwt-unix"
@@ -868,27 +889,6 @@ main `Conduit` module - `conduit-lwt`: the portable Lwt implementation -
 `conduit-lwt-unix`: the Lwt/Unix implementation - `conduit-async` the Jane
 Street Async implementation - `conduit-mirage`: the @code{MirageOS} compatible
 implementation.")
-    (license license:isc)))
-
-(define-public ocaml-conduit-lwt
-  (package
-    (name "ocaml-conduit-lwt")
-    (version "7.1.0")
-    (source
-     (origin
-       (method url-fetch)
-       (uri
-        "https://github.com/mirage/ocaml-conduit/releases/download/v7.1.0/conduit-7.1.0.tbz")
-       (sha256
-        (base32 "1xspxb5v8hb9f1zx7b2cbgrp1s9k68js1373bl10c5z70y523ljq"))))
-    (build-system dune-build-system)
-    (arguments
-     (list #:package "conduit-lwt"))
-    (propagated-inputs (list ocaml-ppx-sexp-conv ocaml-sexplib0 ocaml-conduit
-                             ocaml-lwt))
-    (home-page "https://github.com/mirage/ocaml-conduit")
-    (synopsis "A portable network connection establishment library using Lwt")
-    (description #f)
     (license license:isc)))
 
 (define-public ocaml-cohttp
