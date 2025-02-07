@@ -1769,6 +1769,21 @@ database structure.")
        (sha256
         (base32 "1jibnf5zkzrxzladgyp92cqbkhqb7m0kzw38n0rkllpg8chwyyk5"))))
     (build-system ocaml-build-system)
+    (arguments
+     (list
+      #:tests? #f
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'prepare-install 'mkdir
+            (lambda*  (#:key outputs #:allow-other-keys)
+              (let* ((out (assoc-ref outputs "out"))
+                     (dst (string-append out "/lib/ocaml/site-lib/eliom/templates")))
+                (mkdir-p dst)
+                (substitute* "scripts/install.sh"
+                  (("DEST0=\\$DESTDIR/\\$\\(eliom-distillery -dir\\)")
+                   (string-append "DEST0=" dst))))
+              #t))
+          (delete 'configure))))
     (propagated-inputs (list ocaml-pgocaml
                              ocaml-pgocaml-ppx
                              ocaml-safepass
