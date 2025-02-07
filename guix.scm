@@ -1576,9 +1576,10 @@ database structure.")
                              ocaml-camlp-streams
                              ocaml-csv
                              ocaml-hex
+                             ocaml-ppx-optcomp
                              ocaml-ppx-sexp-conv
-                             ocaml-re
                              ocaml-ppx-deriving
+                             ocaml-re
                              ocaml-rresult
                              ocaml-sexplib))
     (home-page "https://github.com/darioteixeira/pgocaml")
