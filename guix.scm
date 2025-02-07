@@ -1062,6 +1062,38 @@ extensible interface.")
        (sha256
         (base32 "061y0rlnlf6awsqx66w8n8k4pzq6ria16hhmydmvjqz9ra72qsa0"))))
     (build-system dune-build-system)
+    (arguments
+     `(;; #:package "ocsigenserver"
+       #:phases ,#~(modify-phases %standard-phases
+                     (add-before 'build 'config
+                       (lambda* (#:key outputs #:allow-other-keys)
+                         (let ((out (assoc-ref outputs "out")))
+                           (invoke "./configure"
+                                   "--prefix" out
+                                   "--ocsigen-user" "wonko"
+                                   "--ocsigen-group" "users"
+                                   ;; "--commandpipe"
+                                   ;; (string-append out "/ocsigenserver/var/run/ocsigenserver_command")
+                                   ;; "--logdir"
+                                   ;; (string-append out "/var/log/ocsigenserver") ;; FIXME
+                                   ;; ;; "%{lib}%/ocsigenserver/var/log/ocsigenserver"
+                                   ;; "--mandir"
+                                   ;; "%{man}%/man1"
+                                   ;; "--docdir"
+                                   ;; "%{lib}%/ocsigenserver/share/doc/ocsigenserver"
+                                   ;; "--commandpipe"
+                                   ;; "%{lib}%/ocsigenserver/var/run/ocsigenserver_command"
+                                   ;; "--staticpagesdir"
+                                   ;; "%{lib}%/ocsigenserver/var/www"
+                                   ;; "--datadir"
+                                   ;; "%{lib}%/ocsigenserver/var/lib/ocsigenserver"
+                                   ;; "--temproot"
+                                   ;; ""
+                                   ;; "--sysconfdir"
+                                   ;; "%{lib}%/ocsigenserver/etc/ocsigenserver"
+                                   )
+                           (invoke "make" "-C" "src" "confs"))
+                         #t)))))
     (propagated-inputs (list ocaml-react
                              ocaml-ssl
                              ocaml-lwt
