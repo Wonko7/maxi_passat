@@ -232,6 +232,28 @@ in parallel on an opt-in basis.")
 ocaml lwt.")
     (license license:lgpl2.1)))
 
+;; redefine here to depend on our updated ocaml-lwt
+(define-public ocaml-lwt-react
+  (package
+    (inherit ocaml-lwt)
+    (name "ocaml-lwt-react")
+    (version "1.2.0")
+    (source (origin
+              (method git-fetch)
+              (uri (git-reference
+                    (url "https://github.com/ocsigen/lwt")
+                    ;; Version from opam
+                    (commit "5.6.0")))
+              (file-name (git-file-name name version))
+              (sha256
+               (base32
+                "12sglfwdx4anfslj437g7gxchklgzfvba6i4p478kmqr56j2xd0c"))))
+    (arguments
+     `(#:package "lwt_react"))
+    (properties `((upstream-name . "lwt_react")))
+    (propagated-inputs
+     (list ocaml-lwt ocaml-react))))
+
 (define-public ocaml-logs
   (package
     (name "ocaml-logs")
@@ -292,6 +314,27 @@ directly by this package, or DOM trees (@code{js_of_ocaml-tyxml}) virtual DOM
 also create your own representation and use it to instantiate a new set of
 combinators.")
     (license license:lgpl2.1)))
+
+(define-public ocaml-xml-light
+  (package
+    (name "ocaml-xml-light")
+    (version "2.5")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/ncannasse/xml-light/releases/download/2.5/xml-light-2.5.tbz")
+       (sha256
+        (base32 "0g809vjd2ry4rncwb4mvvaavpk425zinlc0d1c4bml8anwyjp37m"))))
+    (build-system dune-build-system)
+    (home-page "https://github.com/ncannasse/xml-light")
+    (synopsis "Xml-Light is a minimal XML parser & printer for OCaml")
+    (description
+     "It provide functions to parse an XML document into an OCaml data structure, work
+with it, and print it back to an XML document.  It support also DTD parsing and
+checking, and is entirely written in OCaml, hence it does not require additional
+C library.")
+    (license license:lgpl2.1+)))
 
 (define-public ocaml-resource-pooling
   (package
