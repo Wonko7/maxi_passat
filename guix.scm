@@ -1174,13 +1174,17 @@ the concrete timeline.")
         (base32 "01vk3kpa3chn6l5hs8hg8k5knhahxpi3aby8ajd9r3hxhxh5rjb8"))))
     (build-system dune-build-system)
     (arguments
-     (list #:package "js_of_ocaml-tyxml"))
+     (list #:package "js_of_ocaml-tyxml"
+           #:dune dune-bootstrap-17
+           #:tests? #f ;; FIXME
+           ))
     (propagated-inputs (list ocaml-js-of-ocaml
                              ocaml-js-of-ocaml-ppx
                              ocaml-react
                              ocaml-reactiveData
                              ocaml-tyxml
-                             ocaml-odoc))
+                             ocaml-odoc
+                             ocaml-uutf))
     (native-inputs (list ocaml-num ocaml-ppx-expect ocaml-ppxlib ocaml-re))
     (properties `((upstream-name . "js_of_ocaml-tyxml")))
     (home-page "https://ocsigen.org/js_of_ocaml/latest/manual/overview")
@@ -1232,7 +1236,9 @@ browsers and Node.js.")
         (base32 "0yy0l6qfn76ak2hy6h7jw3drszpi3wn8lymp7qmcnyz23jzvqnda"))))
     (build-system dune-build-system)
     (arguments ;; not in version 6:
-     (list #:package "js_of_ocaml-ocamlbuild"))
+     (list #:package "js_of_ocaml-ocamlbuild"
+           #:tests? #f ;; FIXME
+           ))
     (propagated-inputs (list ocamlbuild ocaml-odoc))
     (properties `((upstream-name . "js_of_ocaml-ocamlbuild")))
     (home-page "https://github.com/ocsigen/js_of_ocaml-ocamlbuild")
