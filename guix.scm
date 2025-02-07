@@ -112,6 +112,73 @@ config.h files for instance.  Among other things, dune-configurator allows one t
 
 ;;
 
+(define-public ocaml-re
+  (package
+    (name "ocaml-re")
+    (version "1.12.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/ocaml/ocaml-re/releases/download/1.12.0/re-1.12.0.tbz")
+       (sha256
+        (base32 "1m6ipbd4si87l3axc6m4qmmvzh9mbriyglyqmfmz9hkj5zr2n7x0"))))
+    (build-system dune-build-system)
+    (propagated-inputs (list ocaml-seq))
+    (native-inputs (list ocaml-ounit2))
+    (home-page "https://github.com/ocaml/ocaml-re")
+    (synopsis "RE is a regular expression library for OCaml")
+    (description
+     "Pure OCaml regular expressions with: * Perl-style regular expressions (module
+Re.Perl) * Posix extended regular expressions (module Re.Posix) * Emacs-style
+regular expressions (module Re.Emacs) * Shell-style file globbing (module
+Re.Glob) * Compatibility layer for OCaml's built-in Str module (module Re.Str).")
+    (license license:lgpl2.1+)))
+
+(define-public ocaml-alcotest ;; redefine with our ocaml-re
+  (package
+    (name "ocaml-alcotest")
+    (version "1.7.0")
+    (source (origin
+              (method git-fetch)
+              (uri (git-reference
+                    (url "https://github.com/mirage/alcotest")
+                    (commit version)))
+              (file-name (git-file-name name version))
+              (sha256
+               (base32
+                "0v01vciihd12r30pc4dai70s15p38gy990b4842sn16pvl0ab1az"))))
+    (build-system dune-build-system)
+    (arguments
+     `(#:package "alcotest"
+       #:phases
+       (modify-phases %standard-phases
+         (add-after 'unpack 'fix-test-format
+           (lambda _
+             ;; cmdliner changed the format and the tests fail
+             (substitute* "test/e2e/alcotest/failing/unknown_option.expected"
+               (("`") "'")
+               (("\\.\\.\\.") "…")))))))
+    (native-inputs
+     (list ocamlbuild))
+    (propagated-inputs
+     (list ocaml-astring
+           ocaml-cmdliner
+           ocaml-fmt
+           ocaml-re
+           ocaml-stdlib-shims
+           ocaml-uuidm
+           ocaml-uutf))
+    (home-page "https://github.com/mirage/alcotest")
+    (synopsis "Lightweight OCaml test framework")
+    (description "Alcotest exposes simple interface to perform unit tests.  It
+exposes a simple TESTABLE module type, a check function to assert test
+predicates and a run function to perform a list of unit -> unit test callbacks.
+Alcotest provides a quiet and colorful output where only faulty runs are fully
+displayed at the end of the run (with the full logs ready to inspect), with a
+simple (yet expressive) query language to select the tests to run.")
+    (license license:isc)))
+
 (define-public ocaml-lwt
   (package
     (name "ocaml-lwt")
@@ -164,6 +231,40 @@ in parallel on an opt-in basis.")
     (description "This package provides a deprecated logging component for
 ocaml lwt.")
     (license license:lgpl2.1)))
+
+(define-public ocaml-logs
+  (package
+    (name "ocaml-logs")
+    (version "0.7.0")
+    (source (origin
+              (method url-fetch)
+              (uri (string-append "http://erratique.ch/software/logs/releases/"
+                                  "logs-" version ".tbz"))
+              (sha256
+               (base32
+                "1jnmd675wmsmdwyb5mx5b0ac66g4c6gpv5s4mrx2j6pb0wla1x46"))))
+    (build-system ocaml-build-system)
+    (arguments
+     `(#:tests? #f
+       #:build-flags (list "build" "--with-js_of_ocaml" "false")
+       #:phases
+       (modify-phases %standard-phases
+         (delete 'configure))))
+    (native-inputs
+     (list ocamlbuild opam-installer))
+    (propagated-inputs
+     `(("fmt" ,ocaml-fmt)
+       ("lwt" ,ocaml-lwt)
+       ("mtime" ,ocaml-mtime)
+       ("result" ,ocaml-result)
+       ("cmdliner" ,ocaml-cmdliner)
+       ("topkg" ,ocaml-topkg)))
+    (home-page "https://erratique.ch/software/logs")
+    (synopsis "Logging infrastructure for OCaml")
+    (description "Logs provides a logging infrastructure for OCaml.  Logging is
+performed on sources whose reporting level can be set independently.  Log
+message report is decoupled from logging and is handled by a reporter.")
+    (license license:isc)))
 
 (define-public ocaml-tyxml
   (package
