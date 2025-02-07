@@ -894,28 +894,29 @@ implementation.")
 (define-public ocaml-cohttp
   (package
     (name "ocaml-cohttp")
-    (version "6.0.0-beta2")
+    (version "5.3.1")
     (source
      (origin
        (method url-fetch)
        (uri
-        "https://github.com/mirage/ocaml-cohttp/releases/download/v6.0.0_beta2/cohttp-v6.0.0_beta2.tbz")
+        "https://github.com/mirage/ocaml-cohttp/releases/download/v5.3.1/cohttp-5.3.1.tbz")
        (sha256
-        (base32 "05xh4hvjy90mqslwd0q6sa2h99f0p7vb4cf0f911nhc0sn5yrv4h"))))
+        (base32 "0sspsj44qhxwhn4j005y80dd0v1x3wzb4vg1sxxz97zjqb9p7qpm"))))
     (build-system dune-build-system)
     (arguments
      `(#:package "cohttp"
        #:tests? #f))
-    (propagated-inputs (list ocaml-http
-                             ocaml-re
+    (propagated-inputs (list ocaml-re
                              ocaml-uri
                              ocaml-uri-sexp
-                             ocaml-logs
                              ocaml-sexplib0
                              ocaml-ppx-sexp-conv
                              ocaml-stringext
                              ocaml-base64
-                             ocaml-odoc))
+                             ocaml-fmt
+                             ocaml-jsonm
+                             ;; ocaml-alcotest
+                             ocaml-crowbar))
     (native-inputs (list ocaml-fmt ocaml-alcotest))
     (home-page "https://github.com/mirage/ocaml-cohttp")
     (synopsis "CoHTTP implementation using the Lwt concurrency library")
@@ -932,26 +933,26 @@ share the same IO logic from this module.")
 (define-public ocaml-cohttp-lwt
   (package
     (name "ocaml-cohttp-lwt")
-    (version "6.0.0-beta2")
+    (version "5.3.1")
     (source
      (origin
        (method url-fetch)
        (uri
-        "https://github.com/mirage/ocaml-cohttp/releases/download/v6.0.0_beta2/cohttp-v6.0.0_beta2.tbz")
+        "https://github.com/mirage/ocaml-cohttp/releases/download/v5.3.1/cohttp-5.3.1.tbz")
        (sha256
-        (base32 "05xh4hvjy90mqslwd0q6sa2h99f0p7vb4cf0f911nhc0sn5yrv4h"))))
+        (base32 "0sspsj44qhxwhn4j005y80dd0v1x3wzb4vg1sxxz97zjqb9p7qpm"))))
     (build-system dune-build-system)
     (arguments
      `(#:package "cohttp-lwt"
        #:tests? #f))
-    (propagated-inputs (list ocaml-http
-                             ocaml-cohttp
-                             ocaml-lwt
-                             ocaml-sexplib0
-                             ocaml-ppx-sexp-conv
-                             ocaml-logs
-                             ocaml-uri
-                             ocaml-odoc))
+    (propagated-inputs (list ;;ocaml-http
+                        ocaml-cohttp
+                        ocaml-lwt
+                        ocaml-sexplib0
+                        ocaml-ppx-sexp-conv
+                        ocaml-logs
+                        ocaml-uri
+                        ocaml-odoc))
     (home-page "https://github.com/mirage/ocaml-cohttp")
     (synopsis "CoHTTP implementation using the Lwt concurrency library")
     (description
@@ -964,66 +965,34 @@ for a Unix or @code{JavaScript} backend, or `cohttp-mirage` for the
 share the same IO logic from this module.")
     (license license:isc)))
 
-(define-public ocaml-http
-  (package
-    (name "ocaml-http")
-    (version "6.0.0-beta2")
-    (source
-     (origin
-       (method url-fetch)
-       (uri
-        "https://github.com/mirage/ocaml-cohttp/releases/download/v6.0.0_beta2/cohttp-v6.0.0_beta2.tbz")
-       (sha256
-        (base32 "05xh4hvjy90mqslwd0q6sa2h99f0p7vb4cf0f911nhc0sn5yrv4h"))))
-    (build-system dune-build-system)
-    (arguments
-     `(#:package "http"))
-    (propagated-inputs (list ocaml-odoc))
-    (native-inputs (list ocaml-ppx-expect
-                         ocaml-alcotest
-                         ocaml-base-quickcheck
-                         ocaml-ppx-assert
-                         ocaml-ppx-sexp-conv
-                         ocaml-ppx-compare
-                         ocaml-ppx-here
-                         ocaml-crowbar
-                         ocaml-sexplib0))
-    (home-page "https://github.com/mirage/ocaml-cohttp")
-    (synopsis "Type definitions of HTTP essentials")
-    (description
-     "This package contains essential type definitions used in Cohttp.  It is designed
-to have no dependencies and make it easy for other packages to easily
-interoperate with Cohttp.")
-    (license license:isc)))
-
 (define-public ocaml-cohttp-lwt-unix
   (package
     (name "ocaml-cohttp-lwt-unix")
-    (version "6.0.0-beta2")
+    (version "5.3.1")
     (source
      (origin
        (method url-fetch)
        (uri
-        "https://github.com/mirage/ocaml-cohttp/releases/download/v6.0.0_beta2/cohttp-v6.0.0_beta2.tbz")
+        "https://github.com/mirage/ocaml-cohttp/releases/download/v5.3.1/cohttp-5.3.1.tbz")
        (sha256
-        (base32 "05xh4hvjy90mqslwd0q6sa2h99f0p7vb4cf0f911nhc0sn5yrv4h"))))
+        (base32 "0sspsj44qhxwhn4j005y80dd0v1x3wzb4vg1sxxz97zjqb9p7qpm"))))
     (build-system dune-build-system)
     (arguments
      `(#:package "cohttp-lwt-unix"
        #:tests? #f))
-    (propagated-inputs (list ocaml-http
-                             ocaml-cohttp
-                             ocaml-cohttp-lwt
-                             ocaml-cmdliner
-                             ocaml-lwt
-                             ocaml-lwt-ssl
-                             ocaml-conduit-lwt
-                             ocaml-conduit-lwt-unix
-                             ocaml-fmt
-                             ocaml-ppx-sexp-conv
-                             ocaml-magic-mime
-                             ocaml-logs
-                             ocaml-odoc))
+    (propagated-inputs (list ;;ocaml-http
+                        ocaml-cohttp
+                        ocaml-cohttp-lwt
+                        ocaml-cmdliner
+                        ocaml-lwt
+                        ocaml-lwt-ssl
+                        ocaml-conduit-lwt
+                        ocaml-conduit-lwt-unix
+                        ocaml-fmt
+                        ocaml-ppx-sexp-conv
+                        ocaml-magic-mime
+                        ocaml-logs
+                        ocaml-odoc))
     (native-inputs (list ocaml-ounit))
     (home-page "https://github.com/mirage/ocaml-cohttp")
     (synopsis "CoHTTP implementation for Unix and Windows using Lwt")
