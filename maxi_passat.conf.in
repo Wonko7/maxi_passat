@@ -32,7 +32,7 @@
       <database file="%%DATADIR%%/ocsidb"/>
     </extension>
     -->
-    <extension findlib-package="ocsipersist.pgsql">
+    <extension findlib-package="ocsipersist-pgsql">
       <database
         host="%%DB_HOST%%"
         port="%%DB_PORT%%"
