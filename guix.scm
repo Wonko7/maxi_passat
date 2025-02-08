@@ -401,6 +401,13 @@ each with its own connection pool.")
                          (substitute* "Makefile"
                            (("`\\$\\(OCAMLFIND\\) query \\$\\(PKG_NAME\\)`") dst)))
                        #t))
+                   (add-after 'install 'css
+                     (lambda*  (#:key outputs #:allow-other-keys)
+                       (let* ((out (assoc-ref outputs "out"))
+                              (dst (string-append out "/share/ocsigen-toolkit/css")))
+                         (mkdir-p (string-append dst))
+                         (copy-recursively "css" dst))
+                       #t))
                    (delete 'configure))))
     (propagated-inputs (list ocaml-js-of-ocaml ocaml-eliom ocaml-calendar))
     (home-page "http://www.ocsigen.org")
