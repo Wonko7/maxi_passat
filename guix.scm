@@ -11,6 +11,7 @@
              (gnu packages bash)
              (gnu packages bdw-gc)
              (gnu packages compression)
+             (gnu packages databases)
              (gnu packages flex)
              (gnu packages gdb)
              (gnu packages gettext)
@@ -22,6 +23,7 @@
              (gnu packages ocaml)
              (gnu packages perl)
              (gnu packages llvm)
+             (gnu packages node)
              (gnu packages m4)
              (gnu packages multiprecision)
              (gnu packages pkg-config)
@@ -29,7 +31,8 @@
              (gnu packages tex)
              (gnu packages texinfo)
              (gnu packages unicode)
-             (gnu packages version-control))
+             (gnu packages version-control)
+             (gnu packages web))
 
 ;;
 
@@ -1856,19 +1859,28 @@ management.")
   (name "maxi-passat")
   (version "0.1")
   (source #f)                                     ;no source
-  (build-system dune-build-system)
-  (native-inputs
+  (build-system ocaml-build-system)
+  (inputs
+   (list
+    ;; Makefile deps:
+    which
+    ;; web tools:
+    postgresql
+    node
+    sassc
+    ;; ocaml tools:
+    dune-bootstrap-17))
+  (propagated-inputs
    (append (list
-            ocaml-ocsigen-start)))
-  ;; (inputs (list))
-  ;; (propagated-inputs (list libunistring libgc))
-  ;; (native-search-paths
-  ;;  (list (search-path-specification
-  ;;         (variable "GUILE_LOAD_PATH")
-  ;;         (files '("share/guile/site/3.0")))
-  ;;        (search-path-specification
-  ;;         (variable "GUILE_LOAD_COMPILED_PATH")
-  ;;         (files '("lib/guile/3.0/site-ccache")))))
+            ocaml-ocsigen-start
+            ocaml-ocsipersist-pgsql
+            ocaml-eliom)))
+  (arguments
+   (list
+    #:tests? #f
+    #:phases
+    #~(modify-phases %standard-phases
+        (delete 'configure))))
   (synopsis "maxi passat")
   (description "maxi passat")
   (home-page "http://127.0.0.1/")
