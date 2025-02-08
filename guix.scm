@@ -459,6 +459,29 @@ storage implementations.  Implementations of the following backends currently
 exist: DBM, @code{PostgreSQL}, SQLite.")
     (license license:lgpl2.1)))
 
+(define-public ocaml-ocsipersist-pgsql
+  (package
+    (name "ocaml-ocsipersist-pgsql")
+    (version "2.0.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/ocsigen/ocsipersist/archive/refs/tags/2.0.0.tar.gz")
+       (sha256
+        (base32 "0ppa3y8ldfw0jbi1njk7p3ygssh5hpa63ns4fglmcpdsy151ybvb"))))
+    (build-system dune-build-system)
+    (arguments
+     (list #:package "ocsipersist-pgsql"))
+    (propagated-inputs (list ocaml-lwt ocaml-lwt-log ocaml-ocsipersist
+                             ocaml-pgocaml))
+    (home-page "https://github.com/ocsigen/ocsipersist")
+    (synopsis "Persistent key/value storage for OCaml using PostgreSQL")
+    (description
+     "This library provides a @code{PostgreSQL} backend for the unified key/value
+storage frontend as defined in the ocsipersist package.")
+    (license license:lgpl2.1)))
+
 (define-public ocaml-camlzip
   (package
     (name "ocaml-camlzip")
