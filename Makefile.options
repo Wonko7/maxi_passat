@@ -87,7 +87,7 @@ LOCAL_STATIC_DEFAULTCSS      := $(LOCAL_STATIC)/defaultcss
 LOCAL_CSS             := $(LOCAL_STATIC_DEFAULTCSS)/$(PROJECT_NAME).css
 
 # The OPAM share directory.
-SHAREDIR              := $(shell $(OPAM) var share)
+SHAREDIR := $(shell ocamlfind query ocsigen-toolkit | sed -re 's:^(.*)/lib/.*:\1/share:')
 
 # The ocsigen-toolkit directory containing CSS files.
 SHAREDIR_OT_CSS       := $(SHAREDIR)/ocsigen-toolkit/css
