@@ -34,8 +34,6 @@
              (gnu packages version-control)
              (gnu packages web))
 
-;;
-
 (define-public dune-bootstrap-17
   (package
     (name "dune")
@@ -1860,11 +1858,16 @@ management.")
    #:locales (list "en_GB" "fr_FR" "en_US")
    #:name "sane-utf8-locales"))
 
+(define vcs-file?
+  ;; Return true if the given file is under version control.
+  (git-predicate (current-source-directory)))
 
 (package
   (name "maxi-passat")
   (version "0.1")
-  (source #f)                                     ;no source
+  (source (local-file "." "maxi-passat-checkout"
+                      #:recursive? #t
+                      #:select? vcs-file?))
   (build-system ocaml-build-system)
   (inputs
    (list
@@ -1887,8 +1890,52 @@ management.")
    (list
     #:tests? #f
     #:phases
-    #~(modify-phases %standard-phases
-        (delete 'configure))))
+    #~(let ((css-src   "static/defaultcss/maxi_passat.css")
+            (css-build "local/var/www/maxi_passat/css/maxi_passat.css")
+            (css-dst   "/var/www/maxi_passat/css/"))
+        (modify-phases %standard-phases
+          ;; ⚠️ danger! danger! high voltage! ⚡
+          ;; this is very much a work in progress.
+          ;; 1/ this skips css generation, it is your job to commit changes to generated
+          ;;    file: static/defaultcss/maxi_passat.css
+          ;; 2/ if you are using this as a template, you'll need to adapt db-build-init
+          ;;    in Makefile.db. or maybe I should fix my schema and use this instead:
+          ;;    (invoke "make" "db-init" "db-create" "db-schema")
+          (delete 'configure)
+          (add-before 'build 'db-start
+            (lambda _
+              (invoke "make" "db-build-init")
+              #t))
+          (replace 'build
+            (lambda* (#:key outputs #:allow-other-keys)
+              (substitute* "Makefile"
+                (("include Makefile.style")
+                 (string-append css-build ": | \n\t"
+                                "mkdir -p $(dir " css-build ")\n\t"
+                                "cp " css-src " " css-build "\n")))
+              (substitute* "Makefile.os"
+                (("all:: css") ""))
+              (invoke "make"
+                      (string-append "PREFIX=" (assoc-ref outputs "out") "/")
+                      "PORT=8000"
+                      "DB_USER=wonko"
+                      "all" "byte")
+              #t))
+          (add-after 'build 'db-stop
+            (lambda _
+              (invoke "make" "db-stop")
+              #t))
+          (replace 'install
+            (lambda* (#:key outputs #:allow-other-keys)
+              (substitute* "local/etc/maxi_passat/maxi_passat.conf"
+                (("<app name=.*") "<app name=\"maxi_passat\" css=\"maxi_passat.css\" />")
+                (("<logdir>.*") "<logdir>/tmp/mp/log/</logdir>")) ;; FIXME
+              (invoke "make"
+                      (string-append "PREFIX=" (assoc-ref outputs "out") "/")
+                      "WWWUSER=${USER}"
+                      "install")
+              (install-file css-src (string-append (assoc-ref outputs "out") css-dst))
+              #t))))))
   (synopsis "maxi passat")
   (description "maxi passat")
   (home-page "http://127.0.0.1/")
