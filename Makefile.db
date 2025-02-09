@@ -120,6 +120,10 @@ db-snapshot:
 	$(pg_dump) --clean --create --no-owner --encoding=utf8 \
         $(DB_NAME) | gzip > $(DB_SNAPSHOT)
 
+db-build-init: db-init db-create
+	cat exported_org_schema.sql | psql $(DB_NAME)
+	make db-schema
+
 else
 
 db-start:
