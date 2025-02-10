@@ -1927,14 +1927,28 @@ management.")
               #t))
           (replace 'install
             (lambda* (#:key outputs #:allow-other-keys)
-              (substitute* "local/etc/maxi_passat/maxi_passat.conf"
-                (("<app name=.*") "<app name=\"maxi_passat\" css=\"maxi_passat.css\" />")
-                (("<logdir>.*") "<logdir>/tmp/mp/log/</logdir>")) ;; FIXME
-              (invoke "make"
-                      (string-append "PREFIX=" (assoc-ref outputs "out") "/")
-                      "WWWUSER=${USER}"
-                      "install")
-              (install-file css-src (string-append (assoc-ref outputs "out") css-dst))
+              (let ((out (assoc-ref outputs "out")))
+                ;; fix config file:
+                (substitute* "local/etc/maxi_passat/maxi_passat.conf"
+                  (("<app name=.*") "<app name=\"maxi_passat\" css=\"maxi_passat.css\" />")
+                  (("<logdir>.*") "<logdir>/tmp/mp/log/</logdir>")) ;; FIXME
+                ;; install:
+                (invoke "make"
+                        (string-append "PREFIX=" out "/")
+                        "WWWUSER=${USER}"
+                        "install")
+                ;; install css:
+                (install-file css-src (string-append out css-dst))
+                ;; script:
+                (let ((bin (string-append out "/bin"))
+                      (cfg (string-append out "/etc/maxi_passat/maxi_passat.conf"))
+                      (script "maxi-passat"))
+                  (call-with-output-file script
+                    (lambda (port)
+                      (format port "#!/bin/sh\ncfg=~s\nexec ~a/bin/ocsigenserver -c \"$cfg\""
+                              cfg #$ocaml-ocsigenserver)))
+                  (chmod script #o755)
+                  (install-file script bin)))
               #t))))))
   (synopsis "maxi passat")
   (description "maxi passat")
