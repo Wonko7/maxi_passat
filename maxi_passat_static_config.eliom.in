@@ -1,0 +1,31 @@
+(* Set static configuration in case you are using static linking only.
+   These information are taken from the config file otherwise.
+*)
+let%server set_static_config () =
+  if not (Ocsigen_config.has_configuration_file ())
+  then begin
+    Ocsigen_config.set_ports [`All, 8080];
+    Ocsigen_config.set_veryverbose ();
+    Ocsigen_config.set_debugmode true;
+    Ocsigen_config.set_logdir "local/var/log/maxi_passat";
+    Ocsigen_config.set_datadir "local/var/data/maxi_passat";
+    Ocsigen_config.set_uploaddir (Some "/tmp");
+    Ocsigen_config.set_usedefaulthostname true;
+    Ocsigen_config.set_command_pipe "local/var/run/maxi_passat-cmd";
+    Ocsigen_config.set_default_charset (Some "utf-8");
+    Ocsipersist_settings.set_host "%%PGHOST%%";
+    Ocsipersist_settings.set_port %%PGPORT%%;
+    Ocsipersist_settings.set_database "ocsipersist_maxi_passat";
+    Ocsipersist.init ();
+    Maxi_passat_config.os_db_database := Some "%%PGDATABASE%%";
+    Maxi_passat_config.os_db_host := Some "%%PGHOST%%";
+    Maxi_passat_config.os_db_user :=
+      (let u = "%%PGUSER%%" in if u = "" then None else Some u);
+    Maxi_passat_config.os_db_password := Some "%%PGPASSWORD%%";
+    Maxi_passat_config.os_db_port := Some %%PGPORT%%;
+    Maxi_passat_config.app_name := 
+      Filename.chop_suffix
+        (Unix.readlink "local/var/www/maxi_passat/maxi_passat.js") ".js" ;
+    Maxi_passat_config.css_name :=
+      Unix.readlink "local/var/www/maxi_passat/css/maxi_passat.css";
+  end
