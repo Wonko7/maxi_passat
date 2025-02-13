@@ -1895,66 +1895,50 @@ management.")
    (list
     #:tests? #f
     #:phases
-    #~(let ((css-src   "static/defaultcss/maxi_passat.css")
-            (css-build "local/var/www/maxi_passat/css/maxi_passat.css")
-            (css-dst   "/var/www/maxi_passat/css/"))
-        (modify-phases %standard-phases
-          ;; ⚠️ danger! danger! high voltage! ⚡
-          ;; this is very much a work in progress.
-          ;; 1/ this skips css generation, it is your job to commit changes to generated
-          ;;    file: static/defaultcss/maxi_passat.css
-          ;; 2/ if you are using this as a template, you'll need to adapt db-build-init
-          ;;    in Makefile.db. or maybe I should fix my schema and use this instead:
-          ;;    (invoke "make" "db-init" "db-create" "db-schema")
-          (delete 'configure)
-          (add-before 'build 'db-start
-            (lambda _
-              (invoke "make" "db-build-init")
-              #t))
-          (replace 'build
-            (lambda* (#:key outputs #:allow-other-keys)
-              (substitute* "Makefile"
-                (("include Makefile.style")
-                 (string-append css-build ": | \n\t"
-                                "mkdir -p $(dir " css-build ")\n\t"
-                                "cp " css-src " " css-build "\n")))
-              (substitute* "Makefile.os"
-                (("all:: css") ""))
+    #~(modify-phases %standard-phases
+        ;; ⚠️ danger! danger! high voltage! ⚡
+        ;; this is very much a work in progress.
+        ;; 1/ this skips css generation, it is your job to commit changes to generated
+        ;;    file: static/defaultcss/maxi_passat.css
+        ;; 2/ if you are using this as a template, you'll need to adapt db-build-init
+        ;;    in Makefile.db. or maybe I should fix my schema and use this instead:
+        ;;    (invoke "make" "db-init" "db-create" "db-schema")
+        (replace 'configure
+          (lambda* (#:key outputs #:allow-other-keys)
+            (substitute* "Makefile"
+              (("include Makefile.style")
+               "css: $(CSS_DEST)
+$(CSS_DEST): $(LOCAL_CSS)
+	mkdir -p \"`dirname $(CSS_DEST)`\"
+	HASH=`cat $< | md5sum | cut -d ' ' -f 1` && \
+	cp $< $(CSS_PREFIX)_$$HASH.css && \
+	ln -sf $(PROJECT_NAME)_$$HASH.css $@"))
+            #t))
+        (add-before 'build 'db-start
+          (lambda _
+            (invoke "make" "db-build-init")
+            #t))
+        (replace 'build
+          (lambda* (#:key outputs #:allow-other-keys)
+            (invoke "make"
+                    (string-append "PREFIX=" (assoc-ref outputs "out") "/")
+                    "PORT=8000"
+                    "DB_USER=wonko"
+                    "css" "static.byte")
+            #t))
+        (add-after 'build 'db-stop
+          (lambda _
+            (invoke "make" "db-stop")
+            #t))
+        (replace 'install
+          (lambda* (#:key outputs #:allow-other-keys)
+            (let ((out (assoc-ref outputs "out")))
+              (mkdir-p (string-append out "/var/www/maxi_passat/css"))
               (invoke "make"
-                      (string-append "PREFIX=" (assoc-ref outputs "out") "/")
-                      "PORT=8000"
-                      "DB_USER=wonko"
-                      "all" "byte")
-              #t))
-          (add-after 'build 'db-stop
-            (lambda _
-              (invoke "make" "db-stop")
-              #t))
-          (replace 'install
-            (lambda* (#:key outputs #:allow-other-keys)
-              (let ((out (assoc-ref outputs "out")))
-                ;; fix config file:
-                (substitute* "local/etc/maxi_passat/maxi_passat.conf"
-                  (("<app name=.*") "<app name=\"maxi_passat\" css=\"maxi_passat.css\" />")
-                  (("<logdir>.*") "<logdir>/tmp/mp/log/</logdir>")) ;; FIXME
-                ;; install:
-                (invoke "make"
-                        (string-append "PREFIX=" out "/")
-                        "WWWUSER=${USER}"
-                        "install")
-                ;; install css:
-                (install-file css-src (string-append out css-dst))
-                ;; script:
-                (let ((bin (string-append out "/bin"))
-                      (cfg (string-append out "/etc/maxi_passat/maxi_passat.conf"))
-                      (script "maxi-passat"))
-                  (call-with-output-file script
-                    (lambda (port)
-                      (format port "#!/bin/sh\ncfg=~s\nexec ~a/bin/ocsigenserver -c \"$cfg\""
-                              cfg #$ocaml-ocsigenserver)))
-                  (chmod script #o755)
-                  (install-file script bin)))
-              #t))))))
+                      (string-append "PREFIX=" out "/")
+                      "WWWUSER=${USER}"
+                      "install.exe"))
+            #t)))))
   (synopsis "maxi passat")
   (description "maxi passat")
   (home-page "http://127.0.0.1/")

@@ -84,7 +84,8 @@ static.opt: opt
 .PHONY: install install.exe install.byte install.byte install.opt install.static install.etc install.lib install.lib.byte install.lib.opt run.byte run.opt
 install: install.byte install.opt
 install.exe: install.etc install.static
-	dune install
+	dune build @install
+	dune install --prefix=$(PREFIX)
 install.byte: install.lib.byte install.etc install.static | $(addprefix $(PREFIX),$(DATADIR) $(LOGDIR) $(shell dirname $(CMDPIPE)))
 install.opt: install.lib.opt install.etc install.static | $(addprefix $(PREFIX),$(DATADIR) $(LOGDIR) $(shell dirname $(CMDPIPE)))
 install.lib: install.lib.byte install.lib.opt
