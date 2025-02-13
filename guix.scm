@@ -1871,6 +1871,8 @@ management.")
   (build-system ocaml-build-system)
   (inputs
    (list
+    ;; dev tools:
+    ocamlformat
     ;; locales: needed to use a pgdb config'd with non default locales:
     sane-glibc-locales
     ;; Makefile deps:
@@ -1883,7 +1885,10 @@ management.")
     dune-bootstrap-17))
   (propagated-inputs
    (append (list
+            ocaml-re
             ocaml-ocsigen-start
+            ocaml-ocsipersist
+            ocaml-pgocaml
             ocaml-ocsipersist-pgsql
             ocaml-eliom)))
   (arguments

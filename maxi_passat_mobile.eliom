@@ -5,7 +5,7 @@
 
 [@@@ocaml.warning "-33"]
 
-open Maxi_passat (* for dependency reasons *)
+(* open Maxi_passat (\* for dependency reasons *\) *)
 
 [@@@ocaml.warning "+33"]
 

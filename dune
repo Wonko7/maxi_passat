@@ -1,42 +1,168 @@
-(dirs tools client assets)
+(include dune.config)
+
+(dirs tools client gen assets static local)
+
+(library
+ (name maxi_passat)
+ (modules
+  (:standard \ Maxi_passat_main))
+ (libraries eliom.server ocsigen-start.server ocsipersist-pgsql ocsipersist-pgsql.settings js_of_ocaml)
+ (library_flags
+  (:standard -linkall))
+ (wrapped false)
+ (preprocess
+  (pps
+   lwt_ppx
+   pgocaml_ppx
+   js_of_ocaml-ppx_deriving_json
+   ppx_deriving.std
+   ocsigen-i18n
+   ocsigen-ppx-rpc
+   eliom.ppx.server
+   --
+   --prefix
+   Maxi_passat_
+   --suffix
+   _i18n
+   --default-module
+   Maxi_passat_i18n)))
 
 (executables
-    (names maxi_passat)
-    (modes (byte plugin) (native plugin))
-    (libraries eliom.server ocsigen-start.server ocsipersist-pgsql js_of_ocaml)
-    (preprocess
-       (pps
-           lwt_ppx
-           pgocaml_ppx
-           ppx_deriving.std ;; FIXME: is this the right place?
-           js_of_ocaml-ppx_deriving_json
-           ocsigen-i18n
-           ocsigen-ppx-rpc
-           eliom.ppx.server
-           -- --prefix Maxi_passat_ --suffix _i18n --default-module Maxi_passat_i18n
-       )
-    )
-  )
+ (names maxi_passat_main)
+ (public_names maxi_passat)
+ (modes
+  (byte exe)
+  (native exe))
+ (libraries
+  eliom.server
+  ocsigen-start.server
+  ocsipersist-pgsql
+  ocsigenserver.ext.staticmod
+  maxi_passat)
+ (modules Maxi_passat_main)
+ (preprocess
+  (pps
+   lwt_ppx
+   pgocaml_ppx
+   js_of_ocaml-ppx_deriving_json
+   ocsigen-i18n
+   ocsigen-ppx-rpc
+   eliom.ppx.server
+   --
+   --prefix
+   Maxi_passat_
+   --suffix
+   _i18n
+   --default-module
+   Maxi_passat_i18n)))
 
-(rule (target maxi_passat_i18n.eliom) (deps assets/maxi_passat_i18n.tsv)
+(rule
+ (target maxi_passat_i18n.eliom)
+ (deps assets/maxi_passat_i18n.tsv)
+ (action
+  (with-stdout-to
+   %{target}
+   (with-stdin-from
+    %{deps}
+    (pipe-stdout
+     (run
+      ocsigen-i18n-generator
+      --languages
+      en,fr
+      --default-language
+      fr
+      %{deps})
+     (run
+      sed
+      "1 s/]/[@@deriving json]]\\n[%%shared [@@@ocaml.warning\"-27\"]]/"))))))
+
+(rule
+ (target maxi_passat_Demo_i18n.eliom)
+ (deps assets/maxi_passat_Demo_i18n.tsv)
+ (action
+  (with-stdout-to
+   %{target}
+   (with-stdin-from
+    %{deps}
+    (run
+     ocsigen-i18n-generator
+     --primary
+     maxi_passat_i18n.tsv
+     --languages
+     en,fr
+     --default-language
+     fr)))))
+
+(rule
+ (target maxi_passat_static_config.eliom)
+ (deps maxi_passat_static_config.eliom.in)
+ (action
+  (with-stdout-to
+   %{target}
+   (with-stdin-from
+    maxi_passat_static_config.eliom.in
+    (run
+     sed
+     -e
+     "s/%%PGPORT%%/%{env:PGPORT=3000}/"
+     -e
+     "s/%%PGDATABASE%%/%{env:PGDATABASE=maxi_passat}/"
+     -e
+     "s/%%PGDATABASE%%/%{env:PGDATABASE=maxi_passat}/"
+     -e
+     "s/%%PGHOST%%/%{env:PGHOST=maxi_passat}/"
+     -e
+     "s/%%PGUSER%%/%{env:PGUSER=}/"
+     -e
+     "s/%%PGPASSWORD%%/%{env:PGPASSWORD=maxi_passat}/")))))
+
+(subdir
+ gen
+ (rule
+  (deps ../tools/gen_dune.ml)
   (action
-    (with-stdout-to %{target}
-      (with-stdin-from %{deps}
-        (pipe-stdout
-          (run ocsigen-i18n-generator --languages en,fr --default-language fr %{deps})
-          (run sed "1 s/]/[@@deriving json]]\\n[%%shared [@@@ocaml.warning\"-27\"]]/"))))))
+   (with-stdout-to
+    dune.client
+    (run ocaml ../tools/gen_dune.ml)))))
 
-(rule (target maxi_passat_Demo_i18n.eliom) (deps assets/maxi_passat_Demo_i18n.tsv)
-  (action
-    (with-stdout-to %{target}
-      (with-stdin-from %{deps}
-        (run ocsigen-i18n-generator --primary maxi_passat_i18n.tsv --languages en,fr --default-language fr)))))
+(subdir
+ client
+ (executables
+  (names maxi_passat)
+  (modes js byte)
+  (preprocess
+   (pps
+    js_of_ocaml-ppx
+    lwt_ppx
+    ocsigen-i18n
+    --
+    --prefix
+    Maxi_passat_
+    --suffix
+    _i18n
+    --default-module
+    Maxi_passat_i18n))
+  (js_of_ocaml
+   (build_runtime_flags :standard --enable use-js-string)
+   (flags
+    :standard
+    --enable
+    with-js-error
+    --enable
+    use-js-string
+    --no-source-map))
+  ; source maps are slow...
+  (libraries eliom.client ocsigen-start.client))
+ (dynamic_include ../gen/dune.client))
 
-(rule (alias maxi_passat)
-   (deps maxi_passat.cma client/maxi_passat.bc client/maxi_passat.bc.js tools/check_modules.ml)
-   (action (run ocaml tools/check_modules.ml maxi_passat)))
+; Main rule:
 
-(env
-  (dev
-    (flags (:standard -warn-error -A)))
-  (_ (flags (:standard -w -9-37-39))))
+(rule
+ (alias maxi_passat)
+ (deps
+  maxi_passat.cma
+  client/maxi_passat.bc
+  client/maxi_passat.bc.js
+  tools/check_modules.ml)
+ (action
+  (run ocaml -I +unix -I +str tools/check_modules.ml maxi_passat)))
