@@ -30,13 +30,14 @@ let%shared () =
     (Os_session.Opt.connected_fun Maxi_passat_handlers.action_link_handler);
   Eliom_registration.Action.register ~service:Os_services.add_email_service
     (fun () email ->
-       let%lwt () = Os_handlers.add_email_handler () email in
-       add_email_notif (); Lwt.return_unit);
+      let%lwt () = Os_handlers.add_email_handler () email in
+      add_email_notif (); Lwt.return_unit);
   Eliom_registration.Action.register
     ~service:Os_services.update_language_service
     Maxi_passat_handlers.update_language_handler;
   Maxi_passat_base.App.register ~service:Os_services.main_service
-    (Maxi_passat_page.Opt.connected_page Maxi_passat_handlers.main_service_handler);
+    (Maxi_passat_page.Opt.connected_page
+       Maxi_passat_handlers.main_service_handler);
   Maxi_passat_base.App.register ~service:Maxi_passat_services.about_service
     (Maxi_passat_page.Opt.connected_page Maxi_passat_handlers.about_handler);
   Maxi_passat_base.App.register ~service:Maxi_passat_services.settings_service
@@ -70,7 +71,16 @@ let%server _ =
     Lwt_log_core.add_rule "*" Lwt_log.Debug;
     Lwt_log_core.add_rule "Maxi_passat*" Lwt_log.Debug)
 
-let%server _ = Org.preprocess_init ()
+let%server _ =
+  (* echo "mp:lol kkt wthaaat?" > cmd *)
+  (* => arg1 = "mp:lol kkt wthaaat?" *)
+  (* => arg2 = ["lol" "kkt" "wthaaat?"] *)
+  let f _s = function
+    | ["preprocess_org"] -> Org.preprocess_init ()
+    | _ -> Lwt.fail Ocsigen_command.Unknown_command
+  in
+  Ocsigen_command.register_command_function ~prefix:"maxi-passat" f;
+  Org.preprocess_init ()
 
 (* The modules below are all the modules that needs to be explicitely
    linked-in. *)
