@@ -1926,6 +1926,15 @@ management.")
         ;; 2/ if you are using this as a template, you'll need to adapt db-build-init
         ;;    in Makefile.db. or maybe I should fix my schema and use this instead:
         ;;    (invoke "make" "db-init" "db-create" "db-schema")
+        ;; 3/ I changed the following compared to the eliom-distillery template:
+        ;;    - _static_config_.eliom.in: js & css location discovery
+        ;;    - _main.eliom: Os_tip ref!?
+        ;;    - _main.eliom: reads env vars for some settings.
+        ;;    - _main.eliom: static dir location discovery
+        ;;    - dune: added js_of_ocaml to libs & ppx_deriving.std to pps
+        ;;    - dune.config: -warn-error -A
+        ;;    - Makefile.os: install.exe target: added dune build @install
+        ;;    - Makefile.options: SHAREDIR is set with ocamlfind rather than opam
         (replace 'configure
           (lambda* (#:key outputs #:allow-other-keys)
             (substitute* "Makefile"

@@ -4,6 +4,10 @@
 module%shared Maxi_passat = Maxi_passat
 
 let%server _ =
+  let statdir =
+    Maxi_passat_static_config.prodpath_or_fallback "var/www/maxi_passat/"
+      "local/var/www/maxi_passat/"
+  in
   Ocsigen_server.start
     ~ports:
       (match Sys.getenv_opt "PORT" with
@@ -11,5 +15,4 @@ let%server _ =
       | None -> [`All, 8080])
     ?logdir:(Sys.getenv_opt "LOGDIR")
     ?command_pipe:(Sys.getenv_opt "COMMAND_PIPE")
-    [ Ocsigen_server.host
-        [Staticmod.run ~dir:"local/var/www/maxi_passat" (); Eliom.run ()] ]
+    [Ocsigen_server.host [Staticmod.run ~dir:statdir (); Eliom.run ()]]

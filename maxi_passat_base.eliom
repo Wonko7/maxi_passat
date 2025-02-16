@@ -8,7 +8,9 @@ let%shared displayed_app_name = "maxipass.at"
 
 (* Database initialization *)
 let () =
-  Os_db.init ?host:!Maxi_passat_config.os_db_host ?port:!Maxi_passat_config.os_db_port
+  Os_db.init
+    ?host:!Maxi_passat_config.os_db_host
+    ?port:!Maxi_passat_config.os_db_port
     ?user:!Maxi_passat_config.os_db_user
     ?password:!Maxi_passat_config.os_db_password
     ?database:!Maxi_passat_config.os_db_database
@@ -23,9 +25,9 @@ let () = Os_email.set_from_addr ("maxi_passat team", "noreply@DEFAULT.DEFAULT")
    information. *)
 [%%shared
 module App = Eliom_registration.App (struct
-    let application_name = application_name
-    let global_data_path = Some ["__global_data__"]
-  end)]
+  let application_name = application_name
+  let global_data_path = Some ["__global_data__"]
+end)]
 
 (* As the headers (stylesheets, etc) won't change, we ask Eliom not to
    update the <head> of the page when changing page. (This also avoids

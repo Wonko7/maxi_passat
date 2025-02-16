@@ -1,9 +1,30 @@
 (* Set static configuration in case you are using static linking only.
    These information are taken from the config file otherwise.
 *)
+
+let%server prodpath_or_fallback file fallback_default =
+  (* using bin/exe's .. as root *)
+  let prod_path =
+    Filename.concat @@ Filename.dirname @@ Filename.dirname Sys.argv.(0)
+  in
+  let pp = prod_path file in
+  let res = if Sys.file_exists pp then pp else fallback_default in
+  (* too soon for Lwt_log *)
+  print_string "static_config: path dicovery, using: ";
+  print_endline res;
+  res
+
 let%server set_static_config () =
   if not (Ocsigen_config.has_configuration_file ())
-  then begin
+  then (
+    let js_loc =
+      prodpath_or_fallback "var/www/maxi_passat/maxi_passat.js"
+        "local/var/www/maxi_passat/maxi_passat.js"
+    in
+    let css_loc =
+      prodpath_or_fallback "var/www/maxi_passat/css/maxi_passat.css"
+        "local/var/www/maxi_passat/css/maxi_passat.css"
+    in
     Ocsigen_config.set_ports [`All, 8080];
     Ocsigen_config.set_veryverbose ();
     Ocsigen_config.set_debugmode true;
@@ -19,13 +40,11 @@ let%server set_static_config () =
     Ocsipersist.init ();
     Maxi_passat_config.os_db_database := Some "%%PGDATABASE%%";
     Maxi_passat_config.os_db_host := Some "%%PGHOST%%";
-    Maxi_passat_config.os_db_user :=
-      (let u = "%%PGUSER%%" in if u = "" then None else Some u);
+    (Maxi_passat_config.os_db_user :=
+       let u = "%%PGUSER%%" in
+       if u = "" then None else Some u);
     Maxi_passat_config.os_db_password := Some "%%PGPASSWORD%%";
     Maxi_passat_config.os_db_port := Some %%PGPORT%%;
-    Maxi_passat_config.app_name := 
-      Filename.chop_suffix
-        (Unix.readlink "local/var/www/maxi_passat/maxi_passat.js") ".js" ;
-    Maxi_passat_config.css_name :=
-      Unix.readlink "local/var/www/maxi_passat/css/maxi_passat.css";
-  end
+    Maxi_passat_config.app_name :=
+      Filename.chop_suffix (Unix.readlink js_loc) ".js";
+    Maxi_passat_config.css_name := Unix.readlink css_loc)

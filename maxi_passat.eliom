@@ -90,6 +90,7 @@ let%server _ =
 module Org_page = Org_page
 module Org_search = Org_search
 module Maxi_passat_config = Maxi_passat_config
+module Maxi_passat_static_config = Maxi_passat_static_config
 
 [%%client.start]
 
