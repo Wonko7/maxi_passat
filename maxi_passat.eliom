@@ -62,19 +62,18 @@ let%server _ =
     ignore
       [%client
         (Eliom_config.debug_timings := true;
-         print_endline "debug mode!";
-         Lwt_log_core.add_rule "eliom:client*" Lwt_log_js.Debug;
-         Lwt_log_core.add_rule "os*" Lwt_log_js.Debug;
-         Lwt_log_core.add_rule "Maxi_passat*" Lwt_log_js.Debug;
-         Lwt_log_core.add_rule "*" Lwt_log_js.Debug
+         (* Lwt_log_core.add_rule "eliom:client*" Lwt_log_js.Debug; *)
+         (* Lwt_log_core.add_rule "os*" Lwt_log_js.Debug; *)
+         (* Lwt_log_core.add_rule "*" Lwt_log_js.Debug *)
+         Lwt_log_core.add_rule "Maxi_passat*" Lwt_log_js.Debug
           : unit)];
-    Lwt_log_core.add_rule "*" Lwt_log.Debug;
+    (* Lwt_log_core.add_rule "*" Lwt_log.Debug; *)
     Lwt_log_core.add_rule "Maxi_passat*" Lwt_log.Debug)
 
 let%server _ =
-  (* echo "mp:lol kkt wthaaat?" > cmd *)
-  (* => arg1 = "mp:lol kkt wthaaat?" *)
-  (* => arg2 = ["lol" "kkt" "wthaaat?"] *)
+  (* echo "mp:lol kkt wthaaat?" > cmd
+   *   => arg1 = "mp:lol kkt wthaaat?"
+   *   => arg2 = ["lol" "kkt" "wthaaat?"] *)
   let f _s = function
     | ["preprocess_org"] -> Org.preprocess_init ()
     | _ -> Lwt.fail Ocsigen_command.Unknown_command
