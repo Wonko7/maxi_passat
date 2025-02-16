@@ -16,3 +16,10 @@ let%server _ =
     ?logdir:(Sys.getenv_opt "LOGDIR")
     ?command_pipe:(Sys.getenv_opt "COMMAND_PIPE")
     [Ocsigen_server.host [Staticmod.run ~dir:statdir (); Eliom.run ()]]
+
+let%shared workaround_tip () =
+  (* why do I need this? without this generated JS is broken and fails with:
+   * > Code generating the following client values is not linked on the client
+   * [...]
+   * > Code containing the following injections is not linked on the client *)
+  Os_tips.bubble () ~name:"workaround" ~content:[%client fun _ -> Lwt.return []]
