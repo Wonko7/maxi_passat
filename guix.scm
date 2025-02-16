@@ -1922,7 +1922,6 @@ $(CSS_DEST): $(LOCAL_CSS)
           (lambda* (#:key outputs #:allow-other-keys)
             (invoke "make"
                     (string-append "PREFIX=" (assoc-ref outputs "out") "/")
-                    "PORT=8000"
                     "DB_USER=wonko"
                     "css" "static.byte")
             #t))
@@ -1936,7 +1935,6 @@ $(CSS_DEST): $(LOCAL_CSS)
               (mkdir-p (string-append out "/var/www/maxi_passat/css"))
               (invoke "make"
                       (string-append "PREFIX=" out "/")
-                      "WWWUSER=${USER}"
                       "install.exe"))
             #t)))))
   (synopsis "maxi passat")
