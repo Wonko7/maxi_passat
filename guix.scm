@@ -490,6 +490,30 @@ exist: DBM, @code{PostgreSQL}, SQLite.")
 storage frontend as defined in the ocsipersist package.")
     (license license:lgpl2.1)))
 
+(define-public ocaml-ocsipersist-pgsql-config
+  (package
+    (name "ocaml-ocsipersist-pgsql-config")
+    (version "2.0.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/ocsigen/ocsipersist/archive/refs/tags/2.0.0.tar.gz")
+       (sha256
+        (base32 "0ppa3y8ldfw0jbi1njk7p3ygssh5hpa63ns4fglmcpdsy151ybvb"))))
+    (build-system dune-build-system)
+    (arguments
+     (list #:package "ocsipersist-pgsql-config"))
+    (propagated-inputs (list ocaml-xml-light ocaml-ocsigenserver
+                             ocaml-ocsipersist-pgsql))
+    (home-page "https://github.com/ocsigen/ocsipersist")
+    (synopsis
+     "Ocsigen Server configuration file extension for ocsipersist-pgsql")
+    (description
+     "Load this package from Ocsigen Server's configuration file if you want to use
+the @code{PostgreSQL} storage backend.")
+    (license license:lgpl2.1)))
+
 (define-public ocaml-camlzip
   (package
     (name "ocaml-camlzip")
@@ -1871,8 +1895,6 @@ management.")
   (build-system ocaml-build-system)
   (inputs
    (list
-    ;; dev tools:
-    ocamlformat
     ;; locales: needed to use a pgdb config'd with non default locales:
     sane-glibc-locales
     ;; Makefile deps:
@@ -1890,6 +1912,7 @@ management.")
             ocaml-ocsipersist
             ocaml-pgocaml
             ocaml-ocsipersist-pgsql
+            ocaml-ocsipersist-pgsql-config
             ocaml-eliom)))
   (arguments
    (list
