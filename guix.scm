@@ -1388,7 +1388,7 @@ the concrete timeline.")
     (build-system dune-build-system)
     (arguments
      (list #:package "js_of_ocaml-tyxml"
-           #:dune dune-bootstrap-17
+           ;; #:dune dune-bootstrap-17
            #:tests? #f ;; FIXME
            ))
     (propagated-inputs (list ocaml-js-of-ocaml
@@ -1422,7 +1422,7 @@ browsers and Node.js.")
     (build-system dune-build-system)
     (arguments
      (list #:package "js_of_ocaml-ppx_deriving_json"
-           #:dune dune-bootstrap-17
+           ;; #:dune dune-bootstrap-17
            #:tests? #f ;; FIXME
            ))
     (propagated-inputs (list ocaml-js-of-ocaml ocaml-ppxlib ocaml-odoc))
@@ -1475,7 +1475,7 @@ browsers and Node.js.")
     (build-system dune-build-system)
     (arguments
      (list #:package "js_of_ocaml-ppx"
-           #:dune dune-bootstrap-17
+           ;; #:dune dune-bootstrap-17
            #:tests? #f ;; FIXME
            ))
     (propagated-inputs (list ocaml-js-of-ocaml ocaml-ppxlib ocaml-odoc))
@@ -1503,7 +1503,7 @@ browsers and Node.js.")
     (build-system dune-build-system)
     (arguments
      (list #:package "js_of_ocaml-lwt"
-           #:dune dune-bootstrap-17
+           ;; #:dune dune-bootstrap-17
            #:tests? #f ;; FIXME
            ))
     (propagated-inputs (list ocaml-js-of-ocaml ocaml-js-of-ocaml-ppx ocaml-lwt
@@ -1532,7 +1532,7 @@ browsers and Node.js.")
     (build-system dune-build-system)
     (arguments
      (list #:package "js_of_ocaml"
-           #:dune dune-bootstrap-17
+           ;; #:dune dune-bootstrap-17
            #:tests? #f ;; FIXME
            ))
     (propagated-inputs (list ocaml-js-of-ocaml-compiler ocaml-ppxlib
@@ -1640,7 +1640,7 @@ browsers and Node.js.")
     (build-system dune-build-system)
     (arguments
      (list #:package "js_of_ocaml-compiler"
-           #:dune dune-bootstrap-17
+           ;; #:dune dune-bootstrap-17
            #:tests? #f ;; FIXME
            ));; dune-bootstrap-17 dune-configurator-17
     (propagated-inputs (list ocaml-ppxlib
@@ -1674,7 +1674,8 @@ browsers and Node.js.")
     (build-system dune-build-system)
     (arguments
      (list #:package "eliom"
-           #:dune dune-bootstrap-17))
+           ;; #:dune dune-bootstrap-17
+           ))
     (propagated-inputs (list ocaml-ppx-deriving
                              ocaml-ppxlib
                              ocaml-js-of-ocaml-compiler
@@ -1904,7 +1905,10 @@ management.")
     node
     sassc
     ;; ocaml tools:
-    dune-bootstrap-17))
+    dune
+    ;; dev comfort:
+    bash
+    ))
   (propagated-inputs
    (append (list
             ocaml-re
