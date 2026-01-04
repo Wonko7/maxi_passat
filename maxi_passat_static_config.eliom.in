@@ -15,6 +15,11 @@ let%server prodpath_or_fallback file fallback_default =
   res
 
 let%server set_static_config () =
+  let db_port =
+      (match Sys.getenv_opt "PGPORT" with
+      | Some p -> int_of_string p
+      | None -> %%PGPORT%%)
+  in
   if not (Ocsigen_config.has_configuration_file ())
   then (
     let js_loc =
@@ -35,7 +40,7 @@ let%server set_static_config () =
     Ocsigen_config.set_command_pipe "local/var/run/maxi_passat-cmd";
     Ocsigen_config.set_default_charset (Some "utf-8");
     Ocsipersist_settings.set_host "%%PGHOST%%";
-    Ocsipersist_settings.set_port %%PGPORT%%;
+    Ocsipersist_settings.set_port db_port;
     Ocsipersist_settings.set_database "ocsipersist_maxi_passat";
     Ocsipersist.init ();
     Maxi_passat_config.os_db_database := Some "%%PGDATABASE%%";
@@ -44,7 +49,7 @@ let%server set_static_config () =
        let u = "%%PGUSER%%" in
        if u = "" then None else Some u);
     Maxi_passat_config.os_db_password := Some "%%PGPASSWORD%%";
-    Maxi_passat_config.os_db_port := Some %%PGPORT%%;
+    Maxi_passat_config.os_db_port := Some db_port;
     Maxi_passat_config.app_name :=
       Filename.chop_suffix (Unix.readlink js_loc) ".js";
     Maxi_passat_config.css_name := Unix.readlink css_loc)
