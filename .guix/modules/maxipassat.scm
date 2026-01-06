@@ -1951,7 +1951,8 @@ management.")
 
 (define vcs-file?
   ;; Return true if the given file is under version control.
-  (git-predicate (dirname (dirname (current-source-directory)))))
+  (or (git-predicate (dirname (dirname (current-source-directory))))
+      (const #t)))
 
 (define-public maxipassat
   (package
