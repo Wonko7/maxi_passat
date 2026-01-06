@@ -8,7 +8,7 @@ open Os_db
    all files *_db.ml with PGOCaml's ppx syntax extension.
 *)
 
-let org_prefix = "/data/org/"
+let org_prefix = ""
 
 let strip_org_prefix s =
   let pl = String.length org_prefix in
