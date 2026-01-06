@@ -179,6 +179,30 @@ representation.")
     (license license:isc)))
 ;; END redefined as is from guix's ocaml, needed to avoid conflict slot
 
+;; vbump this, old has a malformed meta file??
+(define-public ocaml-macaddr
+  (package
+    (name "ocaml-macaddr")
+    (version "5.6.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri
+        "https://github.com/mirage/ocaml-ipaddr/releases/download/v5.6.1/ipaddr-5.6.1.tbz")
+       (sha256
+        (base32 "06d32jp2a2ym49bg4736g2snqhi7glk7bgp94g446n6lmgw7sq8y"))))
+    (build-system dune-build-system)
+    (arguments '(#:package "macaddr"))
+    (native-inputs (list ocaml-ounit2 ocaml-ppx-sexp-conv))
+    (home-page "https://github.com/mirage/ocaml-ipaddr")
+    (synopsis "A library for manipulation of MAC address representations")
+    (description
+     "This package provides a library for manipulation of MAC address representations.
+ Features: * ounit2-based tests * MAC-48 (Ethernet) address support * `Macaddr`
+is a `Map.@code{OrderedType`} * All types have sexplib serializers/deserializers
+optionally via the `Macaddr_sexp` library.")
+    (license license:isc)))
+
 (define-public ocaml-re
   (package
     (name "ocaml-re")
