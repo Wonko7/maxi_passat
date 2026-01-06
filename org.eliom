@@ -214,7 +214,8 @@ let process_org_file file_path =
   process_org_headlines title outline_hash hls
 
 let preprocess_init () =
-  (* let%lwt _ = Org_db.reset_processed () in *)
+  let%lwt _ = Org_db.reset_processed () in
+  (* FIXME: is_processed wasn't made with updates in mind *)
   let%lwt is_processed = Org_db.is_processed () in
   if is_processed
   then Lwt.return_unit
