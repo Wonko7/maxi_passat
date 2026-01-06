@@ -112,7 +112,72 @@ config.h files for instance.  Among other things, dune-configurator allows one t
 @end itemize")))
 
 
-;;
+;; BEGIN redefined as is from guix's ocaml, needed to avoid conflict slot
+(define-public ocaml-bos
+  (package
+    (name "ocaml-bos")
+    (version "0.2.1")
+    (source (origin
+              (method url-fetch)
+              (uri (string-append "http://erratique.ch/software/bos/releases/"
+                                  "bos-" version ".tbz"))
+              (sha256
+               (base32
+                "0dwg7lpaq30rvwc5z1gij36fn9xavvpah1bj8ph9gmhhddw2xmnq"))))
+    (build-system ocaml-build-system)
+    (arguments
+     `(#:tests? #f
+       #:build-flags (list "build")
+       #:phases
+       (modify-phases %standard-phases
+         (delete 'configure))))
+    (native-inputs
+     (list ocamlbuild opam-installer))
+    (propagated-inputs
+     `(("topkg" ,ocaml-topkg)
+       ("astring" ,ocaml-astring)
+       ("fmt" ,ocaml-fmt)
+       ("fpath" ,ocaml-fpath)
+       ("logs" ,ocaml-logs)
+       ("rresult" ,ocaml-rresult)))
+    (home-page "https://erratique.ch/software/bos")
+    (synopsis "Basic OS interaction for OCaml")
+    (description "Bos provides support for basic and robust interaction with
+the operating system in OCaml.  It has functions to access the process
+environment, parse command line arguments, interact with the file system and
+run command line programs.")
+    (license license:isc)))
+
+(define-public ocaml-ptime
+  (package
+    (name "ocaml-ptime")
+    ;; TODO 1.1.0 has some issues, so for now we are stuck with 0.8.5
+    (version "0.8.5")
+    (source (origin
+              (method url-fetch)
+              (uri
+               "https://erratique.ch/software/ptime/releases/ptime-0.8.5.tbz")
+              (sha256
+               (base32
+                "1fxq57xy1ajzfdnvv5zfm7ap2nf49znw5f9gbi4kb9vds942ij27"))))
+    (build-system ocaml-build-system)
+    (arguments
+     `(#:build-flags (list "build" "--with-js_of_ocaml" "true" "--tests"
+                           "true")
+       #:phases (modify-phases %standard-phases
+                  (delete 'configure))))
+    (propagated-inputs (list ocaml-result ocaml-js-of-ocaml))
+    (native-inputs (list ocaml-findlib ocamlbuild ocaml-topkg opam-installer))
+    (home-page "https://erratique.ch/software/ptime")
+    (synopsis "POSIX time for OCaml")
+    (description
+     "Ptime offers platform independent POSIX time support in pure OCaml.  It
+provides a type to represent a well-defined range of POSIX timestamps with
+picosecond precision, conversion with date-time values, conversion with RFC
+3339 timestamps and pretty printing to a human-readable, locale-independent
+representation.")
+    (license license:isc)))
+;; END redefined as is from guix's ocaml, needed to avoid conflict slot
 
 (define-public ocaml-re
   (package
