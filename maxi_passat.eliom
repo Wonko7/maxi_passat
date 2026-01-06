@@ -76,6 +76,10 @@ let%server _ =
    *   => arg2 = ["lol" "kkt" "wthaaat?"] *)
   let f _s = function
     | ["preprocess_org"] -> Org.preprocess_init ()
+    | ["kys"] ->
+        print_endline "kthxbye";
+        Unix.kill (Unix.getpid ()) 1;
+        exit 0 (* fixme: exit 0 does not exit process *)
     | _ -> Lwt.fail Ocsigen_command.Unknown_command
   in
   Ocsigen_command.register_command_function ~prefix:"maxi-passat" f;
