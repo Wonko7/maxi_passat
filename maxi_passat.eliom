@@ -85,7 +85,7 @@ let%server _ =
   Ocsigen_command.register_command_function ~prefix:"maxi-passat" f;
   Org.preprocess_init ()
 
-(* The modules below are all the modules that needs to be explicitely
+(* The modules below are all the modules that needs to be explicitly
    linked-in. *)
 
 [%%shared.start]

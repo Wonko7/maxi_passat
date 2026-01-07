@@ -16,10 +16,18 @@ let%server prodpath_or_fallback file fallback_default =
 
 let%server set_static_config () =
   let db_port =
-      (match Sys.getenv_opt "PGPORT" with
+      (match Sys.getenv_opt "DBPORT" with
       | Some p -> int_of_string p
       | None -> %%PGPORT%%)
   in
+  let db_user =
+      (match Sys.getenv_opt "DBUSER", "%%PGUSER%%" with
+      | Some u, _ -> u
+      | _, u when u = "" -> u
+      | _ -> "")
+  in
+  print_string "DB user: "; print_endline db_user;
+  print_string "DB port: "; print_int db_port; print_endline "";
   if not (Ocsigen_config.has_configuration_file ())
   then (
     let js_loc =
@@ -45,9 +53,7 @@ let%server set_static_config () =
     Ocsipersist.init ();
     Maxi_passat_config.os_db_database := Some "%%PGDATABASE%%";
     Maxi_passat_config.os_db_host := Some "%%PGHOST%%";
-    (Maxi_passat_config.os_db_user :=
-       let u = "%%PGUSER%%" in
-       if u = "" then None else Some u);
+    Maxi_passat_config.os_db_user := Some db_user;
     Maxi_passat_config.os_db_password := Some "%%PGPASSWORD%%";
     Maxi_passat_config.os_db_port := Some db_port;
     Maxi_passat_config.app_name :=
