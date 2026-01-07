@@ -1,1 +1,1 @@
-.guix/modules/maxipassat.scm
+.guix/modules/maxipassat/packages/ocaml.scm

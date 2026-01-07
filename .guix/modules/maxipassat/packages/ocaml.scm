@@ -1,4 +1,4 @@
-(define-module (maxipassat)
+(define-module (maxipassat packages ocaml)
   #:use-module (guix)
   #:use-module (guix gexp)
   #:use-module (guix download)
@@ -1975,14 +1975,19 @@ management.")
 
 (define vcs-file?
   ;; Return true if the given file is under version control.
-  (or (git-predicate (dirname (dirname (current-source-directory))))
+  (or (git-predicate
+       (dirname
+        (dirname
+         (dirname
+          (dirname
+           (current-source-directory))))))
       (const #t)))
 
 (define-public maxipassat
   (package
     (name "maxipassat")
     (version "0.1")
-    (source (local-file "../.." "maxipassat-checkout"
+    (source (local-file "../../../.." "maxipassat-checkout"
                         #:recursive? #t
                         #:select? vcs-file?))
     (build-system ocaml-build-system)
