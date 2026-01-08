@@ -25,8 +25,8 @@ let upload_user_avatar_handler myid () ((), (cropping, photo)) =
 let%server set_personal_data_handler =
   Os_session.connected_fun Os_handlers.set_personal_data_handler
 
-let%rpc set_personal_data_rpc (data : (string * string) * (string * string)) :
-    unit Lwt.t
+let%rpc set_personal_data_rpc (data : (string * string) * (string * string))
+    : unit Lwt.t
   =
   set_personal_data_handler () data
 
@@ -95,7 +95,8 @@ let%shared action_link_handler myid_o akey () =
                     ~a_placeholder_email:[%i18n S.your_email]
                     ~text:[%i18n S.sign_up] ~email () ] ]
           in
-          Maxi_passat_base.App.send (Maxi_passat_page.make_page (Os_page.content page))
+          Maxi_passat_base.App.send
+            (Maxi_passat_page.make_page (Os_page.content page))
         else
           let page =
             [ div
@@ -106,7 +107,8 @@ let%shared action_link_handler myid_o akey () =
                     ~text_keep_me_logged_in:[%i18n S.keep_logged_in]
                     ~text_sign_in:[%i18n S.sign_in] ~email () ] ]
           in
-          Maxi_passat_base.App.send (Maxi_passat_page.make_page (Os_page.content page))
+          Maxi_passat_base.App.send
+            (Maxi_passat_page.make_page (Os_page.content page))
       else
         (*VVV In that case we must do something more complex. Check
                whether myid = userid and ask the user what he wants to
@@ -119,8 +121,8 @@ let%shared action_link_handler myid_o akey () =
 
 let%server set_password_handler =
   Os_session.connected_fun (fun myid () (pwd, pwd2) ->
-    let%lwt () = Os_handlers.set_password_handler myid () (pwd, pwd2) in
-    Lwt.return (Eliom_registration.Redirection Eliom_service.reload_action))
+      let%lwt () = Os_handlers.set_password_handler myid () (pwd, pwd2) in
+      Lwt.return (Eliom_registration.Redirection Eliom_service.reload_action))
 
 let%client set_password_handler () (pwd, pwd2) =
   let%lwt () = Os_handlers.set_password_rpc (pwd, pwd2) in
@@ -146,10 +148,7 @@ let%shared main_service_handler myid_o () () =
              li
              @@ [ a ~service:Maxi_passat_services.org_file [txt m]
                   @@ String.split_on_char '/' m ])
-           [ "here-be-dragons/wip/20210906190642-family.org"
-           ; "here-be-dragons/wtf/20210905155320-wtf.org"
-           ; "here-be-dragons/20210825125550-besport_team.org"
-           ; "here-be-dragons/wip/20220722133001-ssdd.org" ] ]
+           ["here-be-dragons/.www/maxipassat/greeting.org"] ]
 
 let%shared about_handler myid_o () () =
   let open Eliom_content.Html.F in
