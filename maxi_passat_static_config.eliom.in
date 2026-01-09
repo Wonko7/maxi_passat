@@ -15,6 +15,11 @@ let%server prodpath_or_fallback file fallback_default =
   res
 
 let%server set_static_config () =
+  let port =
+      (match Sys.getenv_opt "PORT" with
+      | Some p -> int_of_string p
+      | None -> 8080)
+  in
   let db_port =
       (match Sys.getenv_opt "DBPORT" with
       | Some p -> int_of_string p
@@ -38,7 +43,7 @@ let%server set_static_config () =
       prodpath_or_fallback "var/www/maxi_passat/css/maxi_passat.css"
         "local/var/www/maxi_passat/css/maxi_passat.css"
     in
-    Ocsigen_config.set_ports [`All, 8080];
+    Ocsigen_config.set_ports [`All, port];
     Ocsigen_config.set_veryverbose ();
     Ocsigen_config.set_debugmode true;
     Ocsigen_config.set_logdir "local/var/log/maxi_passat";
