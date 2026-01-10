@@ -22,8 +22,7 @@ let%shared os_header ?(search = Org_search.search_files ()) ?user () =
            ~service:Os_services.main_service
            [txt Maxi_passat_base.displayed_app_name]
            ()
-       ; search
-       ; user_box ])
+       ; search (* ; user_box *) ])
 
 let%shared os_footer () =
   let open Eliom_content.Html.F in
