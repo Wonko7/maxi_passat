@@ -19,7 +19,7 @@ export PGPORT     := $(DB_PORT)
 export PGUSER     := $(DB_USER)
 export PGPASSWORD := $(DB_PASSWORD)
 
-# Ocsigenserver uses the DB settings from maxi_passat.conf.in (which
+# Ocsigenserver uses the DB settings from maxipassat.conf.in (which
 # should be the same as the exported variables above)
 OCSIGENSERVER     := $(OCSIGENSERVER)
 OCSIGENSERVER.OPT := $(OCSIGENSERVER.OPT)
@@ -148,7 +148,7 @@ db-upgrade:
 
 db-drop:
 	dropdb $(DB_NAME)
-	dropdb ocsipersist_maxi_passat
+	dropdb ocsipersist_maxipassat
 
 db-psql:
 	psql $(DB_NAME)

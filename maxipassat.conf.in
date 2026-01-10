@@ -38,7 +38,7 @@
         port="%%DB_PORT%%"
         user="%%DB_USER%%"
         password="%%DB_PASSWORD%%"
-        database="ocsipersist_maxi_passat"
+        database="ocsipersist_maxipassat"
       />
     </extension>
     <extension findlib-package="eliom.server">

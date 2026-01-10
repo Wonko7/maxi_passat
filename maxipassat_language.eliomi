@@ -8,7 +8,7 @@
     i18n-update] uses this module to create the i18n file for
     translations (see [Makefile.options]).  *)
 
-val update_language : Maxi_passat_i18n.t -> unit Lwt.t
+val update_language : Maxipassat_i18n.t -> unit Lwt.t
 (** [update_language language] updates the language (client and server
      side) for the current user with the value [language]. It also
      updates the value in the database if an user is connected.  *)

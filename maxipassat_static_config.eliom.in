@@ -36,31 +36,31 @@ let%server set_static_config () =
   if not (Ocsigen_config.has_configuration_file ())
   then (
     let js_loc =
-      prodpath_or_fallback "var/www/maxi_passat/maxi_passat.js"
-        "local/var/www/maxi_passat/maxi_passat.js"
+      prodpath_or_fallback "var/www/maxipassat/maxipassat.js"
+        "local/var/www/maxipassat/maxipassat.js"
     in
     let css_loc =
-      prodpath_or_fallback "var/www/maxi_passat/css/maxi_passat.css"
-        "local/var/www/maxi_passat/css/maxi_passat.css"
+      prodpath_or_fallback "var/www/maxipassat/css/maxipassat.css"
+        "local/var/www/maxipassat/css/maxipassat.css"
     in
     Ocsigen_config.set_ports [`All, port];
     Ocsigen_config.set_veryverbose ();
     Ocsigen_config.set_debugmode true;
-    Ocsigen_config.set_logdir "local/var/log/maxi_passat";
-    Ocsigen_config.set_datadir "local/var/data/maxi_passat";
+    Ocsigen_config.set_logdir "local/var/log/maxipassat";
+    Ocsigen_config.set_datadir "local/var/data/maxipassat";
     Ocsigen_config.set_uploaddir (Some "/tmp");
     Ocsigen_config.set_usedefaulthostname true;
-    Ocsigen_config.set_command_pipe "local/var/run/maxi_passat-cmd";
+    Ocsigen_config.set_command_pipe "local/var/run/maxipassat-cmd";
     Ocsigen_config.set_default_charset (Some "utf-8");
     Ocsipersist_settings.set_host "%%PGHOST%%";
     Ocsipersist_settings.set_port db_port;
-    Ocsipersist_settings.set_database "ocsipersist_maxi_passat";
+    Ocsipersist_settings.set_database "ocsipersist_maxipassat";
     Ocsipersist.init ();
-    Maxi_passat_config.os_db_database := Some "%%PGDATABASE%%";
-    Maxi_passat_config.os_db_host := Some "%%PGHOST%%";
-    Maxi_passat_config.os_db_user := Some db_user;
-    Maxi_passat_config.os_db_password := Some "%%PGPASSWORD%%";
-    Maxi_passat_config.os_db_port := Some db_port;
-    Maxi_passat_config.app_name :=
+    Maxipassat_config.os_db_database := Some "%%PGDATABASE%%";
+    Maxipassat_config.os_db_host := Some "%%PGHOST%%";
+    Maxipassat_config.os_db_user := Some db_user;
+    Maxipassat_config.os_db_password := Some "%%PGPASSWORD%%";
+    Maxipassat_config.os_db_port := Some db_port;
+    Maxipassat_config.app_name :=
       Filename.chop_suffix (Unix.readlink js_loc) ".js";
-    Maxi_passat_config.css_name := Unix.readlink css_loc)
+    Maxipassat_config.css_name := Unix.readlink css_loc)

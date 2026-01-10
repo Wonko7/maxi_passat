@@ -1,12 +1,12 @@
 (** This is the main file if you are using static linking without config file.
     It is not used if you are using a config file and ocsigenserver *)
 
-module%shared Maxi_passat = Maxi_passat
+module%shared Maxipassat = Maxipassat
 
 let%server _ =
   let statdir =
-    Maxi_passat_static_config.prodpath_or_fallback "var/www/maxi_passat/"
-      "local/var/www/maxi_passat/"
+    Maxipassat_static_config.prodpath_or_fallback "var/www/maxipassat/"
+      "local/var/www/maxipassat/"
   in
   Ocsigen_server.start
     ~ports:

@@ -8,7 +8,7 @@ module Ocsigen_config = struct
   let get_debugmode () = false
 end]
 
-let%server css_name = !Maxi_passat_config.css_name
+let%server css_name = !Maxipassat_config.css_name
 
 let%client css_name =
   try Js_of_ocaml.Js.to_string Js_of_ocaml.Js.Unsafe.global##.___css_name_
@@ -22,7 +22,7 @@ let%client css_name_script = []
 (* Warning: either we use exactly the same global node (and make sure
    global nodes work properly on client side), or we do not add the
    script on client side.  We chose the second solution. *)
-let%server app_js = [Maxi_passat_base.App.application_script ~defer:true ()]
+let%server app_js = [Maxipassat_base.App.application_script ~defer:true ()]
 let%client app_js = []
 let%server the_local_js = []
 let%client the_local_js = [] (* in index.html *)
@@ -32,7 +32,7 @@ let%shared the_local_css = [[css_name]]
 module Page_config = struct
   include Os_page.Default_config
 
-  let title = "maxi_passat"
+  let title = "maxipassat"
   let local_js = the_local_js
   let local_css = the_local_css
 
@@ -49,13 +49,13 @@ module Page_config = struct
   let default_connected_predicate _ _ _ = Lwt.return_true
 
   let default_error_page _ _ exn =
-    Maxi_passat_container.page None
+    Maxipassat_container.page None
       (if Ocsigen_config.get_debugmode ()
        then [p [txt (Printexc.to_string exn)]]
        else [p [txt "Error"]])
 
   let default_connected_error_page myid_o _ _ exn =
-    Maxi_passat_container.page myid_o
+    Maxipassat_container.page myid_o
       (if Ocsigen_config.get_debugmode ()
        then [p [txt (Printexc.to_string exn)]]
        else [p [txt "Error"]])

@@ -109,7 +109,7 @@ let processed_org_to_html ?(id_links = []) ~kind ~content ~link_dest ~link_desc
   | false, "yt_link" ->
       txt link_desc
   | _, "file_link" ->
-      a ~service:Maxi_passat_services.org_file [txt link_desc]
+      a ~service:Maxipassat_services.org_file [txt link_desc]
       @@ String.split_on_char '\n' link_dest
   | _, "id_link" -> (
     match List.assoc_opt link_dest id_links with
@@ -123,9 +123,9 @@ let processed_org_to_html ?(id_links = []) ~kind ~content ~link_dest ~link_desc
                     ignore @@ set_file_path ?target_hlid:~%hlid ~%filepath]
             ; a_class ["link"] ]
           [txt link_desc]
-    | _ -> a ~service:Maxi_passat_services.org_id [txt link_desc] @@ link_dest)
+    | _ -> a ~service:Maxipassat_services.org_id [txt link_desc] @@ link_dest)
   | _, "bleau_link" ->
-      a ~service:Maxi_passat_services.os_bleau_service
+      a ~service:Maxipassat_services.os_bleau_service
         ~a:
           [ a_target "_blank"
           ; a_rel [`Other "noopener"; `Nofollow]
@@ -434,7 +434,7 @@ let id_page roam_id () =
     let title =
       h3
         [ txt "from file : " (* todo i18n *)
-        ; a ~service:Maxi_passat_services.org_file [txt file_path]
+        ; a ~service:Maxipassat_services.org_file [txt file_path]
           @@ String.split_on_char '\n' file_path ]
     in
     (* let%lwt nodes = get_roam_nodes file_path in *)
@@ -445,12 +445,12 @@ let id_page roam_id () =
   Lwt.return [div org_note]
 
 let () =
-  Maxi_passat_base.App.register ~service:Maxi_passat_services.org_file
-    ( Maxi_passat_page.Opt.connected_page @@ fun myid_o file_path () ->
+  Maxipassat_base.App.register ~service:Maxipassat_services.org_file
+    ( Maxipassat_page.Opt.connected_page @@ fun myid_o file_path () ->
       let%lwt p, search_onclick = file_page file_path () in
       let search = Org_search.search_files ~onclick:search_onclick () in
-      Maxi_passat_container.page ~search ~a:[a_class ["org-page"]] myid_o p );
-  Maxi_passat_base.App.register ~service:Maxi_passat_services.org_id
-    ( Maxi_passat_page.Opt.connected_page @@ fun myid_o id () ->
+      Maxipassat_container.page ~search ~a:[a_class ["org-page"]] myid_o p );
+  Maxipassat_base.App.register ~service:Maxipassat_services.org_id
+    ( Maxipassat_page.Opt.connected_page @@ fun myid_o id () ->
       let%lwt p = id_page id () in
-      Maxi_passat_container.page ~a:[a_class ["org-page"]] myid_o p )
+      Maxipassat_container.page ~a:[a_class ["org-page"]] myid_o p )

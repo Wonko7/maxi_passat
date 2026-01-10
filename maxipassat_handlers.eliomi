@@ -36,7 +36,7 @@ val action_link_handler :
    Os_types.User.id option
   -> string
   -> unit
-  -> Maxi_passat_base.App.result Lwt.t
+  -> Maxipassat_base.App.result Lwt.t
 
 val set_password_handler :
    unit
@@ -49,7 +49,7 @@ val set_password_handler :
 val preregister_handler : unit -> string -> unit Lwt.t
 
 (** The following functions are the handlers for the three main pages.
-    They are created with {!Maxi_passat_container.page} which
+    They are created with {!Maxipassat_container.page} which
     means that a header and a footer will be displayed in addition to
     the main content.
 
@@ -76,7 +76,7 @@ val settings_handler :
   -> unit
   -> Os_page.content Lwt.t
 (** Settings page. If the user is connected (see
-    {!Maxi_passat_container.get_user_data}), a settings
+    {!Maxipassat_container.get_user_data}), a settings
     container will be created. *)
 
 val update_language_handler :

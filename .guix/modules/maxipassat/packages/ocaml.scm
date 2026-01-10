@@ -2023,7 +2023,7 @@ management.")
           ;; ⚠️ danger! danger! high voltage! ⚡
           ;; this is very much a work in progress.
           ;; 1/ this skips css generation, it is your job to commit changes to generated
-          ;;    file: static/defaultcss/maxi_passat.css
+          ;;    file: static/defaultcss/maxipassat.css
           ;; 2/ if you are using this as a template, you'll need to adapt db-build-init
           ;;    in Makefile.db. or maybe I should fix my schema and use this instead:
           ;;    (invoke "make" "db-init" "db-create" "db-schema")
@@ -2065,13 +2065,13 @@ $(CSS_DEST): $(LOCAL_CSS)
           (replace 'install
             (lambda* (#:key outputs #:allow-other-keys)
               (let ((out (assoc-ref outputs "out")))
-                (mkdir-p (string-append out "/var/www/maxi_passat/css"))
+                (mkdir-p (string-append out "/var/www/maxipassat/css"))
                 (invoke "make"
                         (string-append "PREFIX=" out "/")
                         "install.exe"))
               #t)))))
-    (synopsis "maxi passat")
-    (description "maxi passat")
+    (synopsis "maxipassat")
+    (description "maxipassat")
     (home-page "http://127.0.0.1/")
     (license license:lgpl3+)))
 

@@ -11,15 +11,15 @@ let%shared () =
   (* Registering services. Feel free to customize handlers. *)
   Eliom_registration.Action.register
     ~service:Os_services.set_personal_data_service
-    Maxi_passat_handlers.set_personal_data_handler;
+    Maxipassat_handlers.set_personal_data_handler;
   Eliom_registration.Redirection.register
     ~service:Os_services.set_password_service
-    Maxi_passat_handlers.set_password_handler;
+    Maxipassat_handlers.set_password_handler;
   Eliom_registration.Action.register
     ~service:Os_services.forgot_password_service
-    Maxi_passat_handlers.forgot_password_handler;
+    Maxipassat_handlers.forgot_password_handler;
   Eliom_registration.Action.register ~service:Os_services.preregister_service
-    Maxi_passat_handlers.preregister_handler;
+    Maxipassat_handlers.preregister_handler;
   Eliom_registration.Action.register ~service:Os_services.sign_up_service
     Os_handlers.sign_up_handler;
   Eliom_registration.Action.register ~service:Os_services.connect_service
@@ -27,31 +27,31 @@ let%shared () =
   Eliom_registration.Unit.register ~service:Os_services.disconnect_service
     (Os_handlers.disconnect_handler ~main_page:true);
   Eliom_registration.Any.register ~service:Os_services.action_link_service
-    (Os_session.Opt.connected_fun Maxi_passat_handlers.action_link_handler);
+    (Os_session.Opt.connected_fun Maxipassat_handlers.action_link_handler);
   Eliom_registration.Action.register ~service:Os_services.add_email_service
     (fun () email ->
       let%lwt () = Os_handlers.add_email_handler () email in
       add_email_notif (); Lwt.return_unit);
   Eliom_registration.Action.register
     ~service:Os_services.update_language_service
-    Maxi_passat_handlers.update_language_handler;
-  Maxi_passat_base.App.register ~service:Os_services.main_service
-    (Maxi_passat_page.Opt.connected_page
-       Maxi_passat_handlers.main_service_handler);
-  Maxi_passat_base.App.register ~service:Maxi_passat_services.about_service
-    (Maxi_passat_page.Opt.connected_page Maxi_passat_handlers.about_handler);
-  Maxi_passat_base.App.register ~service:Maxi_passat_services.settings_service
-    (Maxi_passat_page.Opt.connected_page Maxi_passat_handlers.settings_handler)
+    Maxipassat_handlers.update_language_handler;
+  Maxipassat_base.App.register ~service:Os_services.main_service
+    (Maxipassat_page.Opt.connected_page
+       Maxipassat_handlers.main_service_handler);
+  Maxipassat_base.App.register ~service:Maxipassat_services.about_service
+    (Maxipassat_page.Opt.connected_page Maxipassat_handlers.about_handler);
+  Maxipassat_base.App.register ~service:Maxipassat_services.settings_service
+    (Maxipassat_page.Opt.connected_page Maxipassat_handlers.settings_handler)
 
 let%server () =
   Eliom_registration.Ocaml.register
-    ~service:Maxi_passat_services.upload_user_avatar_service
-    (Os_session.connected_fun Maxi_passat_handlers.upload_user_avatar_handler)
+    ~service:Maxipassat_services.upload_user_avatar_service
+    (Os_session.connected_fun Maxipassat_handlers.upload_user_avatar_handler)
 
 (* Print more debugging information when <debugmode/> is in config file
    (DEBUG = yes in Makefile.options).
    Example of use:
-   let section = Lwt_log.Section.make "Maxi_passat:sectionname"
+   let section = Lwt_log.Section.make "Maxipassat:sectionname"
    ...
    Lwt_log.ign_info ~section "This is an information";
    (or ign_debug, ign_warning, ign_error etc.)
@@ -65,10 +65,10 @@ let%server _ =
          (* Lwt_log_core.add_rule "eliom:client*" Lwt_log_js.Debug; *)
          (* Lwt_log_core.add_rule "os*" Lwt_log_js.Debug; *)
          (* Lwt_log_core.add_rule "*" Lwt_log_js.Debug *)
-         Lwt_log_core.add_rule "Maxi_passat*" Lwt_log_js.Debug
+         Lwt_log_core.add_rule "Maxipassat*" Lwt_log_js.Debug
           : unit)];
     (* Lwt_log_core.add_rule "*" Lwt_log.Debug; *)
-    Lwt_log_core.add_rule "Maxi_passat*" Lwt_log.Debug)
+    Lwt_log_core.add_rule "Maxipassat*" Lwt_log.Debug)
 
 let%server _ =
   (* echo "mp:lol kkt wthaaat?" > cmd
@@ -82,7 +82,7 @@ let%server _ =
         exit 0 (* fixme: exit 0 does not exit process *)
     | _ -> Lwt.fail Ocsigen_command.Unknown_command
   in
-  Ocsigen_command.register_command_function ~prefix:"maxi-passat" f;
+  Ocsigen_command.register_command_function ~prefix:"maxipassat" f;
   Org.preprocess_init ()
 
 (* The modules below are all the modules that needs to be explicitly
@@ -92,11 +92,11 @@ let%server _ =
 
 module Org_page = Org_page
 module Org_search = Org_search
-module Maxi_passat_config = Maxi_passat_config
-module Maxi_passat_static_config = Maxi_passat_static_config
+module Maxipassat_config = Maxipassat_config
+module Maxipassat_static_config = Maxipassat_static_config
 
 [%%client.start]
 
-module Maxi_passat_language = Maxi_passat_language
-module Maxi_passat_mobile = Maxi_passat_mobile
-module Maxi_passat_phone_connect = Maxi_passat_phone_connect
+module Maxipassat_language = Maxipassat_language
+module Maxipassat_mobile = Maxipassat_mobile
+module Maxipassat_phone_connect = Maxipassat_phone_connect

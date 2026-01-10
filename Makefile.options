@@ -1,10 +1,10 @@
 #----------------------------------------------------------------------
-#           SETTINGS FOR THE ELIOM PROJECT maxi_passat
+#           SETTINGS FOR THE ELIOM PROJECT maxipassat
 #----------------------------------------------------------------------
 # Required binaries
 OPAM                  := opam
 
-PROJECT_NAME          := maxi_passat
+PROJECT_NAME          := maxipassat
 
 ##----------------------------------------------------------------------
 
@@ -161,13 +161,13 @@ CORDOVAPATH                    := cordova
 # config.xml.in, index.html.in, eliom_loader.ml, ...
 MOBILESTATICPATH               := mobile
 
-MOBILE_APP_ID                  := com.maxi_passat.mobile
-MOBILE_APP_NAME                := maxi_passat
+MOBILE_APP_ID                  := com.maxipassat.mobile
+MOBILE_APP_NAME                := maxipassat
 MOBILE_APP_VERSION             := 0.1
-MOBILE_DESCRIPTION             := maxi_passat mobile application
+MOBILE_DESCRIPTION             := maxipassat mobile application
 MOBILE_AUTHOR_EMAIL            := developer@domain.com
 MOBILE_AUTHOR_HREF             := http://domain.com
-MOBILE_AUTHOR_DESCRIPTION      := maxi_passat team
+MOBILE_AUTHOR_DESCRIPTION      := maxipassat team
 MOBILE_ANDROID_SDK_VERSION     := 19
 MOBILE_NOTIFICATIONS_SENDER_ID := 424242424242
 
@@ -183,7 +183,7 @@ DB_HOST               := localhost
 DB_PORT               := 3000
 
 ## The database name for the project. By default, it's the project name.
-DB_NAME               := maxi_passat
+DB_NAME               := maxipassat
 
 ## The database user. By default, it will use the username of the current user.
 DB_USER               := $(USER)
@@ -197,7 +197,7 @@ PSQL_FILE             := $(DB_NAME).sql
 
 ## The filename for the database snapshot. This variable is used
 ## by 'db-snapshot'.
-DB_SNAPSHOT           := maxi_passat-$$(date '+%Y%m%d%H%M%S').sql.gz
+DB_SNAPSHOT           := maxipassat-$$(date '+%Y%m%d%H%M%S').sql.gz
 
 ## Choose if the database will be installed locally or globally
 # - yes: will create the database in the $(TEST_PREFIX)/db (which has the value

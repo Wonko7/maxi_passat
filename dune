@@ -3,9 +3,9 @@
 (dirs tools client gen assets static local)
 
 (library
- (name maxi_passat)
+ (name maxipassat)
  (modules
-  (:standard \ Maxi_passat_main))
+  (:standard \ Maxipassat_main))
  (libraries eliom.server ocsigen-start.server ocsipersist-pgsql ocsipersist-pgsql.settings js_of_ocaml)
  (library_flags
   (:standard -linkall))
@@ -21,15 +21,15 @@
    eliom.ppx.server
    --
    --prefix
-   Maxi_passat_
+   Maxipassat_
    --suffix
    _i18n
    --default-module
-   Maxi_passat_i18n)))
+   Maxipassat_i18n)))
 
 (executables
- (names maxi_passat_main)
- (public_names maxi_passat)
+ (names maxipassat_main)
+ (public_names maxipassat)
  (modes
   (byte exe)
   (native exe))
@@ -38,8 +38,8 @@
   ocsigen-start.server
   ocsipersist-pgsql
   ocsigenserver.ext.staticmod
-  maxi_passat)
- (modules Maxi_passat_main)
+  maxipassat)
+ (modules Maxipassat_main)
  (preprocess
   (pps
    lwt_ppx
@@ -50,15 +50,15 @@
    eliom.ppx.server
    --
    --prefix
-   Maxi_passat_
+   Maxipassat_
    --suffix
    _i18n
    --default-module
-   Maxi_passat_i18n)))
+   Maxipassat_i18n)))
 
 (rule
- (target maxi_passat_i18n.eliom)
- (deps assets/maxi_passat_i18n.tsv)
+ (target maxipassat_i18n.eliom)
+ (deps assets/maxipassat_i18n.tsv)
  (action
   (with-stdout-to
    %{target}
@@ -77,8 +77,8 @@
       "1 s/]/[@@deriving json]]\\n[%%shared [@@@ocaml.warning\"-27\"]]/"))))))
 
 (rule
- (target maxi_passat_Demo_i18n.eliom)
- (deps assets/maxi_passat_Demo_i18n.tsv)
+ (target maxipassat_Demo_i18n.eliom)
+ (deps assets/maxipassat_Demo_i18n.tsv)
  (action
   (with-stdout-to
    %{target}
@@ -87,34 +87,34 @@
     (run
      ocsigen-i18n-generator
      --primary
-     maxi_passat_i18n.tsv
+     maxipassat_i18n.tsv
      --languages
      en,fr
      --default-language
      fr)))))
 
 (rule
- (target maxi_passat_static_config.eliom)
- (deps maxi_passat_static_config.eliom.in)
+ (target maxipassat_static_config.eliom)
+ (deps maxipassat_static_config.eliom.in)
  (action
   (with-stdout-to
    %{target}
    (with-stdin-from
-    maxi_passat_static_config.eliom.in
+    maxipassat_static_config.eliom.in
     (run
      sed
      -e
      "s/%%PGPORT%%/%{env:PGPORT=3000}/"
      -e
-     "s/%%PGDATABASE%%/%{env:PGDATABASE=maxi_passat}/"
+     "s/%%PGDATABASE%%/%{env:PGDATABASE=maxipassat}/"
      -e
-     "s/%%PGDATABASE%%/%{env:PGDATABASE=maxi_passat}/"
+     "s/%%PGDATABASE%%/%{env:PGDATABASE=maxipassat}/"
      -e
-     "s/%%PGHOST%%/%{env:PGHOST=maxi_passat}/"
+     "s/%%PGHOST%%/%{env:PGHOST=maxipassat}/"
      -e
      "s/%%PGUSER%%/%{env:PGUSER=}/"
      -e
-     "s/%%PGPASSWORD%%/%{env:PGPASSWORD=maxi_passat}/")))))
+     "s/%%PGPASSWORD%%/%{env:PGPASSWORD=maxipassat}/")))))
 
 (subdir
  gen
@@ -128,7 +128,7 @@
 (subdir
  client
  (executables
-  (names maxi_passat)
+  (names maxipassat)
   (modes js byte)
   (preprocess
    (pps
@@ -137,11 +137,11 @@
     ocsigen-i18n
     --
     --prefix
-    Maxi_passat_
+    Maxipassat_
     --suffix
     _i18n
     --default-module
-    Maxi_passat_i18n))
+    Maxipassat_i18n))
   (js_of_ocaml
    (build_runtime_flags :standard --enable use-js-string)
    (flags
@@ -158,11 +158,11 @@
 ; Main rule:
 
 (rule
- (alias maxi_passat)
+ (alias maxipassat)
  (deps
-  maxi_passat.cma
-  client/maxi_passat.bc
-  client/maxi_passat.bc.js
+  maxipassat.cma
+  client/maxipassat.bc
+  client/maxipassat.bc.js
   tools/check_modules.ml)
  (action
-  (run ocaml -I +unix -I +str tools/check_modules.ml maxi_passat)))
+  (run ocaml -I +unix -I +str tools/check_modules.ml maxipassat)))

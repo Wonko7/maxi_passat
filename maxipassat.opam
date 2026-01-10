@@ -1,5 +1,5 @@
 opam-version: "2.0"
-name: "maxi_passat"
+name: "maxipassat"
 version: "0.1"
 synopsis: "Pseudo package for defining project dependencies"
 

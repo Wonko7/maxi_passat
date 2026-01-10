@@ -7,8 +7,8 @@
 let upload_user_avatar_handler myid () ((), (cropping, photo)) =
   let avatar_dir =
     List.fold_left Filename.concat
-      (List.hd !Maxi_passat_config.avatar_dir)
-      (List.tl !Maxi_passat_config.avatar_dir)
+      (List.hd !Maxipassat_config.avatar_dir)
+      (List.tl !Maxipassat_config.avatar_dir)
   in
   let%lwt avatar =
     Os_uploader.record_image avatar_dir ~ratio:1. ?cropping photo
@@ -35,7 +35,7 @@ let%client set_personal_data_handler () = set_personal_data_rpc
 (* Forgot password *)
 
 let%server forgot_password_handler =
-  Os_handlers.forgot_password_handler Maxi_passat_services.settings_service
+  Os_handlers.forgot_password_handler Maxipassat_services.settings_service
 
 let%rpc forgot_password_rpc (email : string) : unit Lwt.t =
   forgot_password_handler () email
@@ -95,8 +95,8 @@ let%shared action_link_handler myid_o akey () =
                     ~a_placeholder_email:[%i18n S.your_email]
                     ~text:[%i18n S.sign_up] ~email () ] ]
           in
-          Maxi_passat_base.App.send
-            (Maxi_passat_page.make_page (Os_page.content page))
+          Maxipassat_base.App.send
+            (Maxipassat_page.make_page (Os_page.content page))
         else
           let page =
             [ div
@@ -107,8 +107,8 @@ let%shared action_link_handler myid_o akey () =
                     ~text_keep_me_logged_in:[%i18n S.keep_logged_in]
                     ~text_sign_in:[%i18n S.sign_in] ~email () ] ]
           in
-          Maxi_passat_base.App.send
-            (Maxi_passat_page.make_page (Os_page.content page))
+          Maxipassat_base.App.send
+            (Maxipassat_page.make_page (Os_page.content page))
       else
         (*VVV In that case we must do something more complex. Check
                whether myid = userid and ask the user what he wants to
@@ -138,7 +138,7 @@ let%rpc preregister_rpc (email : string) : unit Lwt.t =
 let%client preregister_handler () = preregister_rpc
 
 let%shared main_service_handler myid_o () () =
-  Maxi_passat_container.page
+  Maxipassat_container.page
     ~a:[a_class ["os-page-main"]]
     myid_o
     [ p [txt "welcome! have a look at these files:"]
@@ -146,13 +146,13 @@ let%shared main_service_handler myid_o () () =
       @@ List.map
            (fun m ->
              li
-             @@ [ a ~service:Maxi_passat_services.org_file [txt m]
+             @@ [ a ~service:Maxipassat_services.org_file [txt m]
                   @@ String.split_on_char '/' m ])
            ["here-be-dragons/.www/maxipassat/greeting.org"] ]
 
 let%shared about_handler myid_o () () =
   let open Eliom_content.Html.F in
-  Maxi_passat_container.page
+  Maxipassat_container.page
     ~a:[a_class ["os-page-about"]]
     myid_o
     [ div
@@ -163,15 +163,15 @@ let%shared about_handler myid_o () () =
 let%shared settings_handler myid_o () () =
   let%lwt content =
     match myid_o with
-    | Some _ -> Maxi_passat_settings.settings_content ()
+    | Some _ -> Maxipassat_settings.settings_content ()
     | None -> Lwt.return [p [%i18n log_in_to_see_page ~capitalize:true]]
   in
-  Maxi_passat_container.page myid_o content
+  Maxipassat_container.page myid_o content
 
 let%server update_language_handler () language =
-  Os_session.connected_wrapper Maxi_passat_language.update_language
-    (Maxi_passat_i18n.language_of_string language)
+  Os_session.connected_wrapper Maxipassat_language.update_language
+    (Maxipassat_i18n.language_of_string language)
 
 let%client update_language_handler () language =
-  Maxi_passat_i18n.(set_language (language_of_string language));
+  Maxipassat_i18n.(set_language (language_of_string language));
   Os_current_user.update_language language

@@ -6,7 +6,7 @@
 (** This module defines the drawer menu *)
 
 (* let%shared demos = *)
-(*   [(fun () -> [%i18n Demo.S.pgocaml]), Maxi_passat_services.org_page] *)
+(*   [(fun () -> [%i18n Demo.S.pgocaml]), Maxipassat_services.org_page] *)
 
 let%shared drawer_contents () =
   let open Eliom_content.Html.F in
@@ -25,7 +25,7 @@ let%shared item text service =
 let%shared user_menu () =
   [ item
       [%i18n S.settings ~capitalize:true]
-      Maxi_passat_services.settings_service
+      Maxipassat_services.settings_service
   ; Eliom_content.Html.F.li
       [ Os_user_view.disconnect_link
           ~text_logout:[%i18n S.logout ~capitalize:true]
@@ -36,7 +36,7 @@ let%shared make ?user () =
   let items = if user = None then [] else user_menu () in
   let items =
     item [%i18n S.home ~capitalize:true] Os_services.main_service
-    :: item [%i18n S.about ~capitalize:true] Maxi_passat_services.about_service
+    :: item [%i18n S.about ~capitalize:true] Maxipassat_services.about_service
     :: drawer_contents () :: items
   in
   let menu = ul ~a:[a_class ["os-drawer-menu"]] items in

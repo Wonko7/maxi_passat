@@ -102,7 +102,7 @@ let%shared search_files
                     li ~a:[a_class selected_class]
                     @@ [ (match ~%onclick with
                          | None ->
-                             a ~service:Maxi_passat_services.org_file [txt m]
+                             a ~service:Maxipassat_services.org_file [txt m]
                              @@ String.split_on_char '/' m
                          | Some onclick ->
                              span

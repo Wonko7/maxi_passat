@@ -16,8 +16,8 @@ cordova
 # Style
 .sass-cache
 
-static/css/maxi_passat.css.map
-static/css/maxi_passat.css
+static/css/maxipassat.css.map
+static/css/maxipassat.css
 
 # SQL backups
 *.sql.gz
@@ -40,4 +40,4 @@ static/css/ot_popup.css
 static/css/ot_spinner.css
 static/css/ot_sticky.css
 static/css/ot_tongue.css
-static/defaultcss/maxi_passat.css
+static/defaultcss/maxipassat.css

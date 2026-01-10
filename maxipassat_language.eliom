@@ -16,18 +16,18 @@ let%server best_matched_language () =
      the default language is returned. *)
   let rec aux = function
     | (l, _) :: tl -> (
-      try Maxi_passat_i18n.guess_language_of_string l
-      with Maxi_passat_i18n.Unknown_language _ -> aux tl)
-    | [] -> Maxi_passat_i18n.default_language
+      try Maxipassat_i18n.guess_language_of_string l
+      with Maxipassat_i18n.Unknown_language _ -> aux tl)
+    | [] -> Maxipassat_i18n.default_language
   in
   aux lang
 
 let%server update_language lang =
-  let language = Maxi_passat_i18n.string_of_language lang in
+  let language = Maxipassat_i18n.string_of_language lang in
   let myid_o = Os_current_user.Opt.get_current_userid () in
   (* Update the server and client values *)
-  Maxi_passat_i18n.set_language lang;
-  ignore [%client (Maxi_passat_i18n.set_language ~%lang : unit)];
+  Maxipassat_i18n.set_language lang;
+  ignore [%client (Maxipassat_i18n.set_language ~%lang : unit)];
   (* Update in the database if a user is connected *)
   match myid_o with
   | None -> Lwt.return_unit
@@ -43,14 +43,14 @@ let%server _ =
     (* Set language according to user preferences. *)
     let%lwt language =
       match%lwt Os_user.get_language userid with
-      | Some lang -> Lwt.return (Maxi_passat_i18n.guess_language_of_string lang)
+      | Some lang -> Lwt.return (Maxipassat_i18n.guess_language_of_string lang)
       | None ->
           let%lwt best_language = best_matched_language () in
           ignore
             (Os_user.update_language ~userid
-               ~language:(Maxi_passat_i18n.string_of_language best_language));
+               ~language:(Maxipassat_i18n.string_of_language best_language));
           Lwt.return best_language
     in
-    Maxi_passat_i18n.set_language language;
-    ignore [%client (Maxi_passat_i18n.set_language ~%language : unit)];
+    Maxipassat_i18n.set_language language;
+    ignore [%client (Maxipassat_i18n.set_language ~%language : unit)];
     Lwt.return_unit)
