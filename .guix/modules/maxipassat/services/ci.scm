@@ -154,52 +154,45 @@
                 (close-port port))))))
 
     (define emacs-update-db-job
-      (mixed-text-file "update-db.el"
-                       "
-(require 'org-sql)
+      (scheme-file
+       "update-db.el"
+       #~(progn
+          (require 'org-sql)
 
-(defun org-sql--disk-get-hashpathpairs ()
-  \"Get a list of hashpathpair for org files on disk.
+          (defun org-sql--disk-get-hashpathpairs ()
+            "Get a list of hashpathpair for org files on disk.
 Each hashpathpair will have it's :db-path set to nil. Only files in
-`org-sql-files' will be considered.\"
-  (cl-flet
-   ((get-md5
-     (fp)
-     (org-sql--on-success (org-sql--run-command \"md5sum\" `(,fp) nil)
-                          (car (s-split-up-to \" \" it-out 1))
-                          (error \"Could not get md5\")))
-    (expand-if-path
-     (fp)
-     (if (not (file-directory-p fp)) `(,fp)
-         (directory-files fp t \"\\`.*\\.org\\(_archive\\)?\\'\"))))
-   (if (stringp org-sql-files)
-       (error \"`org-sql-files' must be a list of paths\")
-       (->> (-mapcat #'expand-if-path org-sql-files)
-            ;; This is why I'm redefining this: -> I want the relative path:
-            ;; (-map #'expand-file-name)
-            (-filter #'file-exists-p)
-            (-uniq)
-            (--map (cons (get-md5 it) it))))))
+`org-sql-files' will be considered."
+            (cl-flet
+             ((get-md5
+               (fp)
+               (org-sql--on-success (org-sql--run-command "md5sum" (list fp) nil)
+                                    (car (s-split-up-to " " it-out 1))
+                                    (error "Could not get md5"))))
+             ;; This is why I'm redefining this: -> I want the relative path, so bypassing expand:
+             (if (stringp org-sql-files)
+                 (error "`org-sql-files' must be a list of paths")
+                 (--map (cons (get-md5 it) it) org-sql-files))))
 
-;; (org-sql-user-init) -> you'll need to run that once first time you're creating your db
+          ;; (org-sql-user-init) -> you'll need to run that once first time you're creating your db
 
-(setq org-sql-db-config '(postgres
-                          :hostname \"" db-host "\"
-                          :port " (number->string db-port) "
-                          :username \"" db-user "\"
-                          :schema \"org\"
-                          :database \"" db-name "\"))
+          (setq org-sql-db-config '(postgres
+                                    :hostname #$db-host
+                                    :port     #$db-port
+                                    :username #$db-user
+                                    :schema   "org"
+                                    :database #$db-name))
 
-(pcase '" deployment-name " ;; this is the entry point to the org files I want in DB:
-  ((or 'prod 'preprod) (setq org-base-path \"here-be-dragons/.www/\"))
-  (_                   (setq org-base-path \"here-be-dragons/\")))
+          (pcase #$deployment-name ;; this is the entry point to the org files I want in DB:
+                 ((or "prod" "preprod") (setq org-base-path "here-be-dragons/.www/"))
+                 (_                     (setq org-base-path "here-be-dragons/")))
 
-(setq org-sql-files (split-string
-                     (shell-command-to-string
-                       (concat \"find \" org-base-path \" -name '*.org'\"))
-                     \"\n\" t))
+          (setq org-sql-files (split-string
+                               (shell-command-to-string
+                                (concat "find " org-base-path " -name '*.org'"))
+                               "\n" t))
 
-(org-sql-user-push)"))
+          (org-sql-user-push))))
 
     `((,(string-append (paths 'mp-repo) "/hooks/post-receive")
        ,(program-file "mp_post-receive" update-mp-job))
