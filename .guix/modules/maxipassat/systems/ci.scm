@@ -36,30 +36,25 @@
 ;;
 ;; sudo $(guix system container --network --share=/data/www/maxipassat/staging staging.scm)
 
-(define-public (maxipassat-ci-os config)
-  (operating-system
-    (host-name (string-append (maxipassat-ci-deployment-name config) ".maxipass.at"))
-    (timezone "Europe/Paris")
-    (file-systems %base-file-systems)
-    (bootloader (bootloader-configuration (bootloader grub-bootloader)))
-    (services (cons*
-               (maxipassat-ci-postgresql-service config)
-               (service maxipassat-ci-service-type config)))))
+(define users (cons* (user-account
+                       (name "www")
+                       (uid 1101) ;; because I like having predictable uids.
+                       (group "users"))
+                     %base-user-accounts))
 
-(define-public (maxipassat-init-ci-os config)
+(define-public (maxipassat-ci-os config init?)
   (operating-system
     (host-name (string-append (maxipassat-ci-deployment-name config) ".maxipass.at"))
     (timezone "Europe/Paris")
-    (users (cons* (user-account
-                    (name "www")
-                    (uid 1101) ;; because I like having predictable uids.
-                    (group "users"))
-                  %base-user-accounts))
+    (users users)
     (file-systems %base-file-systems)
     (bootloader (bootloader-configuration (bootloader grub-bootloader)))
     (services (cons*
                (maxipassat-ci-postgresql-service config)
-               (service maxipassat-init-ci-service-type config)))))
+               (if init?
+                   (service maxipassat-init-ci-service-type config)
+                   (service maxipassat-ci-service-type config))
+               %base-services))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; example/usage: in systems ci.scm
@@ -70,7 +65,7 @@
    (base-path "/data/www/maxipassat/staging")
    ;; minimal service config, using defaults for staging:
    (db-user "www")
-   ;; where to clone the dev repos from:
+   ;; where to clone the dev repos from, used for init:
    (org-repo-origin "yggdrasill.local:/data/org")
    (maxipassat-repo-origin "yggdrasill.local:/code/maxipassat/maxipassat")
    ;; I want to know when the jobs are done on my local machine:
@@ -78,8 +73,8 @@
              #~(system (string-append "ssh yggdrasill.local DISPLAY=:9 dunstify "
                                       "\"'" #$title "'\" \"'" #$status "'\""))))))
 
-(define-public mp-staging-ci-os (maxipassat-ci-os mp-staging-config))
-(define-public mp-staging-init-ci-os (maxipassat-init-ci-os mp-staging-config))
+(define-public mp-staging-ci-os (maxipassat-ci-os mp-staging-config #f))
+(define-public mp-staging-init-ci-os (maxipassat-ci-os mp-staging-config #t))
 
 (define-public mp-preprod-config
   (maxipassat-ci-configuration
@@ -92,5 +87,5 @@
    (db-port 6942)
    (port 8069)))
 
-(define-public mp-preprod-ci-os (maxipassat-ci-os mp-preprod-config))
-(define-public mp-preprod-init-ci-os (maxipassat-init-ci-os mp-preprod-config))
+(define-public mp-preprod-ci-os (maxipassat-ci-os mp-preprod-config #f))
+(define-public mp-preprod-init-ci-os (maxipassat-ci-os mp-preprod-config #t))
