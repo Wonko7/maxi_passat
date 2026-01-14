@@ -16,6 +16,7 @@
   #:use-module (guix records)
   #:use-module (guix modules)
   #:use-module (maxipassat packages emacs-xyz)
+  #:use-module (maxipassat packages ocaml)
   #:export (maxipassat-ci-service-type
             maxipassat-ci-configuration
             make-maxipassat-ci-configuration
@@ -144,8 +145,14 @@
                (string-append #$(paths 'guix-prof) "/bin/guix") "shell" #$@packages
                "--" "git" "pull" "--force")
               (invoke
+               #$(file-append findutils "/bin/find") "here-be-dragons/" "-name" "*.org" "-exec"
+               #$(file-append filter-org "/bin/filter_org") "{}" ".ci/filtered/{}" ";")
+              (chdir ".ci/filtered/")
+              (invoke
                (string-append #$(paths 'guix-prof) "/bin/guix") "shell" #$@packages
                "--" "emacs" "-Q" "--script" #$(paths 'emacs-update-db-job))
+              (chdir "../..")
+              (delete-file-recursively ".ci/filtered")
               #$(notify "db-update" (string-append deployment-name ": done"))
               (let ((port (open-file (string-append #$(paths 'run)
                                                     "/local/var/run/maxipassat-cmd")
@@ -183,9 +190,11 @@ Each hashpathpair will have it's :db-path set to nil. Only files in
                                     :schema   "org"
                                     :database #$db-name))
 
-          (pcase #$deployment-name ;; this is the entry point to the org files I want in DB:
-                 ((or "prod" "preprod") (setq org-base-path "here-be-dragons/.www/"))
-                 (_                     (setq org-base-path "here-be-dragons/")))
+          ;; (pcase #$deployment-name ;; this is the entry point to the org files I want in DB:
+          ;;        ((or "prod" "preprod") (setq org-base-path "here-be-dragons/.www/"))
+          ;;        (_                     (setq org-base-path "here-be-dragons/.www/")))
+
+          (setq org-base-path "here-be-dragons/")
 
           (setq org-sql-files (split-string
                                (shell-command-to-string
