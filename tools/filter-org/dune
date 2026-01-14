@@ -1,0 +1,4 @@
+(executable
+ (public_name filter_org)
+ (name filter_org)
+ (libraries pcre seq fileutils))

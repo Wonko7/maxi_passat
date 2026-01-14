@@ -1,0 +1,17 @@
+(lang dune 2.9)
+(name orgfilter)
+
+(explicit_js_mode)
+
+(generate_opam_files)
+
+(package
+  (name orgfilter)
+  (synopsis "filter org files")
+  (description "filter org files")
+  (depends
+    base-unix
+    fileutils
+    seq
+    pcre
+    (ocaml (>= 4.14))))

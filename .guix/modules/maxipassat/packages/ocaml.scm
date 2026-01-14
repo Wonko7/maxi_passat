@@ -1983,6 +1983,29 @@ management.")
            (current-source-directory))))))
       (const #t)))
 
+(define-public filter-org
+  (package
+    (name "filter-org")
+    (version "0.1")
+    (source (local-file "../../../../tools/filter-org/" "filter-org-checkout"
+                        #:recursive? #t
+                        #:select? vcs-file?))
+    (build-system dune-build-system)
+    (propagated-inputs
+     (list ocaml-pcre
+           ocaml-fileutils
+           ocaml-seq))
+    (arguments
+     (list
+      #:tests? #f
+      #:phases
+      #~(modify-phases %standard-phases
+          (delete 'configure))))
+    (synopsis "filter org files based on tags")
+    (description "filter org files based on tags")
+    (home-page "http://127.0.0.1/")
+    (license license:lgpl3+)))
+
 (define-public maxipassat
   (package
     (name "maxipassat")
