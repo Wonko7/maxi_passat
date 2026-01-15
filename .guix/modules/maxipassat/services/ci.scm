@@ -242,6 +242,8 @@ Each hashpathpair will have it's :db-path set to nil. Only files in
               (invoke "git" "clone"
                       #$(paths 'org-repo)
                       (string-append #$(paths 'org-repo) "/../working-org"))
+              (chdir (string-append #$(paths 'org-repo) "/../working-org"))
+              (invoke "git" "config" "pull.rebase" "true")
               (display "guix profile build!\n")
               (invoke "guix" "pull" "-p" #$(paths 'guix-prof) "-C" #$init-chan-path)
               #$(update-mp-guix-build-cmds init-chan-path paths))
