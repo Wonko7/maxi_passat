@@ -65,6 +65,8 @@
    (base-path "/data/www/maxipassat/staging")
    ;; minimal service config, using defaults for staging:
    (db-user "www")
+   ;; dir from which the DB will be fed:
+   (org-www-relative-path "here-be-dragons")
    ;; where to clone the dev repos from, used for init:
    (org-repo-origin "yggdrasill.local:/data/org")
    (maxipassat-repo-origin "yggdrasill.local:/code/maxipassat/maxipassat")

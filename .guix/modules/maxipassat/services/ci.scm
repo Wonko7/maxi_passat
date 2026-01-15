@@ -30,6 +30,7 @@
             maxipassat-ci-db-host
             maxipassat-ci-db-pass
             maxipassat-ci-db-name
+            maxipassat-ci-org-www-relative-path
             maxipassat-ci-org-repo-origin
             maxipassat-ci-maxipassat-repo-origin))
 
@@ -48,6 +49,7 @@
   (db-host maxipassat-ci-db-host (default "localhost"))
   (db-pass maxipassat-ci-db-pass (default ""))
   (db-name maxipassat-ci-db-name (default "maxipassat"))
+  (org-www-relative-path maxipassat-ci-org-www-relative-path (default "roam-dir"))
   (org-repo-origin maxipassat-ci-org-repo-origin (default #f))
   (maxipassat-repo-origin maxipassat-ci-maxipassat-repo-origin (default #f)))
 
@@ -106,7 +108,8 @@
 
 (define maxipassat-ci-files-service
   (match-record-lambda <maxipassat-ci-configuration>
-      (base-path deployment-name db-name db-user db-pass db-port db-host notify)
+      (base-path deployment-name db-name db-user db-pass db-port db-host notify
+                 org-www-relative-path)
 
     (define paths (make-paths base-path))
 
@@ -144,9 +147,14 @@
               (invoke
                (string-append #$(paths 'guix-prof) "/bin/guix") "shell" #$@packages
                "--" "git" "pull" "--force")
-              (invoke
-               #$(file-append findutils "/bin/find") "here-be-dragons/" "-name" "*.org" "-exec"
-               #$(file-append filter-org "/bin/filter_org") "{}" ".ci/filtered/{}" ";")
+              (mkdir-p ".ci/filtered")
+              (if (string= "staging" #$deployment-name)
+                  (copy-recursively #$org-www-relative-path
+                                    (string-append ".ci/filtered/" #$org-www-relative-path))
+                  (invoke
+                   #$(file-append findutils "/bin/find")
+                   #$org-www-relative-path "-name" "*.org" "-exec"
+                   #$(file-append filter-org "/bin/filter_org") "{}" ".ci/filtered/{}" ";"))
               (chdir ".ci/filtered/")
               (invoke
                (string-append #$(paths 'guix-prof) "/bin/guix") "shell" #$@packages
@@ -190,11 +198,7 @@ Each hashpathpair will have it's :db-path set to nil. Only files in
                                     :schema   "org"
                                     :database #$db-name))
 
-          ;; (pcase #$deployment-name ;; this is the entry point to the org files I want in DB:
-          ;;        ((or "prod" "preprod") (setq org-base-path "here-be-dragons/.www/"))
-          ;;        (_                     (setq org-base-path "here-be-dragons/.www/")))
-
-          (setq org-base-path "here-be-dragons/")
+          (setq org-base-path #$org-www-relative-path)
 
           (setq org-sql-files (split-string
                                (shell-command-to-string
