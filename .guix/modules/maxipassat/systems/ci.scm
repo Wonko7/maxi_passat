@@ -86,7 +86,7 @@
    ;; service config:
    ;; my deployments run on the same machine in different containers that share
    ;; the machine's network so I have to specify non-conflicting listen ports:
-   (db-port 6942)
+   (db-port 6969)
    (port 8069)))
 
 (define-public mp-preprod-ci-os (maxipassat-ci-os mp-preprod-config #f))
