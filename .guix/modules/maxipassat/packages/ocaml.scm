@@ -2072,6 +2072,7 @@ $(CSS_DEST): $(LOCAL_CSS)
               #t))
           (add-before 'build 'db-start
             (lambda _
+              (delete-file-recursively "tools/filter-org")
               (invoke "make" "db-build-init")
               #t))
           (replace 'build
