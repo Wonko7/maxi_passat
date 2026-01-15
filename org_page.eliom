@@ -330,9 +330,25 @@ let org_backlinks_content
                div ~a:[a_class aclass] dhls]
        backlinks_node
 
+let file_navigation file_nav =
+  let make_link dest label =
+    a ~a:[a_class ["nav-link"]] ~service:Maxipassat_services.org_file [txt label]
+    @@ String.split_on_char '\n' dest
+  in
+  let nav =
+    match file_nav with
+    | Some p, Some n ->
+        [make_link p [%i18n S.prev_butt]; make_link n [%i18n S.next_butt]]
+    | None, Some n -> [make_link n [%i18n S.next_butt]]
+    | Some p, None -> [make_link p [%i18n S.prev_butt]]
+    | None, None -> []
+  in
+  div ~a:[a_class ["navigation"]] nav
+
 let org_file_content ~set_file_path
     ~(file_data :
-       (string
+       ((string option * string option)
+       * string
        * processed_org_headline list
        * (int32 * string) list
        * (string * (string * int32 option)) list option
@@ -344,9 +360,17 @@ let org_file_content ~set_file_path
   R.node
   @@ Eliom_shared.React.S.map ~eq:[%shared ( == )]
        [%shared
-         fun (title, headlines, nodes, id_links, target_hlid, set_backlinks_id) ->
-           make_ptree_org_note ?subtree_headline_id:None ?target_hlid ~title
-             ~headlines ~nodes ?id_links ~set_backlinks_id]
+         fun ( file_nav
+             , title
+             , headlines
+             , nodes
+             , id_links
+             , target_hlid
+             , set_backlinks_id ) ->
+           div
+             [ file_navigation file_nav
+             ; make_ptree_org_note ?subtree_headline_id:None ?target_hlid ~title
+                 ~headlines ~nodes ?id_links ~set_backlinks_id ]]
        file_data
 
 let prepare_roam_id_links hls =
@@ -375,13 +399,25 @@ let gather_org_file_data file_path =
   let%lwt nodes = get_roam_nodes file_path in
   let%lwt roam_links = prepare_roam_id_links hls in
   let%lwt title, _ = safe_get_title_outline_for_file_path file_path in
-  Lwt.return (hls, nodes, roam_links, title)
+  (* TODO: file nav: limit to daily path(s) *)
+  let%lwt files = Org_search.get_all_org_files () in
+  let rec find_neighs = function
+    | [] -> None, None
+    | p :: x :: n :: _ when x = file_path -> Some p, Some n
+    | [p; x] when x = file_path -> Some p, None
+    | x :: n :: _ when x = file_path -> None, Some n
+    | a :: l -> find_neighs l
+  in
+  let file_nav = find_neighs files in
+  Lwt.return (file_nav, hls, nodes, roam_links, title)
 
 let file_page file_path () =
   let file_path = String.concat "" @@ add_slash file_path in
   let%lwt org_note, set_file_path =
     (* Ot_spinner.with_spinner *)
-    let%lwt hls, nodes, id_links, title = gather_org_file_data file_path in
+    let%lwt file_nav, hls, nodes, id_links, title =
+      gather_org_file_data file_path
+    in
     let backlink_list, set_backlink_nodes =
       Eliom_shared.ReactiveData.RList.create []
     in
@@ -394,16 +430,22 @@ let file_page file_path () =
     in
     let file_data_s, set_file_data =
       Eliom_shared.React.S.create
-        (title, hls, nodes, Some id_links, None, set_nodes)
+        (file_nav, title, hls, nodes, Some id_links, None, set_nodes)
     in
     let set_file_path =
       [%client
         (fun ?target_hlid file_path ->
-           let%lwt hls, nodes, id_links, title =
+           let%lwt file_nav, hls, nodes, id_links, title =
              gather_org_file_data file_path
            in
            ~%set_file_data
-             (title, hls, nodes, Some id_links, target_hlid, ~%set_nodes);
+             ( file_nav
+             , title
+             , hls
+             , nodes
+             , Some id_links
+             , target_hlid
+             , ~%set_nodes );
            Lwt.return_unit
           : ?target_hlid:int32 -> string -> unit Lwt.t)]
     in

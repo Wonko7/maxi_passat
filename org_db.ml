@@ -236,7 +236,9 @@ let get_file_path_kill_me_with_fire roam_id =
 let get_all_org_files () =
   let%lwt files =
     full_transaction_block (fun dbh ->
-        [%pgsql dbh "SELECT file_path FROM org.file_metadata;"])
+        [%pgsql
+          dbh
+            "SELECT file_path FROM org.file_metadata ORDER BY convert_to(file_path, 'SQL_ASCII')"])
   in
   Lwt.return @@ List.map strip_org_prefix files
 
