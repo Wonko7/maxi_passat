@@ -47,17 +47,17 @@
 (define-public emacs-org-sql
   (package
     (name "emacs-org-sql")
-    (version "3.0.4")
+    (version "3.0.5")
     (source
      (origin
        (method git-fetch)
        (uri
         (git-reference
           (url "https://github.com/wonko7/org-sql")
-          (commit "777fde3c3f96d626280c7202323f145467491c22")))
+          (commit "0bc596858580eb535953fd8374027adf1a1ee704")))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "1qzmcv3vxrdhxx6qzwmrh4xbjw5xgghz1ddv4jdawlnqkwsmn5dl"))))
+        (base32 "0f4pfvabrld8c0f9ik59balzs9i2qjxlm84fzh3ywmm7d6snqigp"))))
     (inputs
      (list emacs-f
            emacs-s
