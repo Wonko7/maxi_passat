@@ -117,18 +117,25 @@ let get_processed_org_backlinks roam_id =
 let get_headline_id_for_roam_id roam_id =
   let%lwt hl_id =
     full_transaction_block (fun dbh ->
+        (* second select finds orphaned prop ID = root headline ID. *)
         [%pgsql
           dbh
             "SELECT hp.headline_id, m.file_path
-             FROM org.headline_properties hp, org.properties p, org.file_metadata m
-             WHERE p.key_text = 'ID' AND p.val_text = $roam_id
-               AND p.property_id = hp.property_id
-               AND p.outline_hash = m.outline_hash"])
+               FROM org.headline_properties hp, org.properties p, org.file_metadata m
+               WHERE p.key_text = 'ID' AND p.val_text = $roam_id
+                 AND p.property_id = hp.property_id
+                 AND p.outline_hash = m.outline_hash
+         UNION
+             SELECT c1, m.file_path
+               FROM org.properties p, org.file_metadata m,  (VALUES (-1)) AS v (c1)
+               WHERE p.key_text = 'ID' AND p.val_text = $roam_id
+                 AND p.property_id NOT IN (select property_id from org.headline_properties)
+                 AND p.outline_hash = m.outline_hash;"])
   in
   Lwt.return
   @@
   match hl_id with
-  | [(i, s)] -> Some (i, strip_org_prefix s)
+  | [(Some i, Some s)] -> Some (i, strip_org_prefix s)
   | [] -> None
   | _ -> failwith "bug: got multiple headlines"
 
@@ -170,17 +177,32 @@ let get_outline_hash_for_file_path file_path =
 
 let get_roam_nodes file_path =
   let file_path = String.cat org_prefix file_path in
-  full_transaction_block (fun dbh ->
-      [%pgsql
-        dbh
-          "SELECT h.headline_id, p.val_text
+  let%lwt nodes =
+    full_transaction_block (fun dbh ->
+        (* first select finds orphaned prop ID = root headline ID. *)
+        [%pgsql
+          dbh
+            "SELECT v.c1, p.val_text
+             FROM org.file_metadata m , org.properties p, (VALUES (-1)) AS v (c1)
+            WHERE m.file_path = $file_path
+              AND m.outline_hash = p.outline_hash
+              AND p.property_id NOT IN (select property_id from org.headline_properties)
+              AND p.key_text = 'ID'
+       UNION
+           SELECT h.headline_id, p.val_text
              FROM org.headlines h, org.file_metadata m , org.headline_properties hp, org.properties p
-             WHERE m.file_path = $file_path
-               AND m.outline_hash = h.outline_hash
-               AND hp.property_id = p.property_id
-               AND h.headline_id = hp.headline_id
-               AND p.key_text = 'ID'
-           "])
+            WHERE m.file_path = $file_path
+              AND m.outline_hash = h.outline_hash
+              AND hp.property_id = p.property_id
+              AND h.headline_id = hp.headline_id
+           AND p.key_text = 'ID'"])
+  in
+  let rec some_flatten = function
+    | [] -> []
+    | (Some i, Some v) :: l -> (i, v) :: some_flatten l
+    | _ :: l -> failwith "bug: got None value in get_roam_nodes"
+  in
+  Lwt.return @@ some_flatten nodes
 
 let get_file_path_headline roam_id =
   let%lwt fph =
