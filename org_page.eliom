@@ -235,7 +235,7 @@ let make_ptree_org_note ?subtree_headline_id ?target_hlid ~title ~headlines
     let backlinks =
       Option.map
         (fun onclick ->
-          span ~a:[a_class ["link"]; onclick] [txt "backlinks"; br ()])
+          span ~a:[a_class ["link"]; onclick] [txt [%i18n S.backlinks]; br ()])
         activate_backlinks
     in
     make_collapsible ~a:[node_class]
