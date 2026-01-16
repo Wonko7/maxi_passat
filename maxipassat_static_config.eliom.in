@@ -10,7 +10,7 @@ let%server prodpath_or_fallback file fallback_default =
   let pp = prod_path file in
   let res = if Sys.file_exists pp then pp else fallback_default in
   (* too soon for Lwt_log *)
-  print_string "static_config: path dicovery, using: ";
+  print_string "static_config: path discovery, using: ";
   print_endline res;
   res
 
