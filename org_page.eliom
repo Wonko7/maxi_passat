@@ -499,6 +499,16 @@ let get_lang_page_file file myid_o () () =
   let search = Org_search.search_files ~onclick:search_onclick () in
   Maxipassat_container.page ~search ~a:[a_class ["org-page"]] myid_o p
 
+let ls_page () =
+  let%lwt fs = Org_search.get_all_org_files () in
+  let make_li f =
+    li
+      ~a:[a_class ["file_entry"]]
+      [ a ~service:Maxipassat_services.org_file [txt f]
+        @@ String.split_on_char '\n' f ]
+  in
+  Lwt.return @@ [ul @@ List.map make_li fs]
+
 let () =
   Maxipassat_base.App.register ~service:Maxipassat_services.org_file
     ( Maxipassat_page.Opt.connected_page @@ fun myid_o file_path () ->
@@ -508,4 +518,9 @@ let () =
   Maxipassat_base.App.register ~service:Maxipassat_services.org_id
     ( Maxipassat_page.Opt.connected_page @@ fun myid_o id () ->
       let%lwt p = id_page id () in
-      Maxipassat_container.page ~a:[a_class ["org-page"]] myid_o p )
+      Maxipassat_container.page ~a:[a_class ["org-page"]] myid_o p );
+  Maxipassat_base.App.register ~service:Maxipassat_services.org_ls
+    ( Maxipassat_page.Opt.connected_page @@ fun myid_o () () ->
+      let%lwt p = ls_page () in
+      let search = Org_search.search_files () in
+      Maxipassat_container.page ~search ~a:[a_class ["org-page"]] myid_o p )

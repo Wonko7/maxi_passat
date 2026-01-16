@@ -34,7 +34,7 @@ let%shared make ?user () =
   let items = if user = None then [] else user_menu () in
   let items =
     item [%i18n S.home ~capitalize:true] Os_services.main_service
-    :: item [%i18n S.about ~capitalize:true] Maxipassat_services.about_service
+    :: item [%i18n S.ls] Maxipassat_services.org_ls
     :: (li ~a:[a_class ["os-drawer-item"]]
        @@ Maxipassat_settings.mini_select_language_form ())
     :: drawer_contents () :: items

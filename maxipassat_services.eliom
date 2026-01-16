@@ -38,6 +38,11 @@ let%server org_id =
     ~meth:(Eliom_service.Get Eliom_parameter.(suffix (string "id")))
     ()
 
+let%server org_ls =
+  Eliom_service.create
+    ~path:(Eliom_service.Path ["org"; "ls"])
+    ~meth:(Eliom_service.Get Eliom_parameter.unit) ()
+
 let%client about_service = ~%about_service
 let%client upload_user_avatar_service = ~%upload_user_avatar_service
 let%client settings_service = ~%settings_service
@@ -46,6 +51,7 @@ let%client os_github_service = ~%os_github_service
 let%client os_bleau_service = ~%os_bleau_service
 let%client org_file = ~%org_file
 let%client org_id = ~%org_id
+let%client org_ls = ~%org_ls
 (* The OS lib needs access to the settings service to perform
    redirections to it. We need to register it *)
 let%server () = Os_services.register_settings_service settings_service
