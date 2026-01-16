@@ -122,6 +122,39 @@ let%shared select_language_form select_language_name =
   ; D.Form.input ~input_type:`Submit ~value:[%i18n S.send ~capitalize:true]
       D.Form.string ]
 
+let%shared mini_select_language_form select_language_name =
+  let open Eliom_content.Html in
+  let open Eliom_content.Html.F in
+  let current_language = Maxipassat_i18n.get_language () in
+  let all_languages_except_current =
+    List.filter (fun l -> l <> current_language) Maxipassat_i18n.languages
+  in
+  let lang_s, set_lang = Eliom_shared.React.S.create current_language in
+  let span_of_language language =
+    let selected_class =
+      R.a_class
+      @@ Eliom_shared.React.S.map
+           [%shared
+             fun lang ->
+               if lang = ~%language then ["lang"; "selected_lang"] else ["lang"]]
+           lang_s
+    in
+    D.span
+      ~a:
+        [ selected_class
+        ; a_onclick
+            [%client
+              fun _ ->
+                ~%set_lang ~%language;
+                Maxipassat_i18n.(set_language ~%language);
+                (* see handlers to set setting to connected user, currently unused *)
+                ignore @@ Os_lib.reload ()] ]
+      [D.txt @@ Maxipassat_i18n.string_of_language language]
+  in
+  [ D.txt [%i18n S.change_language]
+  ; D.span ~a:[a_class ["lang_row"]]
+    @@ List.map span_of_language all_languages_except_current ]
+
 let%shared settings_content () =
   let%lwt emails = get_emails () in
   let%lwt emails = ul_of_emails emails in

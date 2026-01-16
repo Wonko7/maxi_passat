@@ -35,9 +35,8 @@ let%shared make ?user () =
   let items =
     item [%i18n S.home ~capitalize:true] Os_services.main_service
     :: item [%i18n S.about ~capitalize:true] Maxipassat_services.about_service
-    :: li
-         [ Form.post_form ~service:Os_services.update_language_service
-             Maxipassat_settings.select_language_form () ]
+    :: (li ~a:[a_class ["os-drawer-item"]]
+       @@ Maxipassat_settings.mini_select_language_form ())
     :: drawer_contents () :: items
   in
   let menu = ul ~a:[a_class ["os-drawer-menu"]] items in

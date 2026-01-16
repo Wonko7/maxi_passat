@@ -140,7 +140,6 @@ let%client preregister_handler () = preregister_rpc
 let%shared main_service_handler myid_o () () =
   Org_page.get_lang_page_file "greeting.org" myid_o () ()
 
-
 let%shared about_handler myid_o () () =
   let open Eliom_content.Html.F in
   Maxipassat_container.page
