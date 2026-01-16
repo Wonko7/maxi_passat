@@ -5,20 +5,6 @@
 
 (** This module defines the drawer menu *)
 
-(* let%shared demos = *)
-(*   [(fun () -> [%i18n Demo.S.pgocaml]), Maxipassat_services.org_page] *)
-
-let%shared drawer_contents () =
-  let open Eliom_content.Html.F in
-  (* let make_link (name, service) = li [a ~service [txt @@ name ()] ()] in *)
-  let submenu =
-    ul ~a:[a_class ["os-drawer-submenu"]] [] (* (List.map make_link demos) *)
-  in
-  li
-    [ (* FIXME: make an intro
-        a ~a:[a_class ["os-drawer-item"]] ~service:Demo_services.demo [%i18n Demo.intro] () ; *)
-      submenu ]
-
 let%shared item text service =
   li [a ~a:[a_class ["os-drawer-item"]] ~service [txt text] ()]
 
@@ -38,7 +24,7 @@ let%shared make ?user () =
     :: item [%i18n S.latest_daily] Maxipassat_services.org_latest_daily
     :: (li ~a:[a_class ["os-drawer-item"]]
        @@ Maxipassat_settings.mini_select_language_form ())
-    :: drawer_contents () :: items
+    :: items
   in
   let menu = ul ~a:[a_class ["os-drawer-menu"]] items in
   let contents =
