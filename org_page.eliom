@@ -148,9 +148,11 @@ let processed_org_to_html ?(id_links = []) ~kind ~content ~link_dest ~link_desc
                   (Eliom_content.Xml.uri_of_string
                   @@ String.cat "https://www.youtube.com/embed/" link_dest) ]
             [] ]
+  | _, "https_link" ->
+      F.Raw.a ~a:[a_href (Xml.uri_of_string link_dest)] [txt link_desc]
   | _ ->
       print_endline "fixme proper warnings please";
-      span []
+      span [txt link_desc]
 
 let predicate_org_to_html ?(active_links = true) ?id_links p = function
   | h when p h ->
