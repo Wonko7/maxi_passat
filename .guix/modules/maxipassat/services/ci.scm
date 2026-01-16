@@ -326,7 +326,7 @@ host	all	all	127.0.0.1/32	trust
        (requirement '(user-processes networking maxipassat-ownership))
        (documentation "maxipassat")
        ;; (respawn-delay 1)
-       (respawn-limit #~'(1 . 5000))
+       (respawn-limit #~'(5000 . 1))
        (start #~(make-forkexec-constructor
                  (list (string-append #$(paths 'mp-prof) "/bin/maxipassat"))
                  #:user #$db-user
