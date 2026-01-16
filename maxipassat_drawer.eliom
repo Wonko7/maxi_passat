@@ -35,6 +35,7 @@ let%shared make ?user () =
   let items =
     item [%i18n S.home ~capitalize:true] Os_services.main_service
     :: item [%i18n S.ls] Maxipassat_services.org_ls
+    :: item [%i18n S.latest_daily] Maxipassat_services.org_latest_daily
     :: (li ~a:[a_class ["os-drawer-item"]]
        @@ Maxipassat_settings.mini_select_language_form ())
     :: drawer_contents () :: items

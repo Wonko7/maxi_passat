@@ -511,6 +511,20 @@ let ls_page () =
   in
   Lwt.return @@ [ul @@ List.map make_li fs]
 
+let latest_daily_page () =
+  let%lwt fs = Org_search.get_all_org_files () in
+  let is_daily =
+    (* TODO make this configurable *)
+    String.starts_with ~prefix:"here-be-dragons/the-road-so-far/"
+  in
+  let rec get_latest = function
+    | [] -> failwith "found no dailies"
+    | a :: e :: l when is_daily a && (not @@ is_daily e) -> a
+    | a :: [] when is_daily a -> a
+    | e :: l -> get_latest l
+  in
+  file_page (String.split_on_char '/' @@ get_latest fs) ()
+
 let () =
   Maxipassat_base.App.register ~service:Maxipassat_services.org_file
     ( Maxipassat_page.Opt.connected_page @@ fun myid_o file_path () ->
@@ -525,4 +539,9 @@ let () =
     ( Maxipassat_page.Opt.connected_page @@ fun myid_o () () ->
       let%lwt p = ls_page () in
       let search = Org_search.search_files () in
+      Maxipassat_container.page ~search ~a:[a_class ["org-page"]] myid_o p );
+  Maxipassat_base.App.register ~service:Maxipassat_services.org_latest_daily
+    ( Maxipassat_page.Opt.connected_page @@ fun myid_o () () ->
+      let%lwt p, search_onclick = latest_daily_page () in
+      let search = Org_search.search_files ~onclick:search_onclick () in
       Maxipassat_container.page ~search ~a:[a_class ["org-page"]] myid_o p )
