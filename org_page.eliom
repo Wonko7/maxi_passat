@@ -486,6 +486,19 @@ let id_page roam_id () =
   in
   Lwt.return [div org_note]
 
+let get_lang_page_file file myid_o () () =
+  let%lwt p, search_onclick =
+    file_page
+      [ "here-be-dragons"
+      ; ".www"
+      ; "maxipassat"
+      ; Maxipassat_i18n.string_of_language @@ Maxipassat_i18n.get_language ()
+      ; file ]
+      ()
+  in
+  let search = Org_search.search_files ~onclick:search_onclick () in
+  Maxipassat_container.page ~search ~a:[a_class ["org-page"]] myid_o p
+
 let () =
   Maxipassat_base.App.register ~service:Maxipassat_services.org_file
     ( Maxipassat_page.Opt.connected_page @@ fun myid_o file_path () ->

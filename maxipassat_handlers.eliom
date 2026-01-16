@@ -138,17 +138,8 @@ let%rpc preregister_rpc (email : string) : unit Lwt.t =
 let%client preregister_handler () = preregister_rpc
 
 let%shared main_service_handler myid_o () () =
-  Maxipassat_container.page
-    ~a:[a_class ["os-page-main"]]
-    myid_o
-    [ p [txt "welcome! have a look at these files:"]
-    ; ul
-      @@ List.map
-           (fun m ->
-             li
-             @@ [ a ~service:Maxipassat_services.org_file [txt m]
-                  @@ String.split_on_char '/' m ])
-           ["here-be-dragons/.www/maxipassat/greeting.org"] ]
+  Org_page.get_lang_page_file "greeting.org" myid_o () ()
+
 
 let%shared about_handler myid_o () () =
   let open Eliom_content.Html.F in
