@@ -143,7 +143,8 @@ let processed_org_to_html ?(id_links = []) ~kind ~content ~link_dest ~link_desc
               ; a_height 315 (* ; a_frameborder `Zero *)
               ; Unsafe.string_attrib "frameborder" "0"
               ; Unsafe.string_attrib "allow"
-                  "accelerometer autoplay clipboard-write encrypted-media gyroscope picture-in-picture web-share"
+                  "accelerometer autoplay clipboard-write encrypted-media gyroscope picture-in-picture web-share fullscreen"
+              ; Unsafe.string_attrib "allowfullscreen" ""
               ; a_src
                   (Eliom_content.Xml.uri_of_string
                   @@ String.cat "https://www.youtube.com/embed/" link_dest) ]
