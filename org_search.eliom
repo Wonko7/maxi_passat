@@ -23,8 +23,9 @@ let%shared search_str r s =
 
 let%shared search_nodes
     ?(onclick :
-       (?target_hlid:int32 -> string -> unit Lwt.t) Eliom_client_value.t option)
-    ()
+       (?push:bool -> ?target_hlid:int32 -> string -> unit Lwt.t)
+       Eliom_client_value.t
+       option) ()
   =
   let%lwt ns = get_all_nodes () in
   let res_s, set_results = Eliom_shared.React.S.create (0, [], 0) in
@@ -56,6 +57,7 @@ let%shared search_nodes
             let hlid, roam_id, path, _title = List.nth fs i' in
             match ~%onclick with
             | None ->
+                (* TODO: eliom_client probably has something cleaner *)
                 Js_of_ocaml.(
                   Dom_html.window##.location##assign
                     (Js.string @@ String.cat "/org/id/" roam_id))

@@ -88,7 +88,7 @@ let make_collapsible ?(a = []) ~id ~title_class title content =
      ; div ~a:[a_class ["collapsible-content"; "org_node_content"]] content ]
 
 let%client fuck_me_set_file_path
-    : (?target_hlid:int32 -> string -> unit Lwt.t) option ref
+    : (?push:bool -> ?target_hlid:int32 -> string -> unit Lwt.t) option ref
   =
   ref None
 
@@ -328,7 +328,8 @@ let hl_to_inactive_html ~title_selected_s hls =
 
 let make_backnode_link ?on_backlink_select
     (set_file_path :
-      (?target_hlid:int32 -> string -> unit Lwt.t) Eliom_client_value.t) hls
+      (?push:bool -> ?target_hlid:int32 -> string -> unit Lwt.t)
+      Eliom_client_value.t) hls
   =
   let title_selected_s, set_selected_title =
     Eliom_shared.React.S.create false
@@ -350,7 +351,8 @@ let make_backnode_link ?on_backlink_select
 let org_backlinks_content ?on_backlink_select
     (backlinks_node : processed_org_headline list R.list_wrap)
     (set_file_path :
-      (?target_hlid:int32 -> string -> unit Lwt.t) Eliom_client_value.t)
+      (?push:bool -> ?target_hlid:int32 -> string -> unit Lwt.t)
+      Eliom_client_value.t)
   =
   R.div
   @@ Eliom_shared.ReactiveData.RList.map
@@ -370,13 +372,14 @@ let org_backlinks_content ?on_backlink_select
                div ~a:[a_class aclass] dhls]
        backlinks_node
 
-let file_navigation file_nav =
+let file_navigation ~set_file_path file_nav =
   let make_link dest label =
-    a
-      ~a:[a_class ["link"; "nav-link"]]
-      ~service:Maxipassat_services.org_file
+    span
+      ~a:
+        [ a_class ["link"; "nav-link"]
+        ; a_onclick [%client fun _ -> ignore @@ ~%set_file_path ~%dest] ]
       [txt label]
-    @@ String.split_on_char '\n' dest
+    (* @@ String.split_on_char '\n' dest *)
   in
   let nav =
     match file_nav with
@@ -411,7 +414,7 @@ let org_file_content ~set_file_path ?onclick_backlink
              , target_hlid
              , set_backlinks_id ) ->
            div
-             [ file_navigation file_nav
+             [ file_navigation ~set_file_path:~%set_file_path file_nav
              ; make_ptree_org_note ?onclick_backlink:~%onclick_backlink
                  ?subtree_headline_id:None ?target_hlid ~title ~headlines ~nodes
                  ?id_links ~set_backlinks_id ]]
@@ -445,6 +448,11 @@ let gather_org_file_data file_path =
   let%lwt title, _ = safe_get_title_outline_for_file_path file_path in
   (* TODO: file nav: limit to daily path(s) *)
   let%lwt files = Org_search.get_all_org_files () in
+  (* let files = *)
+  (*   List.filter *)
+  (*     (String.starts_with ~prefix:"here-be-dragons/the-road-so-far") *)
+  (*     files *)
+  (* in *)
   let rec find_neighs = function
     | [] -> None, None
     | p :: x :: n :: _ when x = file_path -> Some p, Some n
@@ -460,9 +468,9 @@ let gather_org_file_data file_path =
   in
   Lwt.return (file_nav, hls, nodes, roam_links, title)
 
-let file_page myid_o file_path () =
+let file_page myid_o orig_file_path () =
+  let file_path = String.concat "" @@ add_slash orig_file_path in
   let drawer_elt = ref None in
-  let file_path = String.concat "" @@ add_slash file_path in
   let%lwt org_note, set_file_path, backlink_content, backlink_drawer =
     (* Ot_spinner.with_spinner *)
     let%lwt file_nav, hls, nodes, id_links, title =
@@ -489,7 +497,7 @@ let file_page myid_o file_path () =
     in
     let set_file_path =
       [%client
-        (fun ?target_hlid file_path ->
+        (fun ?(push = true) ?target_hlid file_path ->
            let%lwt file_nav, hls, nodes, id_links, title =
              gather_org_file_data file_path
            in
@@ -501,8 +509,16 @@ let file_page myid_o file_path () =
              , Some id_links
              , target_hlid
              , ~%set_nodes );
+           (if push
+           then
+             Js_of_ocaml.(
+               Dom_html.window##.history##pushState
+                 (* Js.null *)
+                 (Eliom_lib.to_json file_path)
+                 (Js.string "")
+                 (Js.Opt.return (Js.string @@ "/org/file/" ^ file_path))));
            Lwt.return_unit
-          : ?target_hlid:int32 -> string -> unit Lwt.t)]
+          : ?push:bool -> ?target_hlid:int32 -> string -> unit Lwt.t)]
     in
     ignore @@ [%client (fuck_me_set_file_path := Some ~%set_file_path : unit)];
     (* only done once to init content because drawer is created b4 backlinks *)
@@ -527,7 +543,36 @@ let file_page myid_o file_path () =
     in
     ignore
     @@ [%client
+         (* initialise backlink drawer node *)
          (ignore @@ ~%set_drawer_backlink_nodes ~%drawer_backlinks : unit)];
+    ignore
+    @@ [%client
+         (Js_of_ocaml.(
+            (* we'll make our own popstate handler, with hookers & blackjack *)
+            let prev_handler = Dom_html.window##.onpopstate in
+            Dom_html.window##.onpopstate
+            := Dom_html.handler (fun event ->
+                   ignore
+                   @@ Js.Opt.case
+                        ((Js.Unsafe.coerce event)##.state : _ Js.opt)
+                        (fun () ->
+                          ()
+                          (* Ignore dummy popstate event fired by chromium. *))
+                        (fun saved_state ->
+                          try
+                            let path = Eliom_lib.of_json saved_state in
+                            if String.starts_with ~prefix:"here-be-dragons/"
+                                 path
+                            then ignore @@ ~%set_file_path ~push:false path
+                            else failwith "give this to orig handler"
+                          with _ -> (
+                            try
+                              ignore
+                              @@ Dom_html.invoke_handler prev_handler
+                                   Dom_html.window event
+                            with _ -> print_endline "orig handler failed"));
+                   Js._false))
+           : unit)];
     let backlinks_node = org_backlinks_content backlink_list set_file_path in
     let org_content =
       org_file_content ~onclick_backlink:open_bl_drawer ~set_file_path
