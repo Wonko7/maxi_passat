@@ -131,7 +131,7 @@ a:active {
 // org node styles:
 
 @mixin title_style($colour, $flashy: false) {
-    color: black;
+    // color: black;
     background: $colour;
     border-top: 1px solid $colour;
     border-left: 1px solid $colour;
@@ -144,6 +144,7 @@ a:active {
         .link, a {
             color: $darker_links_col;
         }
+        color: black;
     }
 }
 
