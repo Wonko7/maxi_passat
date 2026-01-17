@@ -157,32 +157,36 @@ let process_org_text s =
     | Text e :: l ->
         let%lwt a = find_links e in
         add_brs (acc @ a @ [Br]) l
-    | e :: l -> add_brs (acc @ [e] @ [Br]) l
     | e :: [] -> Lwt.return @@ acc @ [e]
+    | e :: l -> add_brs (acc @ [e] @ [Br]) l
   in
-  let find_blocks s =
-    let block_re =
-      Str.regexp
-        {|^[ \t]*#\+begin_\(src\|quote\).*\(\(.\|
-\)*\)^[ \t]*#\+end_\1|}
+  let rec find_blocks acc actype sl =
+    let beg_block_re =
+      Str.regexp {|^[ \t]*#\+begin_\(src\|example\|quote\).*|}
     in
-    Str.full_split block_re s
-    |> List.concat_map
-         Str.(
-           function
-           | Text t ->
-               List.map (fun t -> Db_types.Text t)
-               @@ String.split_on_char '\n' t
-           | Delim t ->
-               ignore @@ search_forward block_re t 0;
-               let block =
-                 if matched_group 1 t = "src"
-                 then Block_src (matched_group 2 t)
-                 else Block_quote (matched_group 2 t)
-               in
-               [block])
+    let end_block_re = Str.regexp {|^[ \t]*#\+end_\(src\|example\|quote\).*|} in
+    let stty s =
+      if Str.string_match beg_block_re s 0
+      then (
+        ignore @@ Str.search_forward beg_block_re s 0;
+        if Str.matched_group 1 s = "src" then `Bsrc else `Bqte)
+      else if Str.string_match end_block_re s 0
+      then `End
+      else `Text
+    in
+    match actype, sl with
+    | _, [] -> []
+    | `Bsrc, s :: l when stty s = `End ->
+        Block_src (String.concat "\n" acc) :: find_blocks [] `Text l
+    | `Bqte, s :: l when stty s = `End ->
+        Block_quote (String.concat "\n" acc) :: find_blocks [] `Text l
+    | `Bsrc, s :: l when stty s = `Text -> find_blocks (acc @ [s]) actype l
+    | `Bqte, s :: l when stty s = `Text -> find_blocks (acc @ [s]) actype l
+    | _, s :: l when stty s = `Bsrc -> find_blocks [] `Bsrc l
+    | _, s :: l when stty s = `Bqte -> find_blocks [] `Bqte l
+    | `Text, s :: l -> Text s :: find_blocks [] `Text l
   in
-  find_blocks s |> add_brs []
+  String.split_on_char '\n' s |> find_blocks [] `Text |> add_brs []
 
 let process_org_headlines _title outline_hash headlines =
   let i = ref 0 in
