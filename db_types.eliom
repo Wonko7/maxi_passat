@@ -17,6 +17,7 @@ type processed_kind =
   | Bleau_link of string * string
   | Yt_link of string * string
   | Https_link of string * string
+  | Mailto_link of string * string
   | Text of string
 
 type processed_org =
@@ -52,3 +53,4 @@ let processed_kind_to_str = function
   | Yt_link _ -> "yt_link"
   | Bleau_link _ -> "bleau_link"
   | Https_link _ -> "https_link"
+  | Mailto_link _ -> "mailto_link"

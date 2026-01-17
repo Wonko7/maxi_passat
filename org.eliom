@@ -123,6 +123,9 @@ let process_org_text s =
                ignore @@ search_forward link_re t 0;
                match matched_group 1 t with
                | "id" -> process_id_link (matched_group 2 t) (matched_group 3 t)
+               | "mailto" ->
+                   Lwt.return
+                   @@ Mailto_link (matched_group 2 t, matched_group 3 t)
                | "https" ->
                    let dest = matched_group 2 t in
                    let full_dest = String.cat "https:" dest in
@@ -138,8 +141,12 @@ let process_org_text s =
                      let suff = Str.replace_first bleau_re {||} dest in
                      Bleau_link (suff, desc)
                    else Https_link (full_dest, desc)
-               (* add file & img *)
-               | _ -> Lwt.return @@ Db_types.Text "fuck links"))
+               (* TODO: links: add file & inline img *)
+               | li_type ->
+                   print_endline "unsupported link type:";
+                   print_endline li_type;
+                   print_endline (matched_group 2 t);
+                   Lwt.return @@ Db_types.Text (matched_group 3 t)))
     |> lwt_flatten []
   in
   let rec add_brs acc = function
@@ -188,7 +195,8 @@ let process_org_headlines _title outline_hash headlines =
         | File_link (dest, desc)
         | Yt_link (dest, desc)
         | Bleau_link (dest, desc)
-        | Https_link (dest, desc) ->
+        | Https_link (dest, desc)
+        | Mailto_link (dest, desc) ->
             {processed_org with link_dest = Some dest; link_desc = Some desc}
       in
       Org_db.add_processed_headline_content processed_org

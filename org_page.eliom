@@ -102,6 +102,8 @@ let processed_org_to_html ?(id_links = []) ~kind ~content ~link_dest ~link_desc
   match active_links, kind with
   | _, "txt" -> txt content
   | _, "br" -> br ()
+  | false, "mailto_link"
+  | false, "https_link"
   | false, "file_link"
   | false, "id_link"
   | false, "file_link"
@@ -149,6 +151,10 @@ let processed_org_to_html ?(id_links = []) ~kind ~content ~link_dest ~link_desc
                   (Eliom_content.Xml.uri_of_string
                   @@ String.cat "https://www.youtube.com/embed/" link_dest) ]
             [] ]
+  | _, "mailto_link" ->
+      F.Raw.a
+        ~a:[F.a_href @@ Xml.uri_of_string @@ "mailto:" ^ link_dest]
+        [txt link_desc]
   | _, "https_link" ->
       F.Raw.a ~a:[a_href (Xml.uri_of_string link_dest)] [txt link_desc]
   | _ ->
