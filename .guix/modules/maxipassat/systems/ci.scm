@@ -22,24 +22,20 @@
 ;; btw, hooks are setup from inside the container but run from your user's
 ;; account on git push.
 ;;
-;; staging-init.scm returns mp-staging-init-ci-os
-;; staging.scm returns mp-staging-ci-os
-;;
-;; init:
-;;
-;; sudo $(guix system container --network --share=/data/www/maxipassat/staging  staging-init.scm)
+;; # init:
+;; sudo $(guix system container --network --share=/data/www/maxipassat/staging -e '(@ (maxipassat systems ci) mp-staging-init-ci-os)')
+;; # run the init scritpt:
 ;; /data/www/maxipassat/staging/init/init-ci
 ;; <init db FIXME will provide an example>
 ;; <kill that container>
 ;;
-;; enjoy your ci:
-;;
-;; sudo $(guix system container --network --share=/data/www/maxipassat/staging staging.scm)
+;; # enjoy your ci:
+;; sudo $(guix system container --network --share=/data/www/maxipassat/staging -e '(@ (maxipassat systems ci) mp-staging-ci-os)')
 
 (define users (cons* (user-account
-                       (name "www")
-                       (uid 1101) ;; because I like having predictable uids.
-                       (group "users"))
+                      (name "www")
+                      (uid 1101) ;; because I like having predictable uids.
+                      (group "users"))
                      %base-user-accounts))
 
 (define-public (maxipassat-ci-os config init?)
