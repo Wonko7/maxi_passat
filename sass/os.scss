@@ -288,6 +288,26 @@ a.os-page-header-app-name {
     }
 }
 
+code {
+    color: greenyellow;
+    white-space: pre-wrap;
+    background: black;
+    background: #131;
+    display: block;
+    border-radius: 0.5rem;
+    padding-bottom: 1rem;
+    font-size: 12px;
+}
+.quote {
+    padding-left: 1rem;
+    background: #445;
+    white-space: pre-wrap;
+    display: block;
+    border-radius: 0.5rem;
+    padding-bottom: 1rem;
+    font-size: 12px;
+}
+
 .os-avatar {
     margin-right: 15px;
     width: 35px;

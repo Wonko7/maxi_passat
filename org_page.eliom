@@ -101,6 +101,9 @@ let processed_org_to_html ?(id_links = []) ~kind ~content ~link_dest ~link_desc
   let content = Option.value ~default:"" content in
   match active_links, kind with
   | _, "txt" -> txt content
+  | _, "block_quote" -> span ~a:[a_class ["quote"]] [txt content]
+  | _, "block_src" -> code [txt content]
+  (* | _, "block_quote" -> blockquote [content] *)
   | _, "br" -> br ()
   | false, "mailto_link"
   | false, "https_link"

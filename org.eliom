@@ -151,14 +151,38 @@ let process_org_text s =
   in
   let rec add_brs acc = function
     | [] -> Lwt.return []
-    | e :: [] ->
+    | Text e :: [] ->
         let%lwt a = find_links e in
         Lwt.return @@ acc @ a
-    | e :: l ->
+    | Text e :: l ->
         let%lwt a = find_links e in
         add_brs (acc @ a @ [Br]) l
+    | e :: l -> add_brs (acc @ [e] @ [Br]) l
+    | e :: [] -> Lwt.return @@ acc @ [e]
   in
-  String.split_on_char '\n' s |> add_brs []
+  let find_blocks s =
+    let block_re =
+      Str.regexp
+        {|^[ \t]*#\+begin_\(src\|quote\).*\(\(.\|
+\)*\)^[ \t]*#\+end_\1|}
+    in
+    Str.full_split block_re s
+    |> List.concat_map
+         Str.(
+           function
+           | Text t ->
+               List.map (fun t -> Db_types.Text t)
+               @@ String.split_on_char '\n' t
+           | Delim t ->
+               ignore @@ search_forward block_re t 0;
+               let block =
+                 if matched_group 1 t = "src"
+                 then Block_src (matched_group 2 t)
+                 else Block_quote (matched_group 2 t)
+               in
+               [block])
+  in
+  find_blocks s |> add_brs []
 
 let process_org_headlines _title outline_hash headlines =
   let i = ref 0 in
@@ -190,7 +214,8 @@ let process_org_headlines _title outline_hash headlines =
       let processed_org =
         match text with
         | Br -> processed_org
-        | Text t -> {processed_org with content = Some t}
+        | Text t | Block_quote t | Block_src t ->
+            {processed_org with content = Some t}
         | Id_link (dest, desc)
         | File_link (dest, desc)
         | Yt_link (dest, desc)
