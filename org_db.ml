@@ -242,14 +242,24 @@ let get_all_org_files () =
   in
   Lwt.return @@ List.map strip_org_prefix files
 
-let is_processed () =
-  let%lwt count =
+let get_unprocessed_org_files () =
+  let%lwt files =
     full_transaction_block (fun dbh ->
-        [%pgsql dbh "SELECT outline_hash FROM org.processed_content LIMIT 1"])
+        [%pgsql
+          dbh
+            "SELECT m.file_path FROM org.file_metadata m
+             WHERE m.outline_hash NOT IN (SELECT outline_hash FROM org.processed_content)"])
   in
-  Lwt.return @@ match count with [] -> false | _ -> true
+  Lwt.return @@ List.map strip_org_prefix files
 
-let reset_processed () =
+let delete_old_processed () =
+  full_transaction_block (fun dbh ->
+      [%pgsql
+        dbh
+          "DELETE FROM org.processed_content
+           WHERE outline_hash NOT IN (SELECT outline_hash FROM org.file_metadata)"])
+
+let nuke_processed () =
   full_transaction_block (fun dbh ->
       [%pgsql dbh "DELETE FROM org.processed_content"])
 
