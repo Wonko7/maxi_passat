@@ -176,8 +176,13 @@ let process_org_text s =
       then `Bres
       else if Str.string_match end_block_re s 0
       then `End
-      else if actype = `Bres && String.trim s = ""
-      then `End
+      else if actype = `Bres
+      then
+        if String.starts_with ~prefix:": " s
+        then `Last_line
+        else if String.starts_with ~prefix:"|" s
+        then `Text
+        else `End
       else `Text
     in
     match actype, sl with
@@ -191,7 +196,10 @@ let process_org_text s =
     | `Bqte, s :: l when stty s = `End ->
         Block_quote (String.concat "\n" acc) :: find_blocks [] `Text l
     | `Bres, s :: l when stty s = `End ->
-        Block_result (String.concat "\n" acc) :: find_blocks [] `Text l
+        Block_result (String.concat "\n" acc)
+        :: Text s :: find_blocks [] `Text l
+    | `Bres, s :: l when stty s = `Last_line ->
+        Block_result (String.concat "\n" @@ acc @ [s]) :: find_blocks [] `Text l
     (* middle of blocks: *)
     | `Bsrc, s :: l when stty s = `Text -> find_blocks (acc @ [s]) actype l
     | `Bqte, s :: l when stty s = `Text -> find_blocks (acc @ [s]) actype l
