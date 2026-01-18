@@ -2097,6 +2097,7 @@ $(CSS_DEST): $(LOCAL_CSS)
                  (lambda (file)
                    (install-file file css))
                  (find-files "static/css" "\\.css$"))
+                (install-file "static/favicon.ico" (string-append out "/var/www/maxipassat"))
                 (invoke "make"
                         (string-append "PREFIX=" out "/")
                         "install.exe"))
