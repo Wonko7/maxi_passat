@@ -88,11 +88,19 @@
 ;; job helpers
 
 (define (make-mp-channel mp-repo-path) ;; used to guix pull & build on each git push
-  #~(cons* (channel
-             (name 'mp)
-             (url #$mp-repo-path)
-             (branch "master"))
-           %default-channels))
+  #~(list (channel
+            (name 'mp)
+            (url #$mp-repo-path)
+            (branch "master"))
+          (channel
+            (name 'guix)
+            (url "https://codeberg.org/guix/guix")
+            (branch "master")
+            (introduction
+             (make-channel-introduction
+              "9edb3f66fd807b096b48283debdcddccfea34bad"
+              (openpgp-fingerprint
+               "BBB0 2DDF 2CEA F6A8 0D1D  E643 A2A0 6DF2 A33A 54FA"))))))
 
 (define (update-mp-guix-build-cmds chan-path paths)
   #~(begin
