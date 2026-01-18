@@ -296,7 +296,7 @@ code {
     display: block;
     border-radius: 0.5rem;
     font-size: 12px;
-    padding: 1rem 0;
+    padding: 0.25rem 0;
     margin: 0.5rem 0;
 }
 .quote {
@@ -308,6 +308,13 @@ code {
     font-size: 12px;
     padding: 1rem;
     margin: 0.5rem 0;
+}
+.code_begin_src {
+  color: #080;
+  // padding-left: 0.25rem;
+  margin: 0 0rem 0 0.25rem;
+  display: block;
+  padding: 0;
 }
 
 .os-avatar {

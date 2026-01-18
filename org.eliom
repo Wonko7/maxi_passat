@@ -177,12 +177,15 @@ let process_org_text s =
     match actype, sl with
     | _, [] -> []
     | `Bsrc, s :: l when stty s = `End ->
-        Block_src (String.concat "\n" acc) :: find_blocks [] `Text l
+        (match acc with
+        | [] -> Text ""
+        | src :: acc -> Block_src (src, String.concat "\n" acc))
+        :: find_blocks [] `Text l
     | `Bqte, s :: l when stty s = `End ->
         Block_quote (String.concat "\n" acc) :: find_blocks [] `Text l
     | `Bsrc, s :: l when stty s = `Text -> find_blocks (acc @ [s]) actype l
     | `Bqte, s :: l when stty s = `Text -> find_blocks (acc @ [s]) actype l
-    | _, s :: l when stty s = `Bsrc -> find_blocks [] `Bsrc l
+    | _, s :: l when stty s = `Bsrc -> find_blocks [s] `Bsrc l
     | _, s :: l when stty s = `Bqte -> find_blocks [] `Bqte l
     | `Text, s :: l -> Text s :: find_blocks [] `Text l
   in
@@ -218,8 +221,7 @@ let process_org_headlines _title outline_hash headlines =
       let processed_org =
         match text with
         | Br -> processed_org
-        | Text t | Block_quote t | Block_src t ->
-            {processed_org with content = Some t}
+        | Text t | Block_quote t -> {processed_org with content = Some t}
         | Id_link (dest, desc)
         | File_link (dest, desc)
         | Yt_link (dest, desc)
@@ -227,6 +229,10 @@ let process_org_headlines _title outline_hash headlines =
         | Https_link (dest, desc)
         | Mailto_link (dest, desc) ->
             {processed_org with link_dest = Some dest; link_desc = Some desc}
+        | Block_src (src_def, src) ->
+            { processed_org with
+              content = Some src
+            ; link_desc = Some (String.trim src_def ^ "\n") }
       in
       Org_db.add_processed_headline_content processed_org
     in
