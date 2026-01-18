@@ -161,6 +161,7 @@ let process_org_text s =
     | e :: l -> add_brs (acc @ [e] @ [Br]) l
   in
   let rec find_blocks acc actype sl =
+    let res_block_re = Str.regexp {|^[ \t]*#\+results:.*|} in
     let beg_block_re =
       Str.regexp {|^[ \t]*#\+begin_\(src\|example\|quote\).*|}
     in
@@ -170,12 +171,17 @@ let process_org_text s =
       then (
         ignore @@ Str.search_forward beg_block_re s 0;
         if Str.matched_group 1 s = "src" then `Bsrc else `Bqte)
+      else if Str.string_match res_block_re s 0
+      then `Bres
       else if Str.string_match end_block_re s 0
+      then `End
+      else if actype = `Bres && String.trim s = ""
       then `End
       else `Text
     in
     match actype, sl with
     | _, [] -> []
+    (* end of blocks: *)
     | `Bsrc, s :: l when stty s = `End ->
         (match acc with
         | [] -> Text ""
@@ -183,10 +189,17 @@ let process_org_text s =
         :: find_blocks [] `Text l
     | `Bqte, s :: l when stty s = `End ->
         Block_quote (String.concat "\n" acc) :: find_blocks [] `Text l
+    | `Bres, s :: l when stty s = `End ->
+        Block_result (String.concat "\n" acc) :: find_blocks [] `Text l
+    (* middle of blocks: *)
     | `Bsrc, s :: l when stty s = `Text -> find_blocks (acc @ [s]) actype l
     | `Bqte, s :: l when stty s = `Text -> find_blocks (acc @ [s]) actype l
+    | `Bres, s :: l when stty s = `Text -> find_blocks (acc @ [s]) actype l
+    (* beginning of blocks: *)
     | _, s :: l when stty s = `Bsrc -> find_blocks [s] `Bsrc l
     | _, s :: l when stty s = `Bqte -> find_blocks [] `Bqte l
+    | _, s :: l when stty s = `Bres -> find_blocks [] `Bres l
+    (* just text: *)
     | `Text, s :: l -> Text s :: find_blocks [] `Text l
   in
   String.split_on_char '\n' s |> find_blocks [] `Text |> add_brs []
@@ -221,7 +234,8 @@ let process_org_headlines _title outline_hash headlines =
       let processed_org =
         match text with
         | Br -> processed_org
-        | Text t | Block_quote t -> {processed_org with content = Some t}
+        | Text t | Block_result t | Block_quote t ->
+            {processed_org with content = Some t}
         | Id_link (dest, desc)
         | File_link (dest, desc)
         | Yt_link (dest, desc)

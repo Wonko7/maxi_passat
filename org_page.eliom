@@ -102,6 +102,9 @@ let processed_org_to_html ?(id_links = []) ~kind ~content ~link_dest ~link_desc
   match active_links, kind with
   | _, "txt" -> txt content
   | _, "block_quote" -> span ~a:[a_class ["quote"]] [txt content]
+  | _, "block_result" ->
+      code
+        [span ~a:[a_class ["code_begin_src"]] [txt "#+results:\n"]; txt content]
   | _, "block_src" ->
       code
         [ span ~a:[a_class ["code_begin_src"]] [txt link_desc]

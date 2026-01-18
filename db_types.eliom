@@ -19,7 +19,8 @@ type processed_kind =
   | Https_link of string * string
   | Mailto_link of string * string
   | Block_quote of string
-  | Block_src of string
+  | Block_result of string
+  | Block_src of string * string
   | Text of string
 
 type processed_org =
@@ -57,4 +58,5 @@ let processed_kind_to_str = function
   | Https_link _ -> "https_link"
   | Mailto_link _ -> "mailto_link"
   | Block_quote _ -> "block_quote"
+  | Block_result _ -> "block_result"
   | Block_src _ -> "block_src"
