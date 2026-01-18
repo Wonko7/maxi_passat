@@ -36,8 +36,7 @@ let%shared () =
     ~service:Os_services.update_language_service
     Maxipassat_handlers.update_language_handler;
   Maxipassat_base.App.register ~service:Os_services.main_service
-    (Maxipassat_page.Opt.connected_page
-       Maxipassat_handlers.main_service_handler);
+    (Maxipassat_page.Opt.connected_page Maxipassat_handlers.main_service_handler);
   Maxipassat_base.App.register ~service:Maxipassat_services.about_service
     (Maxipassat_page.Opt.connected_page Maxipassat_handlers.about_handler);
   Maxipassat_base.App.register ~service:Maxipassat_services.settings_service
@@ -76,6 +75,7 @@ let%server _ =
    *   => arg2 = ["lol" "kkt" "wthaaat?"] *)
   let f _s = function
     | ["preprocess_org"] -> Org.preprocess_init ()
+    | ["nuke_org"] -> Org.preprocess_init ~nuke:true ()
     | ["kys"] ->
         print_endline "kthxbye";
         Unix.kill (Unix.getpid ()) 1;

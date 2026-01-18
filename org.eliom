@@ -251,8 +251,8 @@ let process_org_file file_path =
   in
   process_org_headlines title outline_hash hls
 
-let preprocess_init () =
-  (* let%lwt _ = Org_db.nuke_processed () in *)
+let preprocess_init ?(nuke = false) () =
+  let%lwt _ = if nuke then Org_db.nuke_processed () else Lwt.return_unit in
   print_endline "preprocessing org files";
   let%lwt files = Org_db.get_unprocessed_org_files () in
   ignore @@ List.map process_org_file files;
