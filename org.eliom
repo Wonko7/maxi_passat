@@ -158,9 +158,10 @@ let process_org_text s =
         let%lwt a = find_links e in
         add_brs (acc @ a @ [Br]) l
     | e :: [] -> Lwt.return @@ acc @ [e]
-    | e :: l -> add_brs (acc @ [e] @ [Br]) l
+    | e :: l -> add_brs (acc @ [e]) l
   in
   let rec find_blocks acc actype sl =
+    (* TODO: fail gracefully on badly formed org files *)
     let res_block_re = Str.regexp {|^[ \t]*#\+results:.*|} in
     let beg_block_re =
       Str.regexp {|^[ \t]*#\+begin_\(src\|example\|quote\).*|}
