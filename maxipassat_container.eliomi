@@ -39,6 +39,19 @@ val page
     a footer, and a drawer menu.  If the user profile is not
     completed, a connected welcome box is added. *)
 
+val org_page
+  :  ?search:
+       [< Html_types.header_content_fun > `A `Div] Eliom_content.Html.elt Lwt.t
+  -> ?html_a:Html_types.html_attrib Eliom_content.Html.attrib list
+  -> ?a:Html_types.body_attrib Eliom_content.Html.attrib list
+  -> ?title:string
+  -> ?head:[< Html_types.head_content_fun] Eliom_content.Html.elt list
+  -> backlink_drawer:[< Html_types.flow5 > `Div `Header] Eliom_content.Html.elt
+  -> Os_types.User.id option
+  -> [< Html_types.div_content_fun] Eliom_content.Html.elt
+  -> [< Html_types.div_content_fun] Eliom_content.Html.elt
+  -> Os_page.content Lwt.t
+
 [%%shared.start]
 
 val get_wrong_pdata

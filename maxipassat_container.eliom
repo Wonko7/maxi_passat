@@ -74,17 +74,27 @@ let%shared get_user_data = function
       Lwt.return_some u
 
 let%shared page ?search ?html_a ?a ?title ?head myid_o content =
-  let%lwt me = get_user_data myid_o in
-  let%lwt content =
-    match me with
-    | Some me when not (Os_user.is_complete me) ->
-        let%lwt cwb = connected_welcome_box () in
-        Lwt.return @@ (cwb :: content)
-    | _ -> Lwt.return @@ content
-  in
-  let%lwt h = os_header ?search ?user:me () in
+  let%lwt h = os_header ?search () in
   Lwt.return
     (Os_page.content ?html_a ?a ?title ?head
        [ h
        ; Eliom_content.Html.F.(div ~a:[a_class ["os-body"]] content)
-       ; Maxipassat_drawer.make ?user:me () ])
+       ; Maxipassat_drawer.make () ])
+
+let%shared org_page ?search ?html_a ?a ?title ?head ~backlink_drawer myid_o
+    org_content backlink_content
+  =
+  let%lwt h = os_header ?search () in
+  Lwt.return
+    (Os_page.content ?html_a ?a ?title ?head
+       [ h
+       ; Eliom_content.Html.F.(
+           div
+             ~a:[a_class ["os-body"]]
+             [ div
+                 ~a:[a_class ["org_page"]]
+                 [ Ww_lib.scroll_fade_div ~aclass:["org_content"] [org_content]
+                 ; Ww_lib.scroll_fade_div ~aclass:["backlink_content"]
+                     [backlink_content] ] ])
+       ; Maxipassat_drawer.make ()
+       ; backlink_drawer ])

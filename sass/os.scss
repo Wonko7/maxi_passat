@@ -242,6 +242,11 @@ a.os-page-header-app-name {
         }
     }
     // .os-page-header { display: block; }
+    .org-page .backlink_content {
+    // .backlink_content {
+        flex: unset;
+        display: none;
+    }
 }
 
 .os-settings p {

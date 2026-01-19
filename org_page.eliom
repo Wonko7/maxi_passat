@@ -182,8 +182,8 @@ let%client last_selected_node =
   let selected, set_selected_title = Eliom_shared.React.S.create false in
   ref set_selected_title
 
-let make_ptree_org_note ?subtree_headline_id ?target_hlid ~title ~headlines
-    ~nodes ?id_links
+let make_ptree_org_note ?onclick_backlink ?subtree_headline_id ?target_hlid
+    ~title ~headlines ~nodes ?id_links
     ~(set_backlinks_id : (string -> unit Lwt.t) Eliom_client_value.t)
   =
   let root =
@@ -229,7 +229,8 @@ let make_ptree_org_note ?subtree_headline_id ?target_hlid ~title ~headlines
                   ignore @@ ~%set_backlinks_id ~%node_id;
                   !last_selected_node false;
                   ignore @@ ~%set_selected_title true;
-                  last_selected_node := ~%set_selected_title]
+                  last_selected_node := ~%set_selected_title;
+                  match ~%onclick_backlink with Some obl -> obl () | _ -> ()]
           in
           ( onclick :: [a_class @@ ("anchor_content" :: content_cl)]
           , Some onclick
@@ -265,6 +266,7 @@ let make_ptree_org_note ?subtree_headline_id ?target_hlid ~title ~headlines
   @@ [%client
        (Js_of_ocaml.(
           ignore
+          (* Ot_nodeready.nodeready *)
           @@ Dom_html.window##setTimeout
                (Js.wrap_callback (fun () ->
                     ignore
@@ -310,7 +312,7 @@ let hl_to_inactive_html ~title_selected_s hls =
     title
     [div ~a:[a_class ["content"]] content]
 
-let make_backnode_link
+let make_backnode_link ?on_backlink_select
     (set_file_path :
       (?target_hlid:int32 -> string -> unit Lwt.t) Eliom_client_value.t) hls
   =
@@ -327,10 +329,11 @@ let make_backnode_link
               @@ ~%set_file_path ~target_hlid:~%f.p_headline_id ~%f.p_file_path;
               !last_selected_node false;
               ignore @@ ~%set_selected_title true;
-              last_selected_node := ~%set_selected_title] ]
+              last_selected_node := ~%set_selected_title;
+              match ~%on_backlink_select with Some obc -> obc () | _ -> ()] ]
   @@ [hl_to_inactive_html ~title_selected_s hls]
 
-let org_backlinks_content
+let org_backlinks_content ?on_backlink_select
     (backlinks_node : processed_org_headline list R.list_wrap)
     (set_file_path :
       (?target_hlid:int32 -> string -> unit Lwt.t) Eliom_client_value.t)
@@ -344,7 +347,12 @@ let org_backlinks_content
            | [] -> div ~a:[a_class ("invisible" :: aclass)] []
            | headlines ->
                let hls = group_by_headline_id headlines [] in
-               let dhls = List.map (make_backnode_link ~%set_file_path) hls in
+               let dhls =
+                 List.map
+                   (make_backnode_link ?on_backlink_select:~%on_backlink_select
+                      ~%set_file_path)
+                   hls
+               in
                div ~a:[a_class aclass] dhls]
        backlinks_node
 
@@ -363,7 +371,7 @@ let file_navigation file_nav =
   in
   div ~a:[a_class ["navigation"]] nav
 
-let org_file_content ~set_file_path
+let org_file_content ~set_file_path ?onclick_backlink
     ~(file_data :
        ((string option * string option)
        * string
@@ -387,8 +395,9 @@ let org_file_content ~set_file_path
              , set_backlinks_id ) ->
            div
              [ file_navigation file_nav
-             ; make_ptree_org_note ?subtree_headline_id:None ?target_hlid ~title
-                 ~headlines ~nodes ?id_links ~set_backlinks_id ]]
+             ; make_ptree_org_note ?onclick_backlink:~%onclick_backlink
+                 ?subtree_headline_id:None ?target_hlid ~title ~headlines ~nodes
+                 ?id_links ~set_backlinks_id ]]
        file_data
 
 let prepare_roam_id_links hls =
@@ -429,9 +438,9 @@ let gather_org_file_data file_path =
   let file_nav = find_neighs files in
   Lwt.return (file_nav, hls, nodes, roam_links, title)
 
-let file_page file_path () =
+let file_page myid_o file_path () =
   let file_path = String.concat "" @@ add_slash file_path in
-  let%lwt org_note, set_file_path =
+  let%lwt org_note, set_file_path, backlink_content, backlink_drawer =
     (* Ot_spinner.with_spinner *)
     let%lwt file_nav, hls, nodes, id_links, title =
       gather_org_file_data file_path
@@ -468,23 +477,40 @@ let file_page file_path () =
           : ?target_hlid:int32 -> string -> unit Lwt.t)]
     in
     ignore @@ [%client (fuck_me_set_file_path := Some ~%set_file_path : unit)];
+    (* only done once to init content because drawer is created b4 backlinks *)
+    let drawer_backlink_content, set_drawer_backlink_nodes =
+      Eliom_shared.React.S.create @@ div []
+    in
+    let backlink_drawer, open_bl_drawer, close_bl_drawer =
+      Ot_drawer.drawer ~a:[a_id "mobile_backlink_drawer"] ~position:`Right
+      @@ [ Ww_lib.scroll_fade_div
+             ~aclass:["drawer_backlink_content"]
+             [ R.node
+               @@ Eliom_shared.React.S.map ~eq:[%shared ( == )]
+                    [%shared fun backlinks -> div [backlinks]]
+                    drawer_backlink_content ] ]
+    in
+    let drawer_backlinks =
+      org_backlinks_content ~on_backlink_select:close_bl_drawer backlink_list
+        set_file_path
+    in
+    ignore
+    @@ [%client
+         (ignore @@ ~%set_drawer_backlink_nodes ~%drawer_backlinks : unit)];
     let backlinks_node = org_backlinks_content backlink_list set_file_path in
-    let org_content = org_file_content ~set_file_path ~file_data:file_data_s in
-    Lwt.return
-      ( (* Ot_spinner.with_spinner *)
-        [ div
-            ~a:[a_class ["org_page"]]
-            [ Ww_lib.scroll_fade_div ~aclass:["org_content"] [org_content]
-            ; Ww_lib.scroll_fade_div ~aclass:["backlink_content"]
-                [backlinks_node] ] ]
-      , set_file_path )
+    let org_content =
+      org_file_content ~onclick_backlink:open_bl_drawer ~set_file_path
+        ~file_data:file_data_s
+    in
+    Lwt.return (org_content, set_file_path, backlinks_node, backlink_drawer)
   in
-  (* a title would be nice: h1 [%i18n Demo.pgocaml]; *)
-  Lwt.return (org_note, set_file_path)
+  let search = Org_search.search_files ~onclick:set_file_path () in
+  Maxipassat_container.org_page ~search
+    ~a:[a_class ["org-page"]]
+    ~backlink_drawer myid_o org_note backlink_content
 
 let id_page roam_id () =
   let%lwt org_note =
-    (* Ot_spinner.with_spinner *)
     let%lwt hls = get_processed_org_for_id roam_id in
     let%lwt headline_id, file_path =
       match%lwt get_headline_id_for_roam_id roam_id with
@@ -497,25 +523,18 @@ let id_page roam_id () =
         ; a ~service:Maxipassat_services.org_file [txt file_path]
           @@ String.split_on_char '\n' file_path ]
     in
-    (* let%lwt nodes = get_roam_nodes file_path in *)
-    (* let%lwt hls = make_ptree_org_note ~headline_id "roam node:" hls nodes in *)
-    (* Lwt.return @@ [div [title]; div [hls]]) *)
     Lwt.return @@ [div [title]; div []]
   in
   Lwt.return [div org_note]
 
 let get_lang_page_file file myid_o () () =
-  let%lwt p, search_onclick =
-    file_page
-      [ "here-be-dragons"
-      ; ".www"
-      ; "maxipassat"
-      ; Maxipassat_i18n.string_of_language @@ Maxipassat_i18n.get_language ()
-      ; file ]
-      ()
-  in
-  let search = Org_search.search_files ~onclick:search_onclick () in
-  Maxipassat_container.page ~search ~a:[a_class ["org-page"]] myid_o p
+  file_page myid_o
+    [ "here-be-dragons"
+    ; ".www"
+    ; "maxipassat"
+    ; Maxipassat_i18n.string_of_language @@ Maxipassat_i18n.get_language ()
+    ; file ]
+    ()
 
 let ls_page () =
   let%lwt fs = Org_search.get_all_org_files () in
@@ -527,7 +546,7 @@ let ls_page () =
   in
   Lwt.return @@ [ul @@ List.map make_li fs]
 
-let latest_daily_page () =
+let latest_daily_page myid_o () () =
   let%lwt fs = Org_search.get_all_org_files () in
   let is_daily =
     (* TODO make this configurable *)
@@ -539,14 +558,11 @@ let latest_daily_page () =
     | a :: [] when is_daily a -> a
     | e :: l -> get_latest l
   in
-  file_page (String.split_on_char '/' @@ get_latest fs) ()
+  file_page myid_o (String.split_on_char '/' @@ get_latest fs) ()
 
 let () =
   Maxipassat_base.App.register ~service:Maxipassat_services.org_file
-    ( Maxipassat_page.Opt.connected_page @@ fun myid_o file_path () ->
-      let%lwt p, search_onclick = file_page file_path () in
-      let search = Org_search.search_files ~onclick:search_onclick () in
-      Maxipassat_container.page ~search ~a:[a_class ["org-page"]] myid_o p );
+    (Maxipassat_page.Opt.connected_page @@ file_page);
   Maxipassat_base.App.register ~service:Maxipassat_services.org_id
     ( Maxipassat_page.Opt.connected_page @@ fun myid_o id () ->
       let%lwt p = id_page id () in
@@ -557,7 +573,4 @@ let () =
       let search = Org_search.search_files () in
       Maxipassat_container.page ~search ~a:[a_class ["org-page"]] myid_o p );
   Maxipassat_base.App.register ~service:Maxipassat_services.org_latest_daily
-    ( Maxipassat_page.Opt.connected_page @@ fun myid_o () () ->
-      let%lwt p, search_onclick = latest_daily_page () in
-      let search = Org_search.search_files ~onclick:search_onclick () in
-      Maxipassat_container.page ~search ~a:[a_class ["org-page"]] myid_o p )
+    (Maxipassat_page.Opt.connected_page @@ latest_daily_page)
