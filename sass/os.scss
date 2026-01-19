@@ -217,7 +217,8 @@ a.os-page-header-app-name {
 //     }
 // }
 
-@media (max-width: $breakpoint1) {
+// @media (max-width: $breakpoint1) {
+@media (orientation: portrait) {
     .os-page-footer { display: none; }
     .os-page-header {
         .os-connection-box, .os-page-header-app-name, .connected-user-box {
@@ -241,9 +242,31 @@ a.os-page-header-app-name {
             display: none;
         }
     }
-    // .os-page-header { display: block; }
+    // .org-page .backlink_content {
+    // // .backlink_content {
+    //     flex: unset;
+    //     display: none;
+    // }
+}
+
+#mobile_backlink_drawer {
+    .ot-drawer {
+        background-color: $darker_background;
+    }
+
+    .drawer_backlink_content {
+        height: 100%
+    }
+}
+
+@media (orientation: landscape) {
+    #mobile_backlink_drawer {
+        display: none;
+    }
+}
+
+@media (orientation: portrait) {
     .org-page .backlink_content {
-    // .backlink_content {
         flex: unset;
         display: none;
     }
