@@ -78,7 +78,7 @@ input {
     justify-content: space-between;
     align-items: center;
     box-shadow: 0 4px 8px rgba(0,0,0,.28);
-    padding: 0 20px 0 50px;
+    padding: 0 50px 0 50px;
     .connected-user-box {
         color: white;
     }
@@ -255,7 +255,8 @@ a.os-page-header-app-name {
     }
 
     .drawer_backlink_content {
-        height: 100%
+        height: 100%;
+        overflow-y: scroll;
     }
 }
 

@@ -232,7 +232,7 @@ let make_ptree_org_note ?onclick_backlink ?subtree_headline_id ?target_hlid
                   last_selected_node := ~%set_selected_title;
                   match ~%onclick_backlink with Some obl -> obl () | _ -> ()]
           in
-          ( onclick :: [a_class @@ ("anchor_content" :: content_cl)]
+          ( [a_class @@ ("anchor_content" :: content_cl)]
           , Some onclick
           , Some "anchor_node" )
       | None -> [a_class content_cl], None, None
