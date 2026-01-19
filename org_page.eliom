@@ -62,8 +62,7 @@ let make_inactive_header_entry ?(a = []) ~id ~title_class title content =
   div ~a:([a_class ["header"]] @ a)
   @@ [ input
          ~a:
-           [ a_id id
-           ; a_class ["toggle"]
+           [ a_id id (* ; a_class ["toggle"] *)
            ; a_input_type `Checkbox
            ; a_checked ()
            ; a_tabindex 0 ]
