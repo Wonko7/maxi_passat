@@ -150,8 +150,9 @@ let processed_org_to_html ?(id_links = []) ~kind ~content ~link_dest ~link_desc
         ; br ()
         ; iframe
             ~a:
-              [ a_width 560
-              ; a_height 315 (* ; a_frameborder `Zero *)
+              [ a_class ["yt_iframe"]
+                (* a_height 350 *)
+                (* ; Unsafe.string_attrib "width" "100%" *)
               ; Unsafe.string_attrib "frameborder" "0"
               ; Unsafe.string_attrib "allow"
                   "accelerometer autoplay clipboard-write encrypted-media gyroscope picture-in-picture web-share fullscreen"
