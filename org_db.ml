@@ -214,10 +214,21 @@ let get_file_path_headline roam_id =
              WHERE p.val_text = $roam_id
                AND p.key_text = 'ID'
                AND hp.property_id = p.property_id
-               AND p.outline_hash = m.outline_hash"])
+               AND p.outline_hash = m.outline_hash
+         UNION
+             SELECT p.val_text, m.file_path, c1
+               FROM org.properties p, org.file_metadata m,  (VALUES (-1)) AS v (c1)
+               WHERE p.key_text = 'ID' AND p.val_text = $roam_id
+                 AND p.property_id NOT IN (select property_id from org.headline_properties)
+                 AND p.outline_hash = m.outline_hash "])
   in
   Lwt.return
-  @@ List.map (fun (id, fp, hid) -> id, (strip_org_prefix fp, Some hid)) fph
+  (* @@ List.map (fun (id, fp, hid) -> id, (strip_org_prefix fp, Some hid)) fph *)
+  @@ List.map
+       (function
+         | Some id, Some fp, Some hid -> id, (strip_org_prefix fp, Some hid)
+         | _ -> failwith "couldn't find file path headline")
+       fph
 
 let get_file_path_kill_me_with_fire roam_id =
   (* I think this can be done with a join instead *)
