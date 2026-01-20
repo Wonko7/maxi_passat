@@ -443,7 +443,12 @@ let gather_org_file_data file_path =
     | x :: n :: _ when x = file_path -> None, Some n
     | a :: l -> find_neighs l
   in
-  let file_nav = find_neighs files in
+  let file_nav =
+    find_neighs
+    @@ List.filter
+         (String.starts_with ~prefix:"here-be-dragons/the-road-so-far/")
+         files
+  in
   Lwt.return (file_nav, hls, nodes, roam_links, title)
 
 let file_page myid_o file_path () =
