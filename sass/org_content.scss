@@ -44,6 +44,7 @@ a:focus .link {
     color: $links_col;
 }
 a:hover .link {
+    color: $links_col;
     text-decoration: underline;
 }
 a:active .link {

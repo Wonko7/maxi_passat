@@ -28,6 +28,24 @@ a, a:visited {
     // color: #666;
     cursor: pointer;
 }
+a:link {
+    color: $links_col;
+}
+
+a:visited {
+    color: $links_col;
+}
+
+a:focus  {
+    color: $links_col;
+}
+a:hover {
+    color: $links_col;
+    text-decoration: underline;
+}
+a:active {
+    color: $links_col;
+}
 
 button, input {
     border: none;
