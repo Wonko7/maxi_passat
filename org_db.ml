@@ -188,6 +188,7 @@ let get_roam_nodes file_path =
               AND m.outline_hash = p.outline_hash
               AND p.property_id NOT IN (select property_id from org.headline_properties)
               AND p.key_text = 'ID'
+              AND p.val_text IN (select link_dest from org.processed_content)
        UNION
            SELECT h.headline_id, p.val_text
              FROM org.headlines h, org.file_metadata m , org.headline_properties hp, org.properties p
@@ -195,7 +196,8 @@ let get_roam_nodes file_path =
               AND m.outline_hash = h.outline_hash
               AND hp.property_id = p.property_id
               AND h.headline_id = hp.headline_id
-           AND p.key_text = 'ID'"])
+              AND p.key_text = 'ID'
+              AND p.val_text IN (select link_dest from org.processed_content)"])
   in
   let rec some_flatten = function
     | [] -> []
