@@ -17,10 +17,10 @@ body {
 body, input, textarea, keygen, select, button {
   font-family: 'Quicksand', sans-serif; }
 
-a, a:visited {
-  text-decoration: none;
-  color: #666;
-  cursor: pointer; }
+/* a, a:visited { */
+/*     text-decoration: none; */
+/*     color: #666; */
+/*     cursor: pointer; } */
 
 button, input {
   border: none; }

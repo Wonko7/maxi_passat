@@ -19,77 +19,98 @@ body {
 
 //links
 .link {
-  color: $links_col;
-  cursor: pointer;
+    color: $links_col;
+    cursor: pointer;
 }
 .link:hover {
-  color: $links_col;
-  text-decoration: underline;
-  cursor: pointer;
-}
-a {
-  color: $links_col;
-  outline-color: transparent;
-}
-a:link {
-  color: $links_col;
+    color: $links_col;
+    text-decoration: underline;
+    cursor: pointer;
 }
 
-a:visited {
-  color: $links_col;
+a .link {
+    color: $links_col;
+    outline-color: transparent;
+}
+a:link .link {
+    color: $links_col;
 }
 
-a:focus {
-  color: $links_col;
+a:visited .link {
+    color: $links_col;
 }
-a:hover {
-  text-decoration: underline;
+
+a:focus .link {
+    color: $links_col;
 }
-a:active {
-  color: $links_col;
+a:hover .link {
+    text-decoration: underline;
 }
+a:active .link {
+    color: $links_col;
+}
+
+a:link.external_link {
+    color: $external_links_col;
+}
+
+a:visited.external_link {
+    color: $external_links_col;
+}
+
+a:focus.external_link {
+    color: $external_links_col;
+}
+a:hover.external_link {
+    color: $external_links_col;
+    text-decoration: underline;
+}
+a:active.external_link {
+    color: $external_links_col;
+}
+
 .org_node_title {
-  color: $title_col;
-  padding: 0.2rem;
-  padding-left: 0.5rem;
+    color: $title_col;
+    padding: 0.2rem;
+    padding-left: 0.5rem;
 }
 .org_node_content {
-  padding-left: 0.5rem;
-  margin-left: 0.5rem;
+    padding-left: 0.5rem;
+    margin-left: 0.5rem;
 }
 
 @mixin indent(){
-  @for $i from 1 through 1 { // thought I'd need more
-    .indent-#{$i}{
-        padding-left: ($i * $indent);
+    @for $i from 1 through 1 { // thought I'd need more
+        .indent-#{$i}{
+            padding-left: ($i * $indent);
+        }
     }
-  }
 }
 
 @include indent();
 
 .fade-bottom {
     mask-image: linear-gradient(
-    to bottom,
-    $fade_col 95%, /* Opaque center */
-    transparent 100% /* Fade out bottom content */
-  );
+        to bottom,
+        $fade_col 95%, /* Opaque center */
+        transparent 100% /* Fade out bottom content */
+    );
 }
 .fade-top {
     mask-image: linear-gradient(
-    to top,
-    $fade_col 95%,
-    transparent 100%
-  );
+        to top,
+        $fade_col 95%,
+        transparent 100%
+    );
 }
 .fade-both {
     mask-image: linear-gradient(
-    to bottom,
-    transparent 0%, /* Fade out top content */
-    $fade_col 3%, /* Opaque center */
-    $fade_col 97%, /* Opaque center */
-    transparent 100% /* Fade out bottom content */
-  );
+        to bottom,
+        transparent 0%, /* Fade out top content */
+        $fade_col 3%, /* Opaque center */
+        $fade_col 97%, /* Opaque center */
+        transparent 100% /* Fade out bottom content */
+    );
 }
 
 // animations

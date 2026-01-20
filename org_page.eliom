@@ -163,10 +163,14 @@ let processed_org_to_html ?(id_links = []) ~kind ~content ~link_dest ~link_desc
             [] ]
   | _, "mailto_link" ->
       F.Raw.a
-        ~a:[F.a_href @@ Xml.uri_of_string @@ "mailto:" ^ link_dest]
+        ~a:
+          [ F.a_href @@ Xml.uri_of_string @@ "mailto:" ^ link_dest
+          ; a_class ["external_link"] ]
         [txt link_desc]
   | _, "https_link" ->
-      F.Raw.a ~a:[a_href (Xml.uri_of_string link_dest)] [txt link_desc]
+      F.Raw.a
+        ~a:[a_href (Xml.uri_of_string link_dest); a_class ["external_link"]]
+        [txt link_desc]
   | _ ->
       print_endline "fixme proper warnings please";
       span [txt link_desc]
@@ -359,7 +363,7 @@ let org_backlinks_content ?on_backlink_select
 
 let file_navigation file_nav =
   let make_link dest label =
-    a ~a:[a_class ["nav-link"]] ~service:Maxipassat_services.org_file [txt label]
+    a ~a:[a_class ["link"]] ~service:Maxipassat_services.org_file [txt label]
     @@ String.split_on_char '\n' dest
   in
   let nav =

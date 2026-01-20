@@ -25,7 +25,7 @@ body, input, textarea, keygen, select, button {
 
 a, a:visited {
     text-decoration: none;
-    color: #666;
+    // color: #666;
     cursor: pointer;
 }
 
@@ -316,7 +316,6 @@ a.os-page-header-app-name {
         }
     }
 }
-
 code {
     color: greenyellow;
     white-space: pre-wrap;
