@@ -363,7 +363,10 @@ let org_backlinks_content ?on_backlink_select
 
 let file_navigation file_nav =
   let make_link dest label =
-    a ~a:[a_class ["link"]] ~service:Maxipassat_services.org_file [txt label]
+    a
+      ~a:[a_class ["link"; "nav-link"]]
+      ~service:Maxipassat_services.org_file
+      [txt label]
     @@ String.split_on_char '\n' dest
   in
   let nav =
