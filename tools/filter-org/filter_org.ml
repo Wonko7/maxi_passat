@@ -13,7 +13,7 @@ let pub_tags = [ "pub"; "public" ]
 and pubh_tags = [ "pubh"; "public-header" ]
 and priv_tags = [ "priv"; "private"; "is"; "innerspace"; "crypt" ]
 
-let rx_headline = "^(?<stars>\\*+).*?(?<tags>:[A-Za-z0-9:_-]+:)?\\s*$"
+let rx_headline = "^(?<stars>\\*+)\\s.*?(?<tags>:[A-Za-z0-9:_-]+:)?\\s*$"
 and rx_file_tags = "^#\\+filetags:\\s*(?<tags>:[A-Za-z0-9:_-]+:)?\\s*$"
 
 let extract_stars line =
