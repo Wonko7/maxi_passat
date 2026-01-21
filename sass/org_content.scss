@@ -79,6 +79,11 @@ a:active.external_link {
     padding-left: 0.5rem;
     margin-left: 0.5rem;
 }
+.drawer_backlink_content {
+    padding-left: 0.5rem;
+    margin: 0.5rem;
+}
+
 
 @mixin indent(){
     @for $i from 1 through 1 { // thought I'd need more
