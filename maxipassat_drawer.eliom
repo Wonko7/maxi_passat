@@ -19,7 +19,8 @@ let%shared user_menu () =
 let%shared make ?user () =
   let items = if user = None then [] else user_menu () in
   let items =
-    item [%i18n S.home ~capitalize:true] Os_services.main_service
+    (* item [%i18n S.home ~capitalize:true] Os_services.main_service *)
+    item [%i18n S.about ~capitalize:true] Maxipassat_services.about_service
     :: item [%i18n S.ls] Maxipassat_services.org_ls
     :: item [%i18n S.latest_daily] Maxipassat_services.org_latest_daily
     :: (li ~a:[a_class ["os-drawer-item"]]

@@ -138,17 +138,10 @@ let%rpc preregister_rpc (email : string) : unit Lwt.t =
 let%client preregister_handler () = preregister_rpc
 
 let%shared main_service_handler myid_o () () =
-  Org_page.get_lang_page_file "greeting.org" myid_o () ()
+  Org_page.latest_daily_page myid_o () ()
 
 let%shared about_handler myid_o () () =
-  let open Eliom_content.Html.F in
-  Maxipassat_container.page
-    ~a:[a_class ["os-page-about"]]
-    myid_o
-    [ div
-        [ p [%i18n about_handler_template]
-        ; br ()
-        ; p [%i18n about_handler_license] ] ]
+  Org_page.get_lang_page_file "greeting.org" myid_o () ()
 
 let%shared settings_handler myid_o () () =
   let%lwt content =
