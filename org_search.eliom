@@ -123,6 +123,8 @@ let%shared search_files
   in
   Lwt.return @@ div [e; div ~a:[a_class ["search_results"]] [result]]
 
+[%%client let reset_i = ref 0]
+
 let%shared search_nodes
     ?(onclick :
        (?target_hlid:int32 -> string -> unit Lwt.t) Eliom_client_value.t option)
@@ -137,8 +139,8 @@ let%shared search_nodes
          (* fixme: find a better workaround.
             this only works if the signal is new, if you repeat "" it
             does not work. if you repeat "None" it won't work either. *)
-         ~%set_in @@ String.cat "__None_"
-         @@ string_of_float ((new%js Js_of_ocaml.Js.date_now)##getTime /. 1000.)
+         reset_i := !reset_i + 1;
+         ~%set_in @@ String.cat "__None_" @@ string_of_int !reset_i
         : unit -> unit)]
   in
   let a_search_keyboard_ui =
