@@ -222,8 +222,10 @@ a:active.external_link {
     position: absolute;
     background: $dark_background;
     overflow-y: scroll;
+    max-height: 90vh;
     left: 10%;
     width: 80%;
+    border-radius: 0.5rem;
 }
 
 .search_selected {

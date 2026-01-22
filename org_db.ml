@@ -114,6 +114,37 @@ let get_processed_org_backlinks roam_id =
   in
   Lwt.return @@ List.map obj_to_processed_org_headline hls
 
+let get_all_nodes () =
+  let%lwt hls =
+    full_transaction_block (fun dbh ->
+        [%pgsql
+          dbh
+            "
+  SELECT c1, p.val_text, m.file_path, p2.val_text, c2 from org.properties p, org.file_metadata m, org.properties p2,  (VALUES (-1, '')) AS v (c1, c2)
+   WHERE p.key_text = 'ID'
+   and p2.key_text = 'TITLE'
+   and p2.outline_hash = p.outline_hash
+   and p.val_text != '542030fc-9719-4888-89d9-152717c144bf' -- FIXME greeting duplicate workaround
+   AND p.outline_hash = m.outline_hash
+   AND p.property_id NOT IN (select property_id from org.headline_properties)
+UNION
+  SELECT h.headline_id, p.val_text, m.file_path, pc.content, pc.link_desc from org.properties p, org.file_metadata m, org.headlines h, org.headline_properties hp, org.processed_content pc
+   WHERE p.key_text = 'ID'
+     AND hp.property_id = p.property_id
+     AND h.headline_id = hp.headline_id
+     AND h.headline_id = pc.headline_id
+     AND pc.is_headline = TRUE
+     AND p.outline_hash = m.outline_hash
+           "])
+  in
+  Lwt.return
+  @@ List.map
+       (function
+         | Some i, Some r, Some p, _, Some c when c <> "" -> i, r, p, c
+         | Some i, Some r, Some p, Some c, _ when c <> "" -> i, r, p, c
+         | _ -> failwith "bug: got incomplete roam node")
+       hls
+
 let get_headline_id_for_roam_id roam_id =
   let%lwt hl_id =
     full_transaction_block (fun dbh ->

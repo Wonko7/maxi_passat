@@ -517,7 +517,7 @@ let file_page myid_o file_path () =
     in
     Lwt.return (org_content, set_file_path, backlinks_node, backlink_drawer)
   in
-  let search = Org_search.search_files ~onclick:set_file_path () in
+  let search = Org_search.search_nodes ~onclick:set_file_path () in
   Maxipassat_container.org_page ~search
     ~a:[a_class ["org-page"]]
     ~backlink_drawer myid_o org_note backlink_content
