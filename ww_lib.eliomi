@@ -14,11 +14,11 @@ val reactive_input
        [< Html_types.input_attrib > `OnInput `Value] Eliom_content.Html.attrib
        list
   -> ?input_r:
-       string Eliom_shared.React.S.t
-       * (?step:React.step -> string -> unit) Eliom_shared.Value.t
+       (string * int) Eliom_shared.React.S.t
+       * (?step:React.step -> string * int -> unit) Eliom_shared.Value.t
   -> ?output_r:
-       string Eliom_shared.React.S.t
-       * (?step:React.step -> string -> unit) Eliom_shared.Value.t
+       (string * int) Eliom_shared.React.S.t
+       * (?step:React.step -> string * int -> unit) Eliom_shared.Value.t
   -> ?value:string
   -> ?validate:(string -> bool) Eliom_client_value.t
   -> unit
@@ -26,10 +26,10 @@ val reactive_input
      (* Js_of_ocaml.Dom_html.element Js_of_ocaml.Js.t Eliom_client_value.t *)
      [> Html_types.span] Eliom_content.Html.elt
      (* [> `Input] Eliom_content.Html.elt *)
-     * (string Eliom_shared.React.S.t
-       * (?step:React.step -> string -> unit) Eliom_shared.Value.t)
-     * (string Eliom_shared.React.S.t
-       * (?step:React.step -> string -> unit) Eliom_shared.Value.t)
+     * ((string * int) Eliom_shared.React.S.t
+       * (?step:React.step -> string * int -> unit) Eliom_shared.Value.t)
+     * ((string * int) Eliom_shared.React.S.t
+       * (?step:React.step -> string * int -> unit) Eliom_shared.Value.t)
 
 val scroll_fade_div
   :  ?a:'a list

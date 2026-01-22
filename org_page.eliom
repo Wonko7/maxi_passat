@@ -583,7 +583,7 @@ let () =
   Maxipassat_base.App.register ~service:Maxipassat_services.org_ls
     ( Maxipassat_page.Opt.connected_page @@ fun myid_o () () ->
       let%lwt p = ls_page () in
-      let search = Org_search.search_files () in
+      let search = Org_search.search_nodes () in
       Maxipassat_container.page ~search ~a:[a_class ["org-page"]] myid_o p );
   Maxipassat_base.App.register ~service:Maxipassat_services.org_latest_daily
     (Maxipassat_page.Opt.connected_page @@ latest_daily_page)

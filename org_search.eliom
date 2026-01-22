@@ -11,117 +11,13 @@ let%rpc get_all_nodes () : (int32 * string * string * string) list Lwt.t =
   Org_db.get_all_nodes ()
 
 [%%shared.start]
+[%%client let global_i = ref 2]
 
 let%shared search_str r s =
   try
     ignore @@ Str.search_forward r s 0;
     true
   with Not_found -> false
-
-let%shared search_files
-    ?(onclick :
-       (?target_hlid:int32 -> string -> unit Lwt.t) Eliom_client_value.t option)
-    ()
-  =
-  let%lwt fs = get_all_org_files () in
-  let res_s, set_results = Eliom_shared.React.S.create (0, []) in
-  let in_s, set_in = Eliom_shared.React.S.create "" in
-  let reset_search =
-    [%client
-      (fun () ->
-         (* fixme: find a better workaround.
-            this only works if the signal is new, if you repeat "" it
-            does not work. if you repeat "None" it won't work either. *)
-         ~%set_in @@ String.cat "__None_"
-         @@ string_of_float ((new%js Js_of_ocaml.Js.date_now)##getTime /. 1000.)
-        : unit -> unit)]
-  in
-  let a_search_keyboard_ui =
-    [ a_onkeydown
-        [%client
-          let incr_sel i =
-            let i', fs = React.S.value ~%res_s in
-            let l = List.length fs in
-            let i' = if i' > l then l - 1 else i' in
-            let i' = if i' < 0 then 0 else i' in
-            ~%set_results (i + i', fs)
-          in
-          let visit () =
-            let i', fs = React.S.value ~%res_s in
-            let target = List.nth fs i' in
-            match ~%onclick with
-            | None ->
-                Js_of_ocaml.(
-                  Dom_html.window##.location##assign
-                    (Js.string @@ String.cat "/org/file/" target))
-            | Some onclick ->
-                ignore @@ onclick target;
-                ~%reset_search ()
-          in
-          fun ev ->
-            match ev##.keyCode with
-            (* arrows order [37-40] = lurd *)
-            | 38 -> incr_sel (-1)
-            | 40 -> incr_sel 1
-            | 13 -> visit ()
-            | e -> ()] ]
-  in
-  let e, _, (out_s, set_out) =
-    Ww_lib.reactive_input ~a:a_search_keyboard_ui ~input_r:(in_s, set_in) ()
-  in
-  let _ =
-    (* react to new user input: search and filter results signal *)
-    [%client
-      (React.S.map
-         (function
-           | "" -> ~%set_results (0, [])
-           | s ->
-               let ws = String.split_on_char ' ' s in
-               let rs = List.map Str.regexp_string ws in
-               let fs =
-                 List.filter
-                   (fun file ->
-                     List.fold_left
-                       (fun acc r -> acc && search_str r file)
-                       true rs)
-                   ~%fs
-               in
-               ~%set_results (0, fs))
-         ~%out_s
-        : unit Eliom_shared.React.S.t)]
-  in
-  let result =
-    (* react to results signal: make dom entries for each search result *)
-    R.node
-    @@ Eliom_shared.React.S.map ~eq:[%shared ( == )]
-         [%shared
-           let reset_search = ~%reset_search in
-           fun (nb_selected, fs) ->
-             ul
-             @@ List.mapi
-                  (fun i m ->
-                    let selected_class =
-                      if i = nb_selected then ["search_selected"] else []
-                    in
-                    li ~a:[a_class selected_class]
-                    @@ [ (match ~%onclick with
-                         | None ->
-                             a ~service:Maxipassat_services.org_file [txt m]
-                             @@ String.split_on_char '/' m
-                         | Some onclick ->
-                             span
-                               ~a:
-                                 [ a_class ["link"]
-                                 ; a_onclick
-                                     [%client
-                                       fun _ev ->
-                                         ignore @@ ~%onclick ~%m;
-                                         ~%reset_search ()] ]
-                               [txt m]) ])
-                  fs]
-         res_s
-  in
-  Lwt.return @@ div [e; div ~a:[a_class ["search_results"]] [result]]
 
 [%%client let reset_i = ref 0]
 
@@ -131,8 +27,8 @@ let%shared search_nodes
     ()
   =
   let%lwt ns = get_all_nodes () in
-  let res_s, set_results = Eliom_shared.React.S.create (0, []) in
-  let in_s, set_in = Eliom_shared.React.S.create "" in
+  let res_s, set_results = Eliom_shared.React.S.create (0, [], 0) in
+  let in_s, set_in = Eliom_shared.React.S.create ("", 0) in
   let reset_search =
     [%client
       (fun () ->
@@ -140,21 +36,23 @@ let%shared search_nodes
             this only works if the signal is new, if you repeat "" it
             does not work. if you repeat "None" it won't work either. *)
          reset_i := !reset_i + 1;
-         ~%set_in @@ String.cat "__None_" @@ string_of_int !reset_i
+         global_i := !global_i + 1;
+         ~%set_in ("", !reset_i)
         : unit -> unit)]
   in
   let a_search_keyboard_ui =
     [ a_onkeydown
         [%client
           let incr_sel i =
-            let i', fs = React.S.value ~%res_s in
+            let i', fs, _ = React.S.value ~%res_s in
             let l = List.length fs in
             let i' = if i' > l then l - 1 else i' in
+            global_i := !global_i + 1;
             let i' = if i' < 0 then 0 else i' in
-            ~%set_results (i + i', fs)
+            ~%set_results (i + i', fs, !global_i)
           in
           let visit () =
-            let i', fs = React.S.value ~%res_s in
+            let i', fs, _ = React.S.value ~%res_s in
             let hlid, roam_id, path, _title = List.nth fs i' in
             match ~%onclick with
             | None ->
@@ -176,26 +74,32 @@ let%shared search_nodes
   let e, _, (out_s, set_out) =
     Ww_lib.reactive_input ~a:a_search_keyboard_ui ~input_r:(in_s, set_in) ()
   in
+  let fuckme_node = span [] in
   let _ =
     (* react to new user input: search and filter results signal *)
     [%client
-      (React.S.map
-         (function
-           | "" -> ~%set_results (0, [])
-           | s ->
-               let ws = String.split_on_char ' ' s in
-               let rs = List.map Str.regexp_case_fold ws in
-               let ns =
-                 List.filter
-                   (fun (_, _, _, title) ->
-                     List.fold_left
-                       (fun acc r -> acc && search_str r title)
-                       true rs)
-                   ~%ns
-               in
-               ~%set_results (0, ns))
-         ~%out_s
-        : unit Eliom_shared.React.S.t)]
+      (Eliom_lib.Dom_reference.retain
+         (To_dom.of_element ~%fuckme_node)
+         ~keep:
+           (React.S.map
+              (fun (s, _) ->
+                global_i := !global_i + 1;
+                match s with
+                | "" -> ~%set_results (0, [], !global_i)
+                | s ->
+                    let ws = String.split_on_char ' ' s in
+                    let rs = List.map Str.regexp_case_fold ws in
+                    let ns =
+                      List.filter
+                        (fun (_, _, _, title) ->
+                          List.fold_left
+                            (fun acc r -> acc && search_str r title)
+                            true rs)
+                        ~%ns
+                    in
+                    ~%set_results (0, ns, !global_i))
+              ~%out_s)
+        : unit)]
   in
   let result =
     (* react to results signal: make dom entries for each search result *)
@@ -203,7 +107,7 @@ let%shared search_nodes
     @@ Eliom_shared.React.S.map ~eq:[%shared ( == )]
          [%shared
            let reset_search = ~%reset_search in
-           fun (nb_selected, ns) ->
+           fun (nb_selected, ns, _) ->
              ul
              @@ List.mapi
                   (fun i (hlid, roam_id, path, title) ->
@@ -229,4 +133,5 @@ let%shared search_nodes
                   ns]
          res_s
   in
-  Lwt.return @@ div [e; div ~a:[a_class ["search_results"]] [result]]
+  Lwt.return
+  @@ div [e; fuckme_node; div ~a:[a_class ["search_results"]] [result]]

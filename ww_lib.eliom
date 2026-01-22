@@ -15,12 +15,23 @@ let ( @?$ ) x y = x @? [y]
 let ( @$? ) x y = x @: y @? []
 let ( @?? ) x y = x @? y @? []
 
+(* because I'm using signals, I need to ensure new values are passed around
+ * this is all that global_i is used for. see mob_*_event branch for the code
+ * that tries to replace signals with events. calling the ev_trigger
+ * fn hangs. *)
+
+[%%client let global_i = ref 2]
+
 let reactive_input ?(a = []) ?input_r ?output_r ?(value = "") ?validate () =
   let in_signal, set_in_signal =
-    match input_r with Some r -> r | None -> Eliom_shared.React.S.create value
+    match input_r with
+    | Some r -> r
+    | None -> Eliom_shared.React.S.create (value, 0)
   in
   let out_signal, set_out_signal =
-    match output_r with Some r -> r | None -> Eliom_shared.React.S.create ""
+    match output_r with
+    | Some r -> r
+    | None -> Eliom_shared.React.S.create ("", 0)
   in
   let e =
     D.Raw.input
@@ -31,7 +42,8 @@ let reactive_input ?(a = []) ?input_r ?output_r ?(value = "") ?validate () =
                fun ev ->
                  let t = Js.Opt.get ev##.target (fun () -> raise Not_found) in
                  let v = Js.Unsafe.coerce t in
-                 ~%set_out_signal @@ Js.to_string @@ v##.value] ]
+                 global_i := !global_i - 1;
+                 ~%set_out_signal @@ (Js.to_string @@ v##.value, !global_i)] ]
         @ a)
       ()
   in
@@ -58,14 +70,16 @@ let reactive_input ?(a = []) ?input_r ?output_r ?(value = "") ?validate () =
          (To_dom.of_element ~%fuckme_node)
          ~keep:
            (React.S.map
-              (fun s ->
+              (fun (s, _) ->
                 (* print_endline "yes I will do something"; *)
                 (* print_endline s; *)
                 (* print_endline @@ Js.to_string ~%e_with_value##.value; *)
-                if String.length s >= 7 && String.sub s 0 7 = "__None_"
+                (* if String.length s >= 7 && String.sub s 0 7 = "__None_" *)
+                if s = ""
                 then (
                   ~%e_with_value##.value := Js.string "";
-                  ~%set_out_signal "")
+                  global_i := !global_i - 1;
+                  ~%set_out_signal ("", !global_i))
                 else if Js.to_string ~%e_with_value##.value <> s
                 then ~%e_with_value##.value := Js.string s)
               ~%in_signal)
