@@ -140,14 +140,6 @@ let processed_org_to_html ?(id_links = []) ~kind ~content ~link_dest ~link_desc
             ; a_class ["link"] ]
           [txt link_desc]
     | _ -> a ~service:Maxipassat_services.org_id [txt link_desc] @@ link_dest)
-  | _, "bleau_link" ->
-      a ~service:Maxipassat_services.os_bleau_service
-        ~a:
-          [ a_target "_blank"
-          ; a_rel [`Other "noopener"; `Nofollow]
-          ; a_class ["external_link"] ]
-        [txt "bleau.info : "; txt link_desc]
-      @@ String.split_on_char '/' link_dest
   | _, "yt_link" ->
       span
         [ txt "youtube : "
@@ -172,9 +164,21 @@ let processed_org_to_html ?(id_links = []) ~kind ~content ~link_dest ~link_desc
           [ F.a_href @@ Xml.uri_of_string @@ "mailto:" ^ link_dest
           ; a_class ["external_link"] ]
         [txt link_desc]
+  | _, "bleau_link" ->
+      F.Raw.a
+        ~a:
+          [ a_href (Xml.uri_of_string @@ "https://bleau.info/" ^ link_dest)
+          ; a_target "_blank"
+          ; a_rel [`Other "noopener"; `Nofollow]
+          ; a_class ["external_link"] ]
+        [txt @@ "bleau.info : " ^ link_desc]
   | _, "https_link" ->
       F.Raw.a
-        ~a:[a_href (Xml.uri_of_string link_dest); a_class ["external_link"]]
+        ~a:
+          [ a_href (Xml.uri_of_string link_dest)
+          ; a_class ["external_link"]
+          ; a_rel [`Other "noopener"; `Nofollow]
+          ; a_target "_blank" ]
         [txt link_desc]
   | _ ->
       print_endline "fixme proper warnings please";
