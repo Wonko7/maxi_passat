@@ -377,3 +377,39 @@ host	all	all	127.0.0.1/32	trust
       (service-extension special-files-service-type
                          maxipassat-init-ci-files-service)))
     (description "init maxipassat ci")))
+
+;; you've already init'ed that deployment, you now want to automate starting the CI:
+;; this supposes mp-<deployment-name>-ci-os exists, adapt to your own needs.
+(define-public maxipassat-container-ci-shepherd-service
+  (match-record-lambda <maxipassat-ci-configuration>
+      (base-path deployment-name)
+    (define paths (make-paths base-path))
+    (list
+     (let ((cmd (string-append "$("
+                               (paths 'guix-prof) "/bin/guix"
+                               " system container --network "
+                               " --share=" base-path
+                               " -e "
+                               "'(@ (maxipassat systems ci) mp-" deployment-name "-ci-os)'"
+                               ")")))
+       (shepherd-service
+         (provision (list (string->symbol (string-append "maxipassat-" deployment-name))))
+         (requirement '(user-processes networking))
+         (documentation "maxipassat")
+         (respawn-delay 1)
+         (respawn-limit #~'(5000 . 1))
+         (start
+          #~(lambda _
+              (system #$(string-append "(" cmd "&)"))))
+         (stop
+          #~(lambda _
+              (system #$(string-append "killall " cmd)))))))))
+(define-public maxipassat-container-ci-service-type
+  (service-type
+    (name 'maxipassat-container-ci)
+    (default-value (maxipassat-ci-configuration))
+    (extensions
+     (list
+      (service-extension shepherd-root-service-type
+                         maxipassat-container-ci-shepherd-service)))
+    (description "maxipassat container ci")))
