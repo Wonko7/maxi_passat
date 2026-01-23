@@ -171,7 +171,10 @@ let process_org_text s =
       if Str.string_match beg_block_re s 0
       then (
         ignore @@ Str.search_forward beg_block_re s 0;
-        if Str.matched_group 1 s = "src" then `Bsrc else `Bqte)
+        match Str.matched_group 1 s with
+        | "src" -> `Bsrc
+        | "quote" -> `Bqte
+        | _ -> `Bex)
       else if Str.string_match res_block_re s 0
       then `Bres
       else if Str.string_match end_block_re s 0
@@ -200,14 +203,18 @@ let process_org_text s =
         :: Text s :: find_blocks [] `Text l
     | `Bres, s :: l when stty s = `Last_line ->
         Block_result (String.concat "\n" @@ acc @ [s]) :: find_blocks [] `Text l
+    | `Bex, s :: l when stty s = `End ->
+        Block_example (String.concat "\n" acc) :: find_blocks [] `Text l
     (* middle of blocks: *)
     | `Bsrc, s :: l when stty s = `Text -> find_blocks (acc @ [s]) actype l
     | `Bqte, s :: l when stty s = `Text -> find_blocks (acc @ [s]) actype l
     | `Bres, s :: l when stty s = `Text -> find_blocks (acc @ [s]) actype l
+    | `Bex, s :: l when stty s = `Text -> find_blocks (acc @ [s]) actype l
     (* beginning of blocks: *)
     | _, s :: l when stty s = `Bsrc -> find_blocks [s] `Bsrc l
     | _, s :: l when stty s = `Bqte -> find_blocks [] `Bqte l
     | _, s :: l when stty s = `Bres -> find_blocks [] `Bres l
+    | _, s :: l when stty s = `Bex -> find_blocks [] `Bex l
     (* just text: *)
     | `Text, s :: l -> Text s :: find_blocks [] `Text l
   in
@@ -243,7 +250,7 @@ let process_org_headlines _title outline_hash headlines =
       let processed_org =
         match text with
         | Br -> processed_org
-        | Text t | Block_result t | Block_quote t ->
+        | Text t | Block_example t | Block_result t | Block_quote t ->
             {processed_org with content = Some t}
         | Id_link (dest, desc)
         | File_link (dest, desc)

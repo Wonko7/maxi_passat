@@ -18,6 +18,7 @@ type processed_kind =
   | Yt_link of string * string
   | Https_link of string * string
   | Mailto_link of string * string
+  | Block_example of string
   | Block_quote of string
   | Block_result of string
   | Block_src of string * string
@@ -57,6 +58,7 @@ let processed_kind_to_str = function
   | Bleau_link _ -> "bleau_link"
   | Https_link _ -> "https_link"
   | Mailto_link _ -> "mailto_link"
+  | Block_example _ -> "block_example"
   | Block_quote _ -> "block_quote"
   | Block_result _ -> "block_result"
   | Block_src _ -> "block_src"

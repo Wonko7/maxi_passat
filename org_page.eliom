@@ -104,6 +104,11 @@ let processed_org_to_html ?(id_links = []) ~kind ~content ~link_dest ~link_desc
   | _, "block_result" ->
       code
         [span ~a:[a_class ["code_begin_src"]] [txt "#+results:\n"]; txt content]
+  | _, "block_example" ->
+      code
+        [ span ~a:[a_class ["code_begin_src"]] [txt "#+begin_example"]
+        ; txt content
+        ; span ~a:[a_class ["code_begin_src"]] [txt "#+end_example"] ]
   | _, "block_src" ->
       code
         [ span ~a:[a_class ["code_begin_src"]] [txt link_desc]
