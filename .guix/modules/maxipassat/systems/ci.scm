@@ -87,3 +87,14 @@
 
 (define-public mp-preprod-ci-os (maxipassat-ci-os mp-preprod-config #f))
 (define-public mp-preprod-init-ci-os (maxipassat-ci-os mp-preprod-config #t))
+
+(define-public mp-prod-config
+  (maxipassat-ci-configuration
+   (inherit mp-preprod-config)
+   (deployment-name "prod")
+   (base-path "/data/www/maxipassat/prod")
+   (db-port 6942)
+   (port 8042)))
+
+(define-public mp-prod-ci-os (maxipassat-ci-os mp-prod-config #f))
+(define-public mp-prod-init-ci-os (maxipassat-ci-os mp-prod-config #t))
