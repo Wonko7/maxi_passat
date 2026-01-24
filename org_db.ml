@@ -96,13 +96,12 @@ let get_processed_org_backlinks roam_id =
           dbh (* fixme do i need headline_index? *)
             "WITH selected_backlinks AS
              (SELECT pc.headline_id
-              FROM org.processed_content pc, org.file_metadata m
-              WHERE pc.link_dest = $roam_id
-                AND pc.outline_hash = m.outline_hash
-              GROUP BY pc.headline_id
-              ORDER BY max(m.file_path) ASC) --> THIS IS THE ORDER backlinks in the UI.
+                FROM org.processed_content pc, org.file_metadata m
+               WHERE pc.link_dest = $roam_id
+                 AND pc.outline_hash = m.outline_hash
+               GROUP BY pc.headline_id)
            SELECT pc.headline_id, pc.index, hc.parent_id, h.headline_index, h.level, pc.kind,
-                    pc.content, pc.is_headline, pc.link_dest, pc.link_desc, m.file_path
+                       pc.content, pc.is_headline, pc.link_dest, pc.link_desc, m.file_path
              FROM org.processed_content pc, org.headline_closures hc, org.headlines h,
                   org.file_metadata m, selected_backlinks
              WHERE selected_backlinks.headline_id = hc.headline_id
@@ -110,7 +109,7 @@ let get_processed_org_backlinks roam_id =
                AND h.headline_id = hc.headline_id
                AND h.outline_hash = m.outline_hash
                AND (hc.depth = 1 OR (hc.depth = 0 AND h.level = 1))
-             ORDER BY h.headline_id, pc.index ASC"])
+             ORDER BY convert_to(m.file_path, 'SQL_ASCII') DESC, h.headline_id, pc.index ASC"])
   in
   Lwt.return @@ List.map obj_to_processed_org_headline hls
 
