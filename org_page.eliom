@@ -461,6 +461,7 @@ let gather_org_file_data file_path =
   Lwt.return (file_nav, hls, nodes, roam_links, title)
 
 let file_page myid_o file_path () =
+  let drawer_elt = ref None in
   let file_path = String.concat "" @@ add_slash file_path in
   let%lwt org_note, set_file_path, backlink_content, backlink_drawer =
     (* Ot_spinner.with_spinner *)
@@ -475,6 +476,11 @@ let file_page myid_o file_path () =
         fun roam_id ->
           let%lwt nodes = get_processed_org_backlinks roam_id in
           Eliom_shared.ReactiveData.RList.set ~%set_backlink_nodes [nodes];
+          Js_of_ocaml.(
+            let elt = ~%drawer_elt in
+            match !elt with
+            | None -> ()
+            | Some elt -> Manip.Class.remove elt "invisible");
           Lwt.return_unit]
     in
     let file_data_s, set_file_data =
@@ -504,7 +510,9 @@ let file_page myid_o file_path () =
       Eliom_shared.React.S.create @@ div []
     in
     let backlink_drawer, open_bl_drawer, close_bl_drawer =
-      Ot_drawer.drawer ~a:[a_id "mobile_backlink_drawer"] ~position:`Right
+      Ot_drawer.drawer
+        ~a:[a_id "mobile_backlink_drawer"; a_class ["invisible"]]
+        ~position:`Right
       @@ [ Ww_lib.scroll_fade_div
              ~aclass:["drawer_backlink_content"]
              [ R.node
@@ -512,6 +520,7 @@ let file_page myid_o file_path () =
                     [%shared fun backlinks -> div [backlinks]]
                     drawer_backlink_content ] ]
     in
+    drawer_elt := Some backlink_drawer;
     let drawer_backlinks =
       org_backlinks_content ~on_backlink_select:close_bl_drawer backlink_list
         set_file_path
