@@ -18,58 +18,6 @@ body {
     padding: 0.5rem;
 }
 
-//links
-.link {
-    color: $links_col;
-    cursor: pointer;
-}
-.link:hover {
-    color: $links_col;
-    text-decoration: underline;
-    cursor: pointer;
-}
-
-a .link {
-    color: $links_col;
-    outline-color: transparent;
-}
-a:link .link {
-    color: $links_col;
-}
-
-a:visited .link {
-    color: $links_col;
-}
-
-a:focus .link {
-    color: $links_col;
-}
-a:hover .link {
-    color: $links_col;
-    text-decoration: underline;
-}
-a:active .link {
-    color: $links_col;
-}
-
-a:link.external_link {
-    color: $external_links_col;
-}
-
-a:visited.external_link {
-    color: $external_links_col;
-}
-
-a:focus.external_link {
-    color: $external_links_col;
-}
-a:hover.external_link {
-    color: $external_links_col;
-    text-decoration: underline;
-}
-a:active.external_link {
-    color: $external_links_col;
-}
 
 .org_node_title {
     color: $title_col;
@@ -215,6 +163,59 @@ a:active.external_link {
 }
 .selected_right_pane_node {
     @include node_style($selected_col, $flashy: true)
+}
+
+//links
+.link {
+    color: $links_col !important;
+    cursor: pointer;
+}
+.link:hover {
+    color: $links_col !important;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+a .link {
+    color: $links_col !important;
+    outline-color: transparent;
+}
+a:link .link {
+    color: $links_col !important;
+}
+
+a:visited .link {
+    color: $links_col !important;
+}
+
+a:focus .link {
+    color: $links_col !important;
+}
+a:hover .link {
+    color: $links_col !important;
+    text-decoration: underline;
+}
+a:active .link {
+    color: $links_col !important;
+}
+
+a:link.external_link {
+    color: $external_links_col !important;
+}
+
+a:visited.external_link {
+    color: $external_links_col !important;
+}
+
+a:focus.external_link {
+    color: $external_links_col !important;
+}
+a:hover.external_link {
+    color: $external_links_col !important;
+    text-decoration: underline;
+}
+a:active.external_link {
+    color: $external_links_col !important;
 }
 
 // search
