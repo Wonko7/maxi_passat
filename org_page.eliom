@@ -455,7 +455,7 @@ let gather_org_file_data file_path =
   let file_nav =
     find_neighs
     @@ List.filter
-         (String.starts_with ~prefix:"here-be-dragons/the-road-so-far/")
+         (String.starts_with ~prefix:"here-be-dragons/_the-road-so-far/")
          files
   in
   Lwt.return (file_nav, hls, nodes, roam_links, title)
@@ -581,7 +581,7 @@ let latest_daily_page myid_o () () =
   let%lwt fs = Org_search.get_all_org_files () in
   let is_daily =
     (* TODO make this configurable *)
-    String.starts_with ~prefix:"here-be-dragons/the-road-so-far/"
+    String.starts_with ~prefix:"here-be-dragons/_the-road-so-far/"
   in
   let rec get_latest = function
     | [] -> failwith "found no dailies"
