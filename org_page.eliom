@@ -7,6 +7,37 @@ open Eliom_content.Html.F
 open Db_types
 open Ww_lib]
 
+[%%client
+let init_history_popstate_handler
+    (set_file_path : ?push:bool -> ?target_hlid:int32 -> string -> unit Lwt.t)
+    ()
+  =
+  Js_of_ocaml.(
+    (* we'll make our own popstate handler, with hookers & blackjack *)
+    let prev_handler = Dom_html.window##.onpopstate in
+    Dom_html.window##.onpopstate
+    := Dom_html.handler (fun event ->
+           ignore
+           @@ Js.Opt.case
+                ((Js.Unsafe.coerce event)##.state : _ Js.opt)
+                (fun () ->
+                  () (* Ignore dummy popstate event fired by chromium. *))
+                (fun saved_state ->
+                  try
+                    let path = Eliom_lib.of_json saved_state in
+                    if String.starts_with ~prefix:"here-be-dragons/" path
+                    then ignore @@ set_file_path ~push:false path
+                    else failwith "give this to orig handler"
+                  with _ -> (
+                    try
+                      ignore
+                      @@ Dom_html.invoke_handler prev_handler Dom_html.window
+                           event
+                    with _ -> print_endline "orig handler failed"));
+           Js._false))]
+
+[%%shared.start]
+
 let%rpc get_headlines_for_file_path (file_path : string)
     : Db_types.headline list Lwt.t
   =
@@ -49,8 +80,6 @@ let%rpc get_processed_org_for_path (file_path : string)
     : Db_types.processed_org_headline list Lwt.t
   =
   Org_db.get_processed_org_for_path file_path
-
-[%%shared.start]
 
 let safe_get_title_outline_for_file_path file_path =
   match%lwt get_title_outline_for_file_path file_path with
@@ -448,11 +477,6 @@ let gather_org_file_data file_path =
   let%lwt title, _ = safe_get_title_outline_for_file_path file_path in
   (* TODO: file nav: limit to daily path(s) *)
   let%lwt files = Org_search.get_all_org_files () in
-  (* let files = *)
-  (*   List.filter *)
-  (*     (String.starts_with ~prefix:"here-be-dragons/the-road-so-far") *)
-  (*     files *)
-  (* in *)
   let rec find_neighs = function
     | [] -> None, None
     | p :: x :: n :: _ when x = file_path -> Some p, Some n
@@ -546,33 +570,7 @@ let file_page myid_o orig_file_path () =
          (* initialise backlink drawer node *)
          (ignore @@ ~%set_drawer_backlink_nodes ~%drawer_backlinks : unit)];
     ignore
-    @@ [%client
-         (Js_of_ocaml.(
-            (* we'll make our own popstate handler, with hookers & blackjack *)
-            let prev_handler = Dom_html.window##.onpopstate in
-            Dom_html.window##.onpopstate
-            := Dom_html.handler (fun event ->
-                   ignore
-                   @@ Js.Opt.case
-                        ((Js.Unsafe.coerce event)##.state : _ Js.opt)
-                        (fun () ->
-                          ()
-                          (* Ignore dummy popstate event fired by chromium. *))
-                        (fun saved_state ->
-                          try
-                            let path = Eliom_lib.of_json saved_state in
-                            if String.starts_with ~prefix:"here-be-dragons/"
-                                 path
-                            then ignore @@ ~%set_file_path ~push:false path
-                            else failwith "give this to orig handler"
-                          with _ -> (
-                            try
-                              ignore
-                              @@ Dom_html.invoke_handler prev_handler
-                                   Dom_html.window event
-                            with _ -> print_endline "orig handler failed"));
-                   Js._false))
-           : unit)];
+    @@ [%client (init_history_popstate_handler ~%set_file_path () : unit)];
     let backlinks_node = org_backlinks_content backlink_list set_file_path in
     let org_content =
       org_file_content ~onclick_backlink:open_bl_drawer ~set_file_path
