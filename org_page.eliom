@@ -7,7 +7,8 @@ open Eliom_content.Html.F
 open Db_types
 open Ww_lib]
 
-[%%client
+[%%client.start]
+
 let init_history_popstate_handler
     (set_file_path : ?push:bool -> ?target_hlid:int32 -> string -> unit Lwt.t)
     ()
@@ -34,7 +35,15 @@ let init_history_popstate_handler
                       @@ Dom_html.invoke_handler prev_handler Dom_html.window
                            event
                     with _ -> print_endline "orig handler failed"));
-           Js._false))]
+           Js._false))
+
+let history_push_state file_path =
+  Js_of_ocaml.(
+    Dom_html.window##.history##pushState
+      (* Js.null *)
+      (Eliom_lib.to_json file_path)
+      (Js.string "")
+      (Js.Opt.return (Js.string @@ "/org/file/" ^ file_path)))
 
 [%%shared.start]
 
@@ -533,14 +542,7 @@ let file_page myid_o orig_file_path () =
              , Some id_links
              , target_hlid
              , ~%set_nodes );
-           (if push
-           then
-             Js_of_ocaml.(
-               Dom_html.window##.history##pushState
-                 (* Js.null *)
-                 (Eliom_lib.to_json file_path)
-                 (Js.string "")
-                 (Js.Opt.return (Js.string @@ "/org/file/" ^ file_path))));
+           if push then history_push_state file_path;
            Lwt.return_unit
           : ?push:bool -> ?target_hlid:int32 -> string -> unit Lwt.t)]
     in
