@@ -461,11 +461,10 @@ let gather_org_file_data file_path =
   in
   Lwt.return (file_nav, hls, nodes, roam_links, title)
 
-let file_page myid_o file_path () =
-  let file_path = String.concat "" @@ add_slash file_path in
+let file_page ?(push = false) myid_o orig_file_path () =
+  let file_path = String.concat "" @@ add_slash orig_file_path in
   let drawer_elt = ref None in
   let%lwt org_note, set_file_path, backlink_content, backlink_drawer =
-    (* Ot_spinner.with_spinner *)
     let%lwt file_nav, hls, nodes, id_links, title =
       gather_org_file_data file_path
     in
@@ -503,8 +502,7 @@ let file_page myid_o file_path () =
              , target_hlid
              , ~%set_nodes );
            let params = String.split_on_char '/' file_path in
-           Eliom_client.change_url ~replace:false
-             ~service:Maxipassat_services.org_file params;
+           Eliom_client.change_url ~service:Maxipassat_services.org_file params;
            Lwt.return_unit
           : ?target_hlid:int32 -> string -> unit Lwt.t)]
     in
@@ -538,6 +536,18 @@ let file_page myid_o file_path () =
       org_file_content ~onclick_backlink:open_bl_drawer ~set_file_path
         ~file_data:file_data_s
     in
+    if push
+    then
+      ignore
+      @@ [%client
+           (Js_of_ocaml.(
+              let%lwt () =
+                Ot_nodeready.nodeready (To_dom.of_element ~%backlink_drawer)
+              in
+              Eliom_client.change_url ~service:Maxipassat_services.org_file
+                ~%orig_file_path;
+              Lwt.return_unit)
+             : unit Lwt.t)];
     Lwt.return (org_content, set_file_path, backlinks_node, backlink_drawer)
   in
   let search = Org_search.search_nodes ~onclick:set_file_path () in
@@ -594,7 +604,8 @@ let latest_daily_page myid_o () () =
     | a :: [] when is_daily a -> a
     | e :: l -> get_latest l
   in
-  file_page myid_o (String.split_on_char '/' @@ get_latest fs) ()
+  let params = String.split_on_char '/' @@ get_latest fs in
+  file_page ~push:true myid_o params ()
 
 let () =
   Maxipassat_base.App.register ~service:Maxipassat_services.org_file
