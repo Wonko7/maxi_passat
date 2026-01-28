@@ -23,9 +23,8 @@ let%shared search_str r s =
 
 let%shared search_nodes
     ?(onclick :
-       (?push:bool -> ?target_hlid:int32 -> string -> unit Lwt.t)
-       Eliom_client_value.t
-       option) ()
+       (?target_hlid:int32 -> string -> unit Lwt.t) Eliom_client_value.t option)
+    ()
   =
   let%lwt ns = get_all_nodes () in
   let res_s, set_results = Eliom_shared.React.S.create (0, [], 0) in

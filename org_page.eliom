@@ -7,44 +7,6 @@ open Eliom_content.Html.F
 open Db_types
 open Ww_lib]
 
-[%%client.start]
-
-let init_history_popstate_handler
-    (set_file_path : ?push:bool -> ?target_hlid:int32 -> string -> unit Lwt.t)
-    ()
-  =
-  Js_of_ocaml.(
-    (* we'll make our own popstate handler, with hookers & blackjack *)
-    let prev_handler = Dom_html.window##.onpopstate in
-    Dom_html.window##.onpopstate
-    := Dom_html.handler (fun event ->
-           ignore
-           @@ Js.Opt.case
-                ((Js.Unsafe.coerce event)##.state : _ Js.opt)
-                (fun () ->
-                  () (* Ignore dummy popstate event fired by chromium. *))
-                (fun saved_state ->
-                  try
-                    let path = Eliom_lib.of_json saved_state in
-                    if String.starts_with ~prefix:"here-be-dragons/" path
-                    then ignore @@ set_file_path ~push:false path
-                    else failwith "give this to orig handler"
-                  with _ -> (
-                    try
-                      ignore
-                      @@ Dom_html.invoke_handler prev_handler Dom_html.window
-                           event
-                    with _ -> print_endline "orig handler failed"));
-           Js._false))
-
-let history_push_state file_path =
-  Js_of_ocaml.(
-    Dom_html.window##.history##pushState
-      (* Js.null *)
-      (Eliom_lib.to_json file_path)
-      (Js.string "")
-      (Js.Opt.return (Js.string @@ "/org/file/" ^ file_path)))
-
 [%%shared.start]
 
 let%rpc get_headlines_for_file_path (file_path : string)
@@ -126,7 +88,7 @@ let make_collapsible ?(a = []) ~id ~title_class title content =
      ; div ~a:[a_class ["collapsible-content"; "org_node_content"]] content ]
 
 let%client fuck_me_set_file_path
-    : (?push:bool -> ?target_hlid:int32 -> string -> unit Lwt.t) option ref
+    : (?target_hlid:int32 -> string -> unit Lwt.t) option ref
   =
   ref None
 
@@ -366,8 +328,7 @@ let hl_to_inactive_html ~title_selected_s hls =
 
 let make_backnode_link ?on_backlink_select
     (set_file_path :
-      (?push:bool -> ?target_hlid:int32 -> string -> unit Lwt.t)
-      Eliom_client_value.t) hls
+      (?target_hlid:int32 -> string -> unit Lwt.t) Eliom_client_value.t) hls
   =
   let title_selected_s, set_selected_title =
     Eliom_shared.React.S.create false
@@ -389,8 +350,7 @@ let make_backnode_link ?on_backlink_select
 let org_backlinks_content ?on_backlink_select
     (backlinks_node : processed_org_headline list R.list_wrap)
     (set_file_path :
-      (?push:bool -> ?target_hlid:int32 -> string -> unit Lwt.t)
-      Eliom_client_value.t)
+      (?target_hlid:int32 -> string -> unit Lwt.t) Eliom_client_value.t)
   =
   R.div
   @@ Eliom_shared.ReactiveData.RList.map
@@ -501,8 +461,8 @@ let gather_org_file_data file_path =
   in
   Lwt.return (file_nav, hls, nodes, roam_links, title)
 
-let file_page myid_o orig_file_path () =
-  let file_path = String.concat "" @@ add_slash orig_file_path in
+let file_page myid_o file_path () =
+  let file_path = String.concat "" @@ add_slash file_path in
   let drawer_elt = ref None in
   let%lwt org_note, set_file_path, backlink_content, backlink_drawer =
     (* Ot_spinner.with_spinner *)
@@ -530,7 +490,7 @@ let file_page myid_o orig_file_path () =
     in
     let set_file_path =
       [%client
-        (fun ?(push = true) ?target_hlid file_path ->
+        (fun ?target_hlid file_path ->
            let%lwt file_nav, hls, nodes, id_links, title =
              gather_org_file_data file_path
            in
@@ -542,9 +502,11 @@ let file_page myid_o orig_file_path () =
              , Some id_links
              , target_hlid
              , ~%set_nodes );
-           if push then history_push_state file_path;
+           let params = String.split_on_char '/' file_path in
+           Eliom_client.change_url ~replace:false
+             ~service:Maxipassat_services.org_file params;
            Lwt.return_unit
-          : ?push:bool -> ?target_hlid:int32 -> string -> unit Lwt.t)]
+          : ?target_hlid:int32 -> string -> unit Lwt.t)]
     in
     ignore @@ [%client (fuck_me_set_file_path := Some ~%set_file_path : unit)];
     (* only done once to init content because drawer is created b4 backlinks *)
@@ -571,8 +533,6 @@ let file_page myid_o orig_file_path () =
     @@ [%client
          (* initialise backlink drawer node *)
          (ignore @@ ~%set_drawer_backlink_nodes ~%drawer_backlinks : unit)];
-    ignore
-    @@ [%client (init_history_popstate_handler ~%set_file_path () : unit)];
     let backlinks_node = org_backlinks_content backlink_list set_file_path in
     let org_content =
       org_file_content ~onclick_backlink:open_bl_drawer ~set_file_path
