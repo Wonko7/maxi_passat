@@ -3,6 +3,8 @@
   #:use-module (gnu)
   #:use-module (gnu services databases)
   #:use-module (gnu services shepherd)
+  #:use-module (gnu packages base)
+  #:use-module (gnu packages linux)
   #:use-module (gnu packages autotools)
   #:use-module (gnu packages gawk)
   #:use-module (gnu packages guile)
@@ -385,25 +387,51 @@ host	all	all	127.0.0.1/32	trust
       (base-path deployment-name)
     (define paths (make-paths base-path))
     (list
-     (let ((cmd (string-append "$("
-                               (paths 'guix-prof) "/bin/guix"
-                               " system container --network "
-                               " --share=" base-path
-                               " -e "
-                               "'(@ (maxipassat systems ci) mp-" deployment-name "-ci-os)'"
-                               ")")))
+     (let* ((no-subshell-cmd (string-append
+                              (paths 'guix-prof) "/bin/guix"
+                              " system container --network "
+                              " --share=" base-path
+                              " -e "
+                              "'(@ (maxipassat systems ci) mp-" deployment-name "-ci-os)'"))
+            (cmd (string-append "$(" no-subshell-cmd ")")))
        (shepherd-service
          (provision (list (string->symbol (string-append "maxipassat-" deployment-name))))
          (requirement '(user-processes networking))
          (documentation "maxipassat")
          (respawn-delay 1)
          (respawn-limit #~'(5000 . 1))
+         (actions
+          (list (shepherd-action
+                  (name 'run-info)
+                  (documentation "print container run info")
+                  (procedure
+                   #~(lambda (arg)
+                       (let* ((kill #$(file-append coreutils "/bin/kill"))
+                              (ps #$(file-append procps "/bin/ps"))
+                              (sed #$(file-append sed "/bin/sed"))
+                              (kcmd (string-append
+                                     kill " `"
+                                     ps " -ww -U root -o pid,command | " sed
+                                     " -n -re \"s:^\\s*([0-9]+)\\s*.*"
+                                     #$cmd
+                                     ".*$:\\1:p\"`")))
+                         (format #t "run: ~s\n" #$no-subshell-cmd)
+                         (format #t "kill: ~s\n" kcmd)))))))
          (start
           #~(lambda _
               (system #$(string-append "(" cmd "&)"))))
          (stop
           #~(lambda _
-              (system #$(string-append "killall " cmd)))))))))
+              (let ((kill #$(file-append coreutils "/bin/kill"))
+                    (ps #$(file-append procps "/bin/ps"))
+                    (sed #$(file-append sed "/bin/sed")))
+                (system
+                 (string-append
+                  kill " `"
+                  ps " -ww -U root -o pid,command | " sed " -n -re \"s:^\\s*([0-9]+)\\s*.*"
+                  #$cmd
+                  ".*$:\\1:p\"`"))))))))))
+
 (define-public maxipassat-container-ci-service-type
   (service-type
     (name 'maxipassat-container-ci)
