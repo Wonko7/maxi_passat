@@ -81,12 +81,17 @@ let%shared page ?search ?html_a ?a ?title ?head myid_o content =
        ; Eliom_content.Html.F.(div ~a:[a_class ["os-body"]] content)
        ; Maxipassat_drawer.make () ])
 
-let%shared org_page ?search ?html_a ?a ?title ?head ~backlink_drawer myid_o
+let%shared org_page ?search ?html_a ?a ?title ~backlink_drawer myid_o
     org_content backlink_content
   =
   let%lwt h = os_header ?search () in
+  let head =
+    [ Eliom_content.Html.F.link ~rel:[`Me]
+        ~href:(Eliom_content.Xml.uri_of_string "https:github.com/wonko7")
+        () ]
+  in
   Lwt.return
-    (Os_page.content ?html_a ?a ?title ?head
+    (Os_page.content ?html_a ?a ?title ~head
        [ h
        ; Eliom_content.Html.F.(
            div

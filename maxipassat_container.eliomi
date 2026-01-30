@@ -45,7 +45,6 @@ val org_page
   -> ?html_a:Html_types.html_attrib Eliom_content.Html.attrib list
   -> ?a:Html_types.body_attrib Eliom_content.Html.attrib list
   -> ?title:string
-  -> ?head:[< Html_types.head_content_fun] Eliom_content.Html.elt list
   -> backlink_drawer:[< Html_types.flow5 > `Div `Header] Eliom_content.Html.elt
   -> Os_types.User.id option
   -> [< Html_types.div_content_fun] Eliom_content.Html.elt
