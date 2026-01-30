@@ -119,6 +119,7 @@ let processed_org_to_html ?(id_links = []) ~kind ~content ~link_dest ~link_desc
   | false, "mailto_link"
   | false, "https_link"
   | false, "file_link"
+  | false, "img_link"
   | false, "id_link"
   | false, "file_link"
   | false, "bleau_link"
@@ -156,7 +157,7 @@ let processed_org_to_html ?(id_links = []) ~kind ~content ~link_dest ~link_desc
               ; Unsafe.string_attrib "allowfullscreen" ""
               ; a_src
                   (Eliom_content.Xml.uri_of_string
-                  @@ String.cat "https://www.youtube.com/embed/" link_dest) ]
+                 @@ "https://www.youtube.com/embed/" ^ link_dest) ]
             [] ]
   | _, "mailto_link" ->
       F.Raw.a
@@ -180,6 +181,12 @@ let processed_org_to_html ?(id_links = []) ~kind ~content ~link_dest ~link_desc
           ; a_rel [`Other "noopener"; `Nofollow]
           ; a_target "_blank" ]
         [txt link_desc]
+  | _, "img_link" ->
+      img
+        ~src:(Xml.uri_of_string link_dest)
+        ~alt:link_desc
+        ~a:[a_class ["inline_img"]]
+        ()
   | _ ->
       print_endline "fixme proper warnings please";
       span [txt link_desc]

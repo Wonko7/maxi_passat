@@ -13,6 +13,7 @@ type headline =
 type processed_kind =
   | Br
   | File_link of string * string
+  | Img_link of string * string
   | Id_link of string * string
   | Bleau_link of string * string
   | Yt_link of string * string
@@ -54,6 +55,7 @@ let processed_kind_to_str = function
   | Text _ -> "txt"
   | Id_link _ -> "id_link"
   | File_link _ -> "file_link"
+  | Img_link _ -> "img_link"
   | Yt_link _ -> "yt_link"
   | Bleau_link _ -> "bleau_link"
   | Https_link _ -> "https_link"

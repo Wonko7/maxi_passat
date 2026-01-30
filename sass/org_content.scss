@@ -232,3 +232,7 @@ a:active.external_link {
 .search_selected {
     background: $selected_col;
 }
+
+.inline_img {
+    max-width: 100%;
+}

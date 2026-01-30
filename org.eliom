@@ -114,6 +114,7 @@ let process_org_text s =
     let link_re = Str.regexp {|\[\[\([^:]+\):\([^][]+\)\]\[\([^][]+\)\]\]|} in
     let youtube_re = Str.regexp {|^//www.youtube.com/watch\?v=\([^&]+\).*|} in
     let bleau_re = Str.regexp {|^//bleau.info/|} in
+    let img_re = Str.regexp {|^/data/www-data\(/.*\.\(png\|gif\|jpe?g\)\)$|} in
     Str.full_split link_re s
     |> List.map
          Str.(
@@ -128,7 +129,7 @@ let process_org_text s =
                    @@ Mailto_link (matched_group 2 t, matched_group 3 t)
                | "https" ->
                    let dest = matched_group 2 t in
-                   let full_dest = String.cat "https:" dest in
+                   let full_dest = "https:" ^ dest in
                    let desc = matched_group 3 t in
                    Lwt.return
                    @@
@@ -141,7 +142,17 @@ let process_org_text s =
                      let suff = Str.replace_first bleau_re {||} dest in
                      Bleau_link (suff, desc)
                    else Https_link (full_dest, desc)
-               (* TODO: links: add file & inline img *)
+               | "file" ->
+                   let f = matched_group 2 t and desc = matched_group 3 t in
+                   if Str.string_match img_re f 0
+                   then
+                     (* TODO: make file path in+out configurable *)
+                     let suff = Str.replace_first img_re {|/www\1|} f in
+                     Lwt.return @@ Img_link (suff, desc)
+                   else (
+                     print_endline "unsupported file link type:";
+                     print_endline f;
+                     Lwt.return @@ Db_types.Text desc)
                | li_type ->
                    print_endline "unsupported link type:";
                    print_endline li_type;
@@ -257,6 +268,7 @@ let process_org_headlines _title outline_hash headlines =
         | Yt_link (dest, desc)
         | Bleau_link (dest, desc)
         | Https_link (dest, desc)
+        | Img_link (dest, desc)
         | Mailto_link (dest, desc) ->
             {processed_org with link_dest = Some dest; link_desc = Some desc}
         | Block_src (src_def, src) ->
