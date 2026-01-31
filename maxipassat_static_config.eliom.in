@@ -20,6 +20,11 @@ let%server set_static_config () =
       | Some p -> int_of_string p
       | None -> 8080)
   in
+  let db_host =
+      (match Sys.getenv_opt "DBHOST" with
+      | Some h -> h
+      | _ -> "%%PGHOST%%")
+  in
   let db_port =
       (match Sys.getenv_opt "DBPORT" with
       | Some p -> int_of_string p
@@ -30,6 +35,16 @@ let%server set_static_config () =
       | Some u, _ -> u
       | _, u when u = "" -> u
       | _ -> "")
+  in
+  let db_pass =
+      (match Sys.getenv_opt "DBPASS" with
+      | Some p -> p
+      | _ -> "%%PGPASSWORD%%")
+  in
+  let db_name =
+      (match Sys.getenv_opt "DBNAME" with
+      | Some n -> n
+      | _ -> "%%PGDATABASE%%")
   in
   print_string "DB user: "; print_endline db_user;
   print_string "DB port: "; print_int db_port; print_endline "";
@@ -52,14 +67,14 @@ let%server set_static_config () =
     Ocsigen_config.set_usedefaulthostname true;
     Ocsigen_config.set_command_pipe "local/var/run/maxipassat-cmd";
     Ocsigen_config.set_default_charset (Some "utf-8");
-    Ocsipersist_settings.set_host "%%PGHOST%%";
+    Ocsipersist_settings.set_host db_host;
     Ocsipersist_settings.set_port db_port;
     Ocsipersist_settings.set_database "ocsipersist_maxipassat";
     Ocsipersist.init ();
-    Maxipassat_config.os_db_database := Some "%%PGDATABASE%%";
-    Maxipassat_config.os_db_host := Some "%%PGHOST%%";
+    Maxipassat_config.os_db_database := Some db_name;
+    Maxipassat_config.os_db_host := Some db_host;
     Maxipassat_config.os_db_user := Some db_user;
-    Maxipassat_config.os_db_password := Some "%%PGPASSWORD%%";
+    Maxipassat_config.os_db_password := Some db_pass;
     Maxipassat_config.os_db_port := Some db_port;
     Maxipassat_config.app_name :=
       Filename.chop_suffix (Unix.readlink js_loc) ".js";

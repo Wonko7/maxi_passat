@@ -9,10 +9,7 @@ let%server _ =
       "local/var/www/maxipassat/"
   in
   Ocsigen_server.start
-    ~ports:
-      (match Sys.getenv_opt "PORT" with
-      | Some p -> [`All, int_of_string p]
-      | None -> [`All, 8080])
+    ~ports:(Ocsigen_config.get_ports ())
     ?logdir:(Sys.getenv_opt "LOGDIR")
     ?command_pipe:(Sys.getenv_opt "COMMAND_PIPE")
     [Ocsigen_server.host [Staticmod.run ~dir:statdir (); Eliom.run ()]]
