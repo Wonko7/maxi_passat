@@ -114,7 +114,9 @@ let process_org_text s =
     let link_re = Str.regexp {|\[\[\([^:]+\):\([^][]+\)\]\[\([^][]+\)\]\]|} in
     let youtube_re = Str.regexp {|^//www.youtube.com/watch\?v=\([^&]+\).*|} in
     let bleau_re = Str.regexp {|^//bleau.info/|} in
-    let img_re = Str.regexp {|^/data/www-data\(/.*\.\(png\|gif\|jpe?g\)\)$|} in
+    let img_re =
+      Str.regexp {|^/data/www-data\(/.*\.\(png\|gif\|jpe?g\|webp\)\)$|}
+    in
     Str.full_split link_re s
     |> List.map
          Str.(
