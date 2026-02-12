@@ -1,0 +1,25 @@
+* [[https://maxipass.at][maxipass.at]]
+This is a web interface on [[https://orgmode.org/][org]] [[https://www.orgroam.com/][roam]] files. It is built with [[https://ocsigen.org][ocsigen]] in [[https://ocaml.org/][OCaml]], packaged with [[https://guix.gnu.org/][Guix]].
+CI/CD is described here [[file:.guix/modules/maxipassat/services/ci.scm][services/ci.scm]], with example container deployments in [[file:.guix/modules/maxipassat/systems/ci.scm][systems/ci.scm]]. It deploys git post-receive hooks on two local repositories, one for maxipassat, the other for org files.
+- on maxipassat the package is built and the service is restarted
+- on org a program is run on your notes to filter out private from publishable content (specified with :priv: and :pub: tags) and then [[https://github.com/ndwarshuis/org-sql/][dwarshuis/org-sql]] is run to update the DB
+
+You might want to read my [[https://maxipass.at/org/file/here-be-dragons/wip/20230815232907-maxipass_at.org][maxipass.at project notes]] or you might be interested in the [[https://codeberg.org/wonko/lambda-project/src/commit/ef886a18c11219c165248c90fba22ec208d6e136/wonko/systems/of-course-i-still-love-you.scm#L358][live deployment configuration (with certificates, nginx, firewall, etc)]].
+* dev commands
+#+begin_src shell
+  guix shell
+  # init db:
+  make db-build-init
+  # or start db:
+  make db-start
+  # build css and run local code:
+  make clean-style css test.byte
+  # run local code:
+  make test.byte
+  # build package and run:
+  DBPORT=3000 $(guix build -f guix.scm)/bin/maxipassat
+#+end_src
+see [[https://maxipass.at/org/file/here-be-dragons/wip/20230815232907-maxipass_at.org][maxipass.at project notes]] for more.
+* mirrors
+This repository is mirrored on [[https://gitlab.com/wonko7/maxipassat][gitlab]], [[https://github.com/Wonko7/maxipassat][github]] & [[https://codeberg.org/wonko/maxipassat][codeberg]] because I find redundancy satisfying.
+I will push on codeberg first.
